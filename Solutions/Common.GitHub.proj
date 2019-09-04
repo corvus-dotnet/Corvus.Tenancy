@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
     <GitHubOrg>corvus-dotnet</GitHubOrg>
-    <GitHubProject>Corvus.Extensions</GitHubProject>
+    <GitHubProject>Corvus.Tenancy</GitHubProject>
   </PropertyGroup>
 </Project>
