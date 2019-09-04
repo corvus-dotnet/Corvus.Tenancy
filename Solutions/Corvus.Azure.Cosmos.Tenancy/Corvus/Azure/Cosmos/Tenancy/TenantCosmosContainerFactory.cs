@@ -6,9 +6,12 @@ namespace Corvus.Azure.Cosmos.Tenancy
 {
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+    using Corvus.Extensions.Cosmos;
     using Corvus.Tenancy;
     using Microsoft.Azure.Cosmos;
+    using Microsoft.Azure.Cosmos.Fluent;
     using Microsoft.Azure.KeyVault;
+    using Microsoft.Azure.KeyVault.Models;
     using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -69,15 +72,18 @@ namespace Corvus.Azure.Cosmos.Tenancy
         private readonly ConcurrentDictionary<object, Task<CosmosClient>> clients = new ConcurrentDictionary<object, Task<CosmosClient>>();
         private readonly ConcurrentDictionary<object, Task<Container>> containers = new ConcurrentDictionary<object, Task<Container>>();
         private readonly IConfiguration configuration;
+        private readonly ICosmosClientBuilderFactory cosmosClientBuilderFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCosmosContainerFactory"/> class.
         /// </summary>
         /// <param name="configuration">The current configuration. Used to determine the connection
         /// string to use when requesting an access token for KeyVault.</param>
-        public TenantCosmosContainerFactory(IConfiguration configuration)
+        /// <param name="cosmosClientBuilderFactory">Client builder factory.</param>
+        public TenantCosmosContainerFactory(IConfiguration configuration, ICosmosClientBuilderFactory cosmosClientBuilderFactory)
         {
             this.configuration = configuration;
+            this.cosmosClientBuilderFactory = cosmosClientBuilderFactory;
         }
 
         /// <summary>
@@ -178,14 +184,19 @@ namespace Corvus.Azure.Cosmos.Tenancy
 
         private async Task<CosmosClient> CreateTenantCosmosClientAsync(ITenant tenant, ICosmosConfiguration configuration)
         {
+            CosmosClientBuilder builder;
             if (string.IsNullOrEmpty(configuration.AccountUri) || configuration.AccountUri.Equals(DevelopmentStorageConnectionString))
             {
-                account = CloudStorageAccount.DevelopmentStorageAccount;
+                builder = this.cosmosClientBuilderFactory.CreateCosmosClientBuilder(DevelopmentStorageConnectionString);
             }
             else
             {
                 string accountKey = await this.GetAccountKeyAsync(tenant, configuration).ConfigureAwait(false);
+                builder = this.cosmosClientBuilderFactory.CreateCosmosClientBuilder(configuration.AccountUri, accountKey);
             }
+
+            // TODO: do we want to change any defaults?
+            return builder.Build();
         }
 
         private async Task<string> GetAccountKeyAsync(ITenant tenant, ICosmosConfiguration storageConfiguration)
@@ -193,7 +204,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
             var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{tenant.GetKeyVaultName()}.vault.azure.net/secrets/{storageConfiguration.GetStorageAccountKeySecretName()}").ConfigureAwait(false);
+            SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{tenant.GetKeyVaultName()}.vault.azure.net/secrets/{storageConfiguration.GetStorageAccountKeySecretName()}").ConfigureAwait(false);
             return accountKey.Value;
         }
 
