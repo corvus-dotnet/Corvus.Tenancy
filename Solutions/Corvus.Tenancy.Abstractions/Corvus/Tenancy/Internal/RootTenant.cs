@@ -14,9 +14,9 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Initializes a new instance of the <see cref="RootTenant"/> class.
         /// </summary>
-        /// <param name="properties">The property bag for the tenant.</param>
-        public RootTenant(PropertyBag properties)
-            : base(properties)
+        /// <param name="serializerSettingsProvider">The Json Serializer Settings provider.</param>
+        public RootTenant(IJsonSerializerSettingsProvider serializerSettingsProvider)
+            : base(serializerSettingsProvider)
         {
         }
     }

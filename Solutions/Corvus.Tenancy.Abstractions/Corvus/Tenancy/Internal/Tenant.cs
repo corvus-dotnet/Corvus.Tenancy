@@ -20,10 +20,10 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Initializes a new instance of the <see cref="Tenant"/> class.
         /// </summary>
-        /// <param name="properties">The property bag for the tenant.</param>
-        public Tenant(PropertyBag properties)
+        /// <param name="settingsProvider">The json serializer settings provider.</param>
+        public Tenant(IJsonSerializerSettingsProvider settingsProvider)
         {
-            this.Properties = properties;
+            this.Properties = new PropertyBag(settingsProvider.Instance);
         }
 
         /// <inheritdoc/>
@@ -33,7 +33,6 @@ namespace Corvus.Tenancy
         public PropertyBag Properties
         {
             get;
-            set;
         }
 
         /// <inheritdoc/>
