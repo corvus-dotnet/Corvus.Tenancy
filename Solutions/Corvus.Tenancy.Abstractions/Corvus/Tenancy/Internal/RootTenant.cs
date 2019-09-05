@@ -18,6 +18,7 @@ namespace Corvus.Tenancy
         public RootTenant(IJsonSerializerSettingsProvider serializerSettingsProvider)
             : base(serializerSettingsProvider)
         {
+            this.Id = "Root";
         }
     }
 }
