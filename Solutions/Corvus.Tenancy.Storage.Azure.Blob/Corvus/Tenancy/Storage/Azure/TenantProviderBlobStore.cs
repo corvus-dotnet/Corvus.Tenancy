@@ -32,10 +32,12 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantProviderBlobStore"/> class.
         /// </summary>
+        /// <param name="tenant">The root tenant (registered as a singleton in the container).</param>
         /// <param name="tenantCloudBlobContainerFactory">The tenanted cloud blob container factory.</param>
         /// <param name="serializerSettingsProvider">The serializer settings provider for tenant serialization.</param>
-        public TenantProviderBlobStore(ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory, IJsonSerializerSettingsProvider serializerSettingsProvider)
+        public TenantProviderBlobStore(ITenant tenant, ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory, IJsonSerializerSettingsProvider serializerSettingsProvider)
         {
+            this.Root = tenant;
             this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory;
             this.serializerSettings = serializerSettingsProvider.Instance;
             this.serializer = JsonSerializer.Create(this.serializerSettings);
@@ -47,7 +49,7 @@ namespace Corvus.Tenancy
         public BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("endjintenancy");
 
         /// <inheritdoc/>
-        public ITenant Root { get; } = new Tenant { Id = TenantExtensions.RootTenantId };
+        public ITenant Root { get; }
 
         /// <inheritdoc/>
         public async Task<ITenant> GetTenantAsync(string tenantId)

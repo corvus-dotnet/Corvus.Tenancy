@@ -47,12 +47,12 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <code>
     /// TenantCloudBlobContainerFactory factory;
     ///
-    /// var repository = await factory.GetBlobContainerForTenantAsync(Tenant.Root, new BlobStorageContainerDefinition("somecontainer"));
+    /// var repository = await factory.GetBlobContainerForTenantAsync(tenantProvider.Root, new BlobStorageContainerDefinition("somecontainer"));
     /// </code>
     /// </para>
     /// <para>
     /// If you create containers in this way (rather than just newing them up) then your application can easily be multitented
-    /// by ensuring that you always pass the Tenant through your stack, and just default to Tenant.Root at the top level.
+    /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
     /// Note that it will be possible for code that obtains a CloudBlobContainer in this way to use the resulting object to access

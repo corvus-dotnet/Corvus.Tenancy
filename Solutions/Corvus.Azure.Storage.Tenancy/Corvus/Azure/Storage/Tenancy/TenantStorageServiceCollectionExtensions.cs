@@ -28,9 +28,9 @@ namespace Corvus.Azure.Storage.Tenancy
             services.AddTransient<IStorageConfiguration, StorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
-                ITenantProvider tenantProvider = s.GetRequiredService<ITenantProvider>();
+                ITenant tenant = s.GetRequiredService<ITenant>();
                 var result = new TenantCloudBlobContainerFactory(s.GetRequiredService<IConfigurationRoot>());
-                configureRootTenant(s, tenantProvider.Root);
+                configureRootTenant(s, tenant);
                 return result;
             });
             return services;

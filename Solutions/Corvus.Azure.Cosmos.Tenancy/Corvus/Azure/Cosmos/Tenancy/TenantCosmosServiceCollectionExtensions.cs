@@ -29,9 +29,8 @@ namespace Corvus.Azure.Cosmos.Tenancy
             services.AddTransient<ICosmosConfiguration, CosmosConfiguration>();
             services.AddSingleton(s =>
             {
-                ITenantProvider tenantProvider = s.GetRequiredService<ITenantProvider>();
                 var result = new TenantCosmosContainerFactory(s.GetRequiredService<IConfigurationRoot>(), s.GetRequiredService<ICosmosClientBuilderFactory>());
-                configureRootTenant(s, tenantProvider.Root);
+                configureRootTenant(s, s.GetRequiredService<ITenant>());
                 return result;
             });
             return services;

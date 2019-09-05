@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddTenantProviderBlobStore(
             this IServiceCollection services)
         {
+            services.AddRootTenant();
             services.AddSingleton<ITenantProvider, TenantProviderBlobStore>();
             return services;
         }
