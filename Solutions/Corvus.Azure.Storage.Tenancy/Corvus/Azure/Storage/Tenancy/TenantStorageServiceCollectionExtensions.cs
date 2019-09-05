@@ -12,7 +12,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <summary>
     /// Adds installer methods for tenanted storage-related components.
     /// </summary>
-    public static class TenantStorageServiceCollectionExtensions
+    internal static class TenantStorageServiceCollectionExtensions
     {
         /// <summary>
         /// Add components for constructing tenant-specific blob storage containers.
@@ -28,7 +28,7 @@ namespace Corvus.Azure.Storage.Tenancy
             services.AddTransient<IStorageConfiguration, StorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
-                ITenant tenant = s.GetRequiredService<ITenant>();
+                ITenant tenant = s.GetRequiredService<RootTenant>();
                 var result = new TenantCloudBlobContainerFactory(s.GetRequiredService<IConfigurationRoot>());
                 configureRootTenant(s, tenant);
                 return result;

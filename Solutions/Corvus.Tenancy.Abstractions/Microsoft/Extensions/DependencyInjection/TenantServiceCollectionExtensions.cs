@@ -18,7 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The configured service collection.</returns>
         public static IServiceCollection AddRootTenant(this IServiceCollection services)
         {
-            services.AddSingleton<ITenant>(new Tenant { Id = "Root" });
+            services.AddTransient<Tenant>();
+            services.AddSingleton<RootTenant>();
             return services;
         }
     }

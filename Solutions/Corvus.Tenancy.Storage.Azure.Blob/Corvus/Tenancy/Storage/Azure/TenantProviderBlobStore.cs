@@ -14,6 +14,7 @@ namespace Corvus.Tenancy
     using Corvus.Extensions.Json;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
+    using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -24,7 +25,7 @@ namespace Corvus.Tenancy
     {
         private static readonly BlobRequestOptions DefaultRequestOptions = new BlobRequestOptions();
         private static readonly OperationContext DefaultOperationContext = new OperationContext();
-
+        private readonly IServiceProvider serviceProvider;
         private readonly ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory;
         private readonly JsonSerializerSettings serializerSettings;
         private readonly JsonSerializer serializer;
@@ -32,11 +33,13 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantProviderBlobStore"/> class.
         /// </summary>
+        /// <param name="serviceProvider">The service provider from which to get a tenant.</param>
         /// <param name="tenant">The root tenant (registered as a singleton in the container).</param>
         /// <param name="tenantCloudBlobContainerFactory">The tenanted cloud blob container factory.</param>
         /// <param name="serializerSettingsProvider">The serializer settings provider for tenant serialization.</param>
-        public TenantProviderBlobStore(ITenant tenant, ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory, IJsonSerializerSettingsProvider serializerSettingsProvider)
+        public TenantProviderBlobStore(IServiceProvider serviceProvider, RootTenant tenant, ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory, IJsonSerializerSettingsProvider serializerSettingsProvider)
         {
+            this.serviceProvider = serviceProvider;
             this.Root = tenant;
             this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory;
             this.serializerSettings = serializerSettingsProvider.Instance;
@@ -95,13 +98,25 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public Task<ITenant> CreateChildTenantAsync(string parentTenantId)
+        public async Task<ITenant> CreateChildTenantAsync(string parentTenantId)
         {
-            ////CloudBlobContainer cloudBlobContainer = await this.GetContainerForChildTenantsOf(parentTenantId).ConfigureAwait(false);
-            ////var child = new Tenant( { Id = Path.Combine(parentTenantId, Guid.NewGuid().ToString()) };
-            ////ResourceResponse<Document> result = await repository.InsertAsync(child).ConfigureAwait(false);
-            ////return result.Resource.As<ITenant>();
-            throw new NotImplementedException();
+            CloudBlobContainer cloudBlobContainer = await this.GetContainerForChildTenantsOf(parentTenantId).ConfigureAwait(false);
+            Tenant child = this.serviceProvider.GetService<Tenant>();
+            child.Id = Path.Combine(parentTenantId, Guid.NewGuid().ToString());
+            CloudBlockBlob blob = cloudBlobContainer.GetBlockBlobReference(child.Id);
+
+            using (CloudBlobStream stream = await blob.OpenWriteAsync(
+                new AccessCondition { IfMatchETag = child.ETag },
+                DefaultRequestOptions,
+                DefaultOperationContext).ConfigureAwait(false))
+
+            using (var writer = new StreamWriter(stream))
+            {
+                this.serializer.Serialize(writer, child);
+            }
+
+            child.ETag = blob.Properties.ETag;
+            return child;
         }
 
         /// <summary>

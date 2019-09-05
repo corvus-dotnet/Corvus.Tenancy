@@ -30,7 +30,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             services.AddSingleton(s =>
             {
                 var result = new TenantCosmosContainerFactory(s.GetRequiredService<IConfigurationRoot>(), s.GetRequiredService<ICosmosClientBuilderFactory>());
-                configureRootTenant(s, s.GetRequiredService<ITenant>());
+                configureRootTenant(s, s.GetRequiredService<RootTenant>());
                 return result;
             });
             return services;

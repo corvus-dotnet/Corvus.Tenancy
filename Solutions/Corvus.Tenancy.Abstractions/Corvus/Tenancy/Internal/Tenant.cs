@@ -20,13 +20,6 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Initializes a new instance of the <see cref="Tenant"/> class.
         /// </summary>
-        public Tenant()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Tenant"/> class.
-        /// </summary>
         /// <param name="properties">The property bag for the tenant.</param>
         public Tenant(PropertyBag properties)
         {
