@@ -2,7 +2,7 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Endjin.Tenancy
+namespace Corvus.Tenancy
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +12,6 @@ namespace Endjin.Tenancy
     using System.Threading.Tasks;
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Extensions.Json;
-    using Corvus.Tenancy;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
     using Newtonsoft.Json;
