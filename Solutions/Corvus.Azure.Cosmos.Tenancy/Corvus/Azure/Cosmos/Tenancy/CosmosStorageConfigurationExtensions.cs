@@ -24,7 +24,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             {
                 throw new System.ArgumentNullException(nameof(configuration));
             }
-            // First, try the configuration specific to this instance
+
             if (configuration.Properties.TryGet(AccountKeySecretNameKey, out string accountKeySecretName))
             {
                 return accountKeySecretName;
@@ -91,7 +91,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             {
                 throw new System.ArgumentNullException(nameof(configuration));
             }
-            // First, try the configuration specific to this instance
+
             if (configuration.Properties.TryGet(AccountKeyConfigurationKey, out string accountKeyConfigurationKey))
             {
                 return accountKeyConfigurationKey;
