@@ -4,6 +4,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System.Linq;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -20,6 +21,11 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddTenantProviderBlobStore(
             this IServiceCollection services)
         {
+            if (services.Any(s => typeof(ITenantProvider).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
+            }
+
             services.AddRootTenant();
             services.AddSingleton<ITenantProvider, TenantProviderBlobStore>();
             return services;

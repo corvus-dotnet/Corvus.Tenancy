@@ -5,6 +5,7 @@
 namespace Corvus.Azure.Storage.Tenancy
 {
     using System;
+    using System.Linq;
     using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,12 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </remarks>
         public static IServiceCollection AddTenantCloudBlobContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant)
         {
+            if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
+            }
+
+            services.AddRootTenant();
             services.AddTransient<IStorageConfiguration, StorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {

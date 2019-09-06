@@ -4,6 +4,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System.Linq;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -18,6 +19,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The configured service collection.</returns>
         public static IServiceCollection AddRootTenant(this IServiceCollection services)
         {
+            if (services.Any(s => typeof(RootTenant).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
+            }
+
+            services.AddJsonSerializerSettings();
             services.AddTransient<Tenant>();
             services.AddSingleton<RootTenant>();
             return services;

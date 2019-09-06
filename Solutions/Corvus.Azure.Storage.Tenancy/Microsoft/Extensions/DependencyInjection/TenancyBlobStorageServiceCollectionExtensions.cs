@@ -4,6 +4,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -30,6 +31,11 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
+            }
+
             if (configuration != null)
             {
                 services.Configure<RootTenantDefaultStorageConfigurationOptions>(configuration);
@@ -45,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     logger?.LogWarning(message);
                 }
 
-                IStorageConfiguration defaultConfiguration = sp.GetService<IStorageConfiguration>();
+                IStorageConfiguration defaultConfiguration = sp.GetRequiredService<IStorageConfiguration>();
 
                 defaultConfiguration.AccountName = options.StorageAccountName;
                 defaultConfiguration.BlobStorageConfiguration = new BlobStorageConfiguration

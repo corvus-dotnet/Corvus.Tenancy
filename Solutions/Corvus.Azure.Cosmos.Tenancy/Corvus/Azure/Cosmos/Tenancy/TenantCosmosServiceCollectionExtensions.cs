@@ -5,6 +5,7 @@
 namespace Corvus.Azure.Cosmos.Tenancy
 {
     using System;
+    using System.Linq;
     using Corvus.Extensions.Cosmos;
     using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
@@ -26,8 +27,14 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </remarks>
         public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant)
         {
+            if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
+            }
+
+            services.AddRootTenant();
             services.AddTransient<ICosmosConfiguration, CosmosConfiguration>();
-            services.AddSingleton(s =>
+            services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {
                 var result = new TenantCosmosContainerFactory(s.GetRequiredService<IConfigurationRoot>(), s.GetRequiredService<ICosmosClientBuilderFactory>());
                 configureRootTenant(s, s.GetRequiredService<RootTenant>());

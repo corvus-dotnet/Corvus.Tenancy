@@ -14,7 +14,7 @@
   <Import Project="..\Common.NetStandard_2_0.proj" />
 
   <ItemGroup>
-    <PackageReference Include="Corvus.Extensions.Newtonsoft.Json" Version="0.1.0" />
+    <PackageReference Include="Corvus.Extensions.Newtonsoft.Json" Version="0.3.0" />
   </ItemGroup>
 
 </Project>

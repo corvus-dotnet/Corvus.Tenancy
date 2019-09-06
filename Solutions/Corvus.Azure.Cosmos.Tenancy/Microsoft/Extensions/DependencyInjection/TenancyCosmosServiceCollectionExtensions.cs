@@ -4,6 +4,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
@@ -31,6 +32,11 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
+            }
+
             if (configuration != null)
             {
                 services.Configure<RootTenantDefaultCosmosConfigurationOptions>(configuration);
@@ -46,7 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     logger?.LogWarning(message);
                 }
 
-                ICosmosConfiguration defaultConfiguration = sp.GetService<ICosmosConfiguration>();
+                ICosmosConfiguration defaultConfiguration = sp.GetRequiredService<ICosmosConfiguration>();
 
                 defaultConfiguration.AccountUri = options.CosmosAccountUri;
                 defaultConfiguration.CosmosContainerDefinition = new CosmosContainerDefinition
