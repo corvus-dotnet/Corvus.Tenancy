@@ -41,6 +41,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.Configure<RootTenantDefaultStorageConfigurationOptions>(configuration);
             }
 
+            services.AddContentFactory(factory => { });
+            services.AddContentHandlingJsonConverters();
+
             services.AddTenantCloudBlobContainerFactory((sp, rootTenant) =>
             {
                 RootTenantDefaultStorageConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantDefaultStorageConfigurationOptions>>().Value;

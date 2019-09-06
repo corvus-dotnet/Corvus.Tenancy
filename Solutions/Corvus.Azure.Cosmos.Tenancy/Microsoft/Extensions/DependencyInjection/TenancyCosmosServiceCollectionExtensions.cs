@@ -37,6 +37,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
+            services.AddContentFactory(factory => { });
+            services.AddContentHandlingJsonConverters();
+
             if (configuration != null)
             {
                 services.Configure<RootTenantDefaultCosmosConfigurationOptions>(configuration);
