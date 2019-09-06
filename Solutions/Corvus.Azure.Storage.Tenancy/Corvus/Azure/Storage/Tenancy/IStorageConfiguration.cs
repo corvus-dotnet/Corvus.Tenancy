@@ -4,6 +4,7 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
+    using Corvus.ContentHandling;
     using Corvus.Extensions.Json;
 
     /// <summary>
@@ -28,5 +29,10 @@ namespace Corvus.Azure.Storage.Tenancy
         /// Gets the collection of properties for this configuration.
         /// </summary>
         PropertyBag Properties { get; }
+
+        /// <summary>
+        /// Gets the content type for the <see cref="ContentFactory"/> pattern.
+        /// </summary>
+        string ContentType { get; }
     }
 }

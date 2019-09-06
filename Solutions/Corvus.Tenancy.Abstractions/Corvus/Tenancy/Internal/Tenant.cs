@@ -43,5 +43,11 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         [JsonIgnore]
         public string ETag { get; set; }
+
+        /// <inheritdoc/>
+        public string ContentType
+        {
+            get { return RegisteredContentType; }
+        }
     }
 }

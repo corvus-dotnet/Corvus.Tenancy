@@ -42,5 +42,10 @@ namespace Corvus.Tenancy
         /// Gets or sets the ETag of the tenant.
         /// </summary>
         string ETag { get; set; }
+
+        /// <summary>
+        /// Gets the content type for the <c>ContentFactory</c> pattern.
+        /// </summary>
+        string ContentType { get; }
     }
 }

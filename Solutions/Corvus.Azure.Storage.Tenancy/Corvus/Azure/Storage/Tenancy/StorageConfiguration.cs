@@ -51,5 +51,11 @@ namespace Corvus.Azure.Storage.Tenancy
 
         /// <inheritdoc/>
         public PropertyBag Properties { get; set; }
+
+        /// <inheritdoc/>
+        public string ContentType
+        {
+            get { return RegisteredContentType; }
+        }
     }
 }

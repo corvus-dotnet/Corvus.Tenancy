@@ -4,7 +4,9 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy
 {
+    using Corvus.ContentHandling;
     using Corvus.Extensions.Json;
+    using Microsoft.Extensions.Primitives;
 
     /// <summary>
     /// Encapsulates configuration for a storage account.
@@ -28,5 +30,10 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// Gets the collection of properties for this configuration.
         /// </summary>
         PropertyBag Properties { get; }
+
+        /// <summary>
+        /// Gets the content type for the <see cref="ContentFactory"/> pattern.
+        /// </summary>
+        string ContentType { get; }
     }
 }
