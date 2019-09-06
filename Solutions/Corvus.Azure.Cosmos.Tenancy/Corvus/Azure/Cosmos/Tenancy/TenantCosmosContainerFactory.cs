@@ -82,8 +82,8 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="cosmosClientBuilderFactory">Client builder factory.</param>
         public TenantCosmosContainerFactory(IConfiguration configuration, ICosmosClientBuilderFactory cosmosClientBuilderFactory)
         {
-            this.configuration = configuration;
-            this.cosmosClientBuilderFactory = cosmosClientBuilderFactory;
+            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            this.cosmosClientBuilderFactory = cosmosClientBuilderFactory ?? throw new System.ArgumentNullException(nameof(cosmosClientBuilderFactory));
         }
 
         /// <summary>
@@ -94,6 +94,16 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>A blob container definition unique to the tenant.</returns>
         public static CosmosContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (containerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(containerDefinition));
+            }
+
             return new CosmosContainerDefinition(BuildTenantSpecificDatabaseName(tenant, containerDefinition.DatabaseName), BuildTenantSpecificContainerName(tenant, containerDefinition.ContainerName), containerDefinition.PartitionKeyPath, containerDefinition.ContainerThroughput, containerDefinition.DatabaseThroughput);
         }
 
@@ -104,6 +114,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The cache key.</returns>
         public static object GetKeyFor(CosmosContainerDefinition tenantBlobStorageContainerDefinition)
         {
+            if (tenantBlobStorageContainerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenantBlobStorageContainerDefinition));
+            }
+
             return $"{tenantBlobStorageContainerDefinition.DatabaseName}__{tenantBlobStorageContainerDefinition.ContainerName}";
         }
 
@@ -114,6 +129,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The cache key.</returns>
         public static object GetKeyFor(ICosmosConfiguration storageConfiguration)
         {
+            if (storageConfiguration is null)
+            {
+                throw new System.ArgumentNullException(nameof(storageConfiguration));
+            }
+
             return string.IsNullOrEmpty(storageConfiguration.AccountUri) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.AccountUri}";
         }
 
@@ -128,6 +148,16 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </remarks>
         public Task<Container> GetContainerForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (containerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(containerDefinition));
+            }
+
             CosmosContainerDefinition tenantedBlobStorageContainerDefinition = TenantCosmosContainerFactory.GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
             object key = GetKeyFor(tenantedBlobStorageContainerDefinition);
 
@@ -145,6 +175,21 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
         protected async Task<Container> CreateCosmosContainerInstanceAsync(ITenant tenant, CosmosContainerDefinition tenantedCosmosContainerDefinition, ICosmosConfiguration configuration)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (tenantedCosmosContainerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenantedCosmosContainerDefinition));
+            }
+
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             string tenantedDatabaseName = string.IsNullOrWhiteSpace(configuration.CosmosContainerDefinition.DatabaseName)
                 ? tenantedCosmosContainerDefinition.DatabaseName
                 : (configuration.GetDisableTenantIdPrefix()

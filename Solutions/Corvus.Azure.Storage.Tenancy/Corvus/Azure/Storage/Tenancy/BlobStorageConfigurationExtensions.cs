@@ -20,6 +20,10 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>The account key secret name.</returns>
         public static string GetAccountKeySecretName(this IStorageConfiguration configuration)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
             // First, try the configuration specific to this instance
             if (configuration.Properties.TryGet(AccountKeySecretNameKey, out string accountKeySecretName))
             {
@@ -36,6 +40,11 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <param name="accountKeySecretName">The account key secret name.</param>
         public static void SetAccountKeySecretName(this IStorageConfiguration configuration, string accountKeySecretName)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             configuration.Properties.Set(AccountKeySecretNameKey, accountKeySecretName);
         }
 
@@ -46,6 +55,10 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>True if the tenant ID prefix should be disabled.</returns>
         public static bool GetDisableTenantIdPrefix(this IStorageConfiguration configuration)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
             // First, try the configuration specific to this instance
             if (configuration.Properties.TryGet(DisableTenantIdPrefixKey, out bool disableTenantIdPrefix))
             {
@@ -63,6 +76,11 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <param name="disableTenantIdPrefix">The account key secret name.</param>
         public static void SetDisableTenantIdPrefix(this IStorageConfiguration configuration, bool disableTenantIdPrefix)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             configuration.Properties.Set(DisableTenantIdPrefixKey, disableTenantIdPrefix);
         }
 
@@ -73,6 +91,10 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>The account key configuration key.</returns>
         public static string GetAccountKeyConfigurationKey(this IStorageConfiguration configuration)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
             // First, try the configuration specific to this instance
             if (configuration.Properties.TryGet(AccountKeyConfigurationKey, out string accountKeyConfigurationKey))
             {
@@ -89,6 +111,11 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <param name="accountKeyConfigurationKey">The account key  configuration key.</param>
         public static void SetAccountKeyConfigurationKey(this IStorageConfiguration configuration, string accountKeyConfigurationKey)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             configuration.Properties.Set(AccountKeyConfigurationKey, accountKeyConfigurationKey);
         }
     }

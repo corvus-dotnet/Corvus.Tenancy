@@ -79,7 +79,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// string to use when requesting an access token for KeyVault.</param>
         public TenantCloudBlobContainerFactory(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
         }
 
         /// <summary>
@@ -90,6 +90,16 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>A blob container definition unique to the tenant.</returns>
         public static BlobStorageContainerDefinition BuildBlobStorageContainerDefinitionForTenant(ITenant tenant, BlobStorageContainerDefinition containerDefinition)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (containerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(containerDefinition));
+            }
+
             return new BlobStorageContainerDefinition(BuildTenantSpecificContainerName(tenant, containerDefinition.ContainerName));
         }
 
@@ -100,6 +110,11 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>The cache key.</returns>
         public static object GetKeyFor(BlobStorageContainerDefinition tenantBlobStorageContainerDefinition)
         {
+            if (tenantBlobStorageContainerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenantBlobStorageContainerDefinition));
+            }
+
             return $"{tenantBlobStorageContainerDefinition.ContainerName}";
         }
 
@@ -110,6 +125,11 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>The cache key.</returns>
         public static object GetKeyFor(IStorageConfiguration storageConfiguration)
         {
+            if (storageConfiguration is null)
+            {
+                throw new System.ArgumentNullException(nameof(storageConfiguration));
+            }
+
             return string.IsNullOrEmpty(storageConfiguration.AccountName) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.AccountName}";
         }
 
@@ -124,6 +144,16 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </remarks>
         public Task<CloudBlobContainer> GetBlobContainerForTenantAsync(ITenant tenant, BlobStorageContainerDefinition containerDefinition)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (containerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(containerDefinition));
+            }
+
             BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition = BuildBlobStorageContainerDefinitionForTenant(tenant, containerDefinition);
             object key = GetKeyFor(tenantedBlobStorageContainerDefinition);
 
@@ -141,6 +171,21 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
         protected async Task<CloudBlobContainer> CreateCloudBlobContainerInstanceAsync(ITenant tenant, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition, IStorageConfiguration configuration)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (tenantedBlobStorageContainerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenantedBlobStorageContainerDefinition));
+            }
+
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             string tenantedContainerName = string.IsNullOrWhiteSpace(configuration.BlobStorageConfiguration.Container)
                 ? tenantedBlobStorageContainerDefinition.ContainerName
                 : (configuration.GetDisableTenantIdPrefix()
@@ -164,10 +209,33 @@ namespace Corvus.Azure.Storage.Tenancy
             return container;
         }
 
-        private static string BuildTenantSpecificContainerName(ITenant tenant, string container) => $"{tenant.Id.ToLowerInvariant()}-{container}";
+        private static string BuildTenantSpecificContainerName(ITenant tenant, string container)
+        {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (container is null)
+            {
+                throw new System.ArgumentNullException(nameof(container));
+            }
+
+            return $"{tenant.Id.ToLowerInvariant()}-{container}";
+        }
 
         private async Task<CloudBlobClient> CreateTenantCloudBlobClientAsync(ITenant tenant, IStorageConfiguration configuration)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             CloudStorageAccount account;
 
             if (string.IsNullOrEmpty(configuration.AccountName) || configuration.AccountName.Equals(DevelopmentStorageConnectionString))
@@ -186,6 +254,16 @@ namespace Corvus.Azure.Storage.Tenancy
 
         private async Task<string> GetAccountKeyAsync(ITenant tenant, IStorageConfiguration storageConfiguration)
         {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (storageConfiguration is null)
+            {
+                throw new System.ArgumentNullException(nameof(storageConfiguration));
+            }
+
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
             var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
@@ -193,9 +271,24 @@ namespace Corvus.Azure.Storage.Tenancy
             return accountKey.Value;
         }
 
-        private async Task<CloudBlobContainer> CreateTenantCloudBlobContainer(ITenant tenant, BlobStorageContainerDefinition repositoryDefinition, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition)
+        private async Task<CloudBlobContainer> CreateTenantCloudBlobContainer(ITenant tenant, BlobStorageContainerDefinition containerDefinition, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition)
         {
-            IStorageConfiguration configuration = tenant.GetStorageConfiguration(repositoryDefinition);
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (containerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(containerDefinition));
+            }
+
+            if (tenantedBlobStorageContainerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenantedBlobStorageContainerDefinition));
+            }
+
+            IStorageConfiguration configuration = tenant.GetStorageConfiguration(containerDefinition);
 
             return await this.CreateCloudBlobContainerInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration).ConfigureAwait(false);
         }

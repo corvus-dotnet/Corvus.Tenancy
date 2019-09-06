@@ -32,9 +32,14 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="serviceProvider">The service provider for the configuration.</param>
         public CosmosConfiguration(IServiceProvider serviceProvider)
         {
+            if (serviceProvider is null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
+
             this.CosmosContainerDefinition = new CosmosContainerDefinition();
             IJsonSerializerSettingsProvider serializerSettingsProvider = serviceProvider.GetService<IJsonSerializerSettingsProvider>();
-            JsonSerializerSettings serializerSettings = serializerSettingsProvider?.Instance ?? JsonConvert.DefaultSettings?.Invoke();
+            JsonSerializerSettings serializerSettings = serializerSettingsProvider?.Instance ?? JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings();
             this.Properties = new PropertyBag(serializerSettings);
         }
 

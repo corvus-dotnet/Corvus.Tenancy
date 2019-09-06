@@ -23,6 +23,16 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The configuration for the Cosmos account for this tenant.</returns>
         public static ICosmosConfiguration GetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition)
         {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            if (definition is null)
+            {
+                throw new ArgumentNullException(nameof(definition));
+            }
+
             // First, try the configuration specific to this instance
             if (tenant.Properties.TryGet(GetConfigurationKey(definition), out ICosmosConfiguration configuration))
             {
@@ -40,7 +50,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The Default <see cref="ICosmosConfiguration"/> for the tenant.</returns>
         public static ICosmosConfiguration GetDefaultCosmosConfiguration(this ITenant tenant)
         {
-            // First, try the default configuration specific to this tenant
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
             if (tenant.Properties.TryGet(DefaultCosmosConfigurationKey, out ICosmosConfiguration configuration))
             {
                 return configuration;
@@ -57,6 +71,16 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="configuration">The configuration to set.</param>
         public static void SetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition, ICosmosConfiguration configuration)
         {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            if (definition is null)
+            {
+                throw new ArgumentNullException(nameof(definition));
+            }
+
             tenant.Properties.Set(GetConfigurationKey(definition), configuration);
         }
 
@@ -67,6 +91,16 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="defaultConfiguration">The default configuration to set.</param>
         public static void SetDefaultCosmosConfiguration(this ITenant tenant, ICosmosConfiguration defaultConfiguration)
         {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            if (defaultConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(defaultConfiguration));
+            }
+
             tenant.Properties.Set(DefaultCosmosConfigurationKey, defaultConfiguration);
         }
 
@@ -77,6 +111,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The name of the key vault.</returns>
         public static string GetKeyVaultName(this ITenant tenant)
         {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
             if (tenant.Properties.TryGet(KeyVaultNameKey, out string vaultName))
             {
                 return vaultName;
@@ -92,6 +131,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="keyVaultName">The name of the key vault.</param>
         public static void SetKeyVaultName(this ITenant tenant, string keyVaultName)
         {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
             tenant.Properties.Set(KeyVaultNameKey, keyVaultName);
         }
 

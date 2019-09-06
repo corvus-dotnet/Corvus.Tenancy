@@ -39,9 +39,14 @@ namespace Corvus.Tenancy
         /// <param name="serializerSettingsProvider">The serializer settings provider for tenant serialization.</param>
         public TenantProviderBlobStore(IServiceProvider serviceProvider, RootTenant tenant, ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory, IJsonSerializerSettingsProvider serializerSettingsProvider)
         {
-            this.serviceProvider = serviceProvider;
-            this.Root = tenant;
-            this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory;
+            if (serializerSettingsProvider is null)
+            {
+                throw new ArgumentNullException(nameof(serializerSettingsProvider));
+            }
+
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            this.Root = tenant ?? throw new ArgumentNullException(nameof(tenant));
+            this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory ?? throw new ArgumentNullException(nameof(tenantCloudBlobContainerFactory));
             this.serializerSettings = serializerSettingsProvider.Instance;
             this.serializer = JsonSerializer.Create(this.serializerSettings);
         }
@@ -57,6 +62,11 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task<ITenant> GetTenantAsync(string tenantId)
         {
+            if (tenantId is null)
+            {
+                throw new ArgumentNullException(nameof(tenantId));
+            }
+
             if (tenantId == this.Root.Id)
             {
                 return this.Root;
@@ -75,6 +85,11 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task<ITenant> UpdateTenantAsync(ITenant tenant)
         {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
             if (tenant.Id == this.Root.Id)
             {
                 return tenant;
@@ -100,8 +115,13 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task<ITenant> CreateChildTenantAsync(string parentTenantId)
         {
+            if (parentTenantId is null)
+            {
+                throw new ArgumentNullException(nameof(parentTenantId));
+            }
+
             CloudBlobContainer cloudBlobContainer = await this.GetContainerForChildTenantsOf(parentTenantId).ConfigureAwait(false);
-            Tenant child = this.serviceProvider.GetService<Tenant>();
+            Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
             child.Id = Path.Combine(parentTenantId, Guid.NewGuid().ToString());
             CloudBlockBlob blob = cloudBlobContainer.GetBlockBlobReference(child.Id);
 

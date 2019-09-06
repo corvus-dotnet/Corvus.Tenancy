@@ -23,6 +23,11 @@ namespace Corvus.Tenancy
         /// <param name="settingsProvider">The json serializer settings provider.</param>
         public Tenant(IJsonSerializerSettingsProvider settingsProvider)
         {
+            if (settingsProvider is null)
+            {
+                throw new System.ArgumentNullException(nameof(settingsProvider));
+            }
+
             this.Properties = new PropertyBag(settingsProvider.Instance);
         }
 

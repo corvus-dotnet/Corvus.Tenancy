@@ -26,6 +26,16 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </remarks>
         public static IServiceCollection AddTenantCloudBlobContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            if (configureRootTenant is null)
+            {
+                throw new ArgumentNullException(nameof(configureRootTenant));
+            }
+
             if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;

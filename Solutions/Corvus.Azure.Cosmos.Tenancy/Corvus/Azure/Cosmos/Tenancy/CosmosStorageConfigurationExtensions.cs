@@ -20,6 +20,10 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The account key secret name.</returns>
         public static string GetAccountKeySecretName(this ICosmosConfiguration configuration)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
             // First, try the configuration specific to this instance
             if (configuration.Properties.TryGet(AccountKeySecretNameKey, out string accountKeySecretName))
             {
@@ -36,6 +40,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="accountKeySecretName">The account key secret name.</param>
         public static void SetAccountKeySecretName(this ICosmosConfiguration configuration, string accountKeySecretName)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             configuration.Properties.Set(AccountKeySecretNameKey, accountKeySecretName);
         }
 
@@ -63,6 +72,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="disableTenantIdPrefix">The account key secret name.</param>
         public static void SetDisableTenantIdPrefix(this ICosmosConfiguration configuration, bool disableTenantIdPrefix)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             configuration.Properties.Set(DisableTenantIdPrefixKey, disableTenantIdPrefix);
         }
 
@@ -73,6 +87,10 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The account key configuration key.</returns>
         public static string GetAccountKeyConfigurationKey(this ICosmosConfiguration configuration)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
             // First, try the configuration specific to this instance
             if (configuration.Properties.TryGet(AccountKeyConfigurationKey, out string accountKeyConfigurationKey))
             {
@@ -89,6 +107,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="accountKeyConfigurationKey">The account key  configuration key.</param>
         public static void SetAccountKeyConfigurationKey(this ICosmosConfiguration configuration, string accountKeyConfigurationKey)
         {
+            if (configuration is null)
+            {
+                throw new System.ArgumentNullException(nameof(configuration));
+            }
+
             configuration.Properties.Set(AccountKeyConfigurationKey, accountKeyConfigurationKey);
         }
     }

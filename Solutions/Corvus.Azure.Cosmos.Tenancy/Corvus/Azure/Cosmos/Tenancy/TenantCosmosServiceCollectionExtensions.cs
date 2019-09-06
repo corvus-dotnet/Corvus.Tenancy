@@ -14,7 +14,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// <summary>
     /// Adds installer methods for tenanted storage-related components.
     /// </summary>
-    public static class TenantCosmosServiceCollectionExtensions
+    internal static class TenantCosmosServiceCollectionExtensions
     {
         /// <summary>
         /// Add components for constructing tenant-specific Cosmos containers.
@@ -27,6 +27,16 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </remarks>
         public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            if (configureRootTenant is null)
+            {
+                throw new ArgumentNullException(nameof(configureRootTenant));
+            }
+
             if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;

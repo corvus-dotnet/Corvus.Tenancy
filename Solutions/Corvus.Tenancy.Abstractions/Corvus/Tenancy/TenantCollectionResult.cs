@@ -18,7 +18,7 @@ namespace Corvus.Tenancy
         /// <param name="continuationToken">The continuation token to pass to retrieve the next batch of tenants.</param>
         public TenantCollectionResult(ReadOnlyCollection<ITenant> tenants, string continuationToken)
         {
-            this.Tenants = tenants;
+            this.Tenants = tenants ?? throw new System.ArgumentNullException(nameof(tenants));
             this.ContinuationToken = continuationToken;
         }
 
