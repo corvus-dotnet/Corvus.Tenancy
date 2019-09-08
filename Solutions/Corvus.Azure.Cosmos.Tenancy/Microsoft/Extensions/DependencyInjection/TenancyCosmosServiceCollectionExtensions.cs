@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
-    using Corvus.Tenancy;
+    using Corvus.Azure.Cosmos.Tenancy.Internal;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -50,21 +50,19 @@ namespace Microsoft.Extensions.DependencyInjection
                 RootTenantDefaultCosmosConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantDefaultCosmosConfigurationOptions>>().Value;
                 if (string.IsNullOrWhiteSpace(options.CosmosAccountUri))
                 {
-                    ILogger<ICosmosConfiguration> logger = sp.GetService<ILogger<ICosmosConfiguration>>();
+                    ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
                     string message = $"No configuration has been provided for {nameof(options.CosmosAccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
                     logger?.LogWarning(message);
                 }
 
-                ICosmosConfiguration defaultConfiguration = sp.GetRequiredService<ICosmosConfiguration>();
+                CosmosConfiguration defaultConfiguration = sp.GetRequiredService<CosmosConfiguration>();
 
                 defaultConfiguration.AccountUri = options.CosmosAccountUri;
-                defaultConfiguration.CosmosContainerDefinition = new CosmosContainerDefinition
-                {
-                    ContainerName = string.IsNullOrWhiteSpace(options.CosmosContainerName) ? null : options.CosmosContainerName,
-                    DatabaseName = string.IsNullOrWhiteSpace(options.CosmosDatabaseName) ? null : options.CosmosDatabaseName,
-                };
+                defaultConfiguration.ContainerName = string.IsNullOrWhiteSpace(options.CosmosContainerName) ? null : options.CosmosContainerName;
+                defaultConfiguration.DatabaseName = string.IsNullOrWhiteSpace(options.CosmosDatabaseName) ? null : options.CosmosDatabaseName;
+                defaultConfiguration.PartitionKeyPath = string.IsNullOrWhiteSpace(options.CosmosPartitionKeyPath) ? null : options.CosmosPartitionKeyPath;
 
-                defaultConfiguration.SetStorageAccountKeySecretName(options.CosmosAccountKeySecretName);
+                defaultConfiguration.AccountKeySecretName = options.CosmosAccountKeySecretName;
 
                 rootTenant.SetDefaultCosmosConfiguration(defaultConfiguration);
 

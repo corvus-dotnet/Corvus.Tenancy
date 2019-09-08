@@ -1,4 +1,4 @@
-﻿// <copyright file="RootTenantDefaultStorageConfigurationOptions.cs" company="Endjin Limited">
+﻿// <copyright file="RootTenantDefaultBlobStorageConfigurationOptions.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -7,12 +7,12 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <summary>
     /// Defines settings for the default storage account in the root tenant.
     /// </summary>
-    public sealed class RootTenantDefaultStorageConfigurationOptions
+    public sealed class RootTenantDefaultBlobStorageConfigurationOptions
     {
         /// <summary>
         /// Gets or sets the storage account name to use.
         /// </summary>
-        public string StorageAccountName { get; set; }
+        public string AccountName { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the key vault in which the account secret is stored.
@@ -22,7 +22,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <summary>
         /// Gets or sets the name of secret in the key vault in which the account secret is stored.
         /// </summary>
-        public string StorageKeySecretName { get; set; }
+        public string AccountKeySecretName { get; set; }
 
         /// <summary>
         /// Gets or sets the storage container name to use. Set this to force a particular

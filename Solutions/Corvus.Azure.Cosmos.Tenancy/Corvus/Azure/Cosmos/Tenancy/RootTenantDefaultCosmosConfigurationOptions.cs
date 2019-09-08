@@ -37,5 +37,12 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// specify.
         /// </summary>
         public string CosmosContainerName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Cosmos partition key path name to use. Set this to force a particular
+        /// container to be used regardless of what a <see cref="CosmosContainerDefinition"/> might
+        /// specify.
+        /// </summary>
+        public string CosmosPartitionKeyPath { get; set; }
     }
 }

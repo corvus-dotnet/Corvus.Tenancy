@@ -4,21 +4,11 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy
 {
-    using System;
-    using Corvus.Extensions.Json;
-    using Microsoft.Extensions.DependencyInjection;
-    using Newtonsoft.Json;
-
     /// <summary>
     /// Encapsulates configuration for a container in a specific Cosmos account.
     /// </summary>
-    public class CosmosConfiguration : ICosmosConfiguration
+    public class CosmosConfiguration
     {
-        /// <summary>
-        /// The registered content type for the client configuration.
-        /// </summary>
-        public const string RegisteredContentType = "application/vnd.corvus.azure.cosmos.tenancy.cosmosconfiguration";
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosConfiguration"/> class.
         /// </summary>
@@ -27,35 +17,41 @@ namespace Corvus.Azure.Cosmos.Tenancy
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CosmosConfiguration"/> class.
+        /// Gets or sets the account URI.
         /// </summary>
-        /// <param name="serviceProvider">The service provider for the configuration.</param>
-        public CosmosConfiguration(IServiceProvider serviceProvider)
-        {
-            if (serviceProvider is null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
-            this.CosmosContainerDefinition = new CosmosContainerDefinition();
-            IJsonSerializerSettingsProvider serializerSettingsProvider = serviceProvider.GetService<IJsonSerializerSettingsProvider>();
-            JsonSerializerSettings serializerSettings = serializerSettingsProvider?.Instance ?? JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings();
-            this.Properties = new PropertyBag(serializerSettings);
-        }
-
-        /// <inheritdoc/>
         public string AccountUri { get; set; }
 
-        /// <inheritdoc/>
-        public CosmosContainerDefinition CosmosContainerDefinition { get; set; }
+        /// <summary>
+        /// Gets or sets the account key secret mame.
+        /// </summary>
+        public string AccountKeySecretName { get; set; }
 
-        /// <inheritdoc/>
-        public PropertyBag Properties { get; set; }
+        /// <summary>
+        /// Gets or sets the account key configuration key.
+        /// </summary>
+        public string AccountKeyConfigurationKey { get; set; }
 
-        /// <inheritdoc/>
-        public string ContentType
-        {
-            get { return RegisteredContentType; }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether to disable the tenant ID prefix.
+        /// </summary>
+        public bool DisableTenantIdPrefix { get; set; }
+
+        /// <summary>
+        /// Gets or sets the database name. If set, this overrides the value
+        /// specified in <see cref="CosmosContainerDefinition.DatabaseName"/>.
+        /// </summary>
+        public string DatabaseName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the container name. If set, this overrides the value
+        /// specified in <see cref="CosmosContainerDefinition.ContainerName"/>.
+        /// </summary>
+        public string ContainerName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the partition key path. If set, this overrides the value
+        /// specified in <see cref="CosmosContainerDefinition.PartitionKeyPath"/>.
+        /// </summary>
+        public string PartitionKeyPath { get; set; }
     }
 }

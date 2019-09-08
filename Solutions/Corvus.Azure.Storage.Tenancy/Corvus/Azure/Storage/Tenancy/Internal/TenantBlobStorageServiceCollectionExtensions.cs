@@ -1,4 +1,4 @@
-﻿// <copyright file="TenantStorageServiceCollectionExtensions.cs" company="Endjin Limited">
+﻿// <copyright file="TenantBlobStorageServiceCollectionExtensions.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <summary>
     /// Adds installer methods for tenanted storage-related components.
     /// </summary>
-    internal static class TenantStorageServiceCollectionExtensions
+    internal static class TenantBlobStorageServiceCollectionExtensions
     {
         /// <summary>
         /// Add components for constructing tenant-specific blob storage containers.
@@ -42,7 +42,7 @@ namespace Corvus.Azure.Storage.Tenancy
             }
 
             services.AddRootTenant();
-            services.AddTransient<IStorageConfiguration, StorageConfiguration>();
+            services.AddTransient<BlobStorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
                 ITenant tenant = s.GetRequiredService<RootTenant>();

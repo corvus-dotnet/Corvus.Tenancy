@@ -22,8 +22,8 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="CloudBlobContainer"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via the <see cref="BlobStorageTenantExtensions.SetDefaultStorageConfiguration(ITenant, IStorageConfiguration)"/>
-    /// and <see cref="BlobStorageTenantExtensions.SetBlobStorageConfiguration(ITenant, BlobStorageContainerDefinition, IStorageConfiguration)"/>.
+    /// configuration comes from the tenant via the <see cref="BlobStorageTenantExtensions.SetDefaultStorageConfiguration(ITenant, BlobStorageConfiguration)"/>
+    /// and <see cref="BlobStorageTenantExtensions.SetBlobStorageConfiguration(ITenant, BlobStorageContainerDefinition, BlobStorageConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
@@ -123,7 +123,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </summary>
         /// <param name="storageConfiguration">The configuration of the tenant storage account.</param>
         /// <returns>The cache key.</returns>
-        public static object GetKeyFor(IStorageConfiguration storageConfiguration)
+        public static object GetKeyFor(BlobStorageConfiguration storageConfiguration)
         {
             if (storageConfiguration is null)
             {
@@ -169,7 +169,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <param name="tenantedBlobStorageContainerDefinition">The repository definition, adapted for the tenant.</param>
         /// <param name="configuration">The repository configuration.</param>
         /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
-        protected async Task<CloudBlobContainer> CreateCloudBlobContainerInstanceAsync(ITenant tenant, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition, IStorageConfiguration configuration)
+        protected async Task<CloudBlobContainer> CreateCloudBlobContainerInstanceAsync(ITenant tenant, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition, BlobStorageConfiguration configuration)
         {
             if (tenant is null)
             {
@@ -186,11 +186,11 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(configuration));
             }
 
-            string tenantedContainerName = string.IsNullOrWhiteSpace(configuration.BlobStorageConfiguration.Container)
+            string tenantedContainerName = string.IsNullOrWhiteSpace(configuration.Container)
                 ? tenantedBlobStorageContainerDefinition.ContainerName
-                : (configuration.GetDisableTenantIdPrefix()
-                    ? configuration.BlobStorageConfiguration.Container
-                    : BuildTenantSpecificContainerName(tenant, configuration.BlobStorageConfiguration.Container));
+                : (configuration.DisableTenantIdPrefix
+                    ? configuration.Container
+                    : BuildTenantSpecificContainerName(tenant, configuration.Container));
 
             // Get the cloud blob client for the specified configuration.
             object accountCacheKey = GetKeyFor(configuration);
@@ -202,7 +202,7 @@ namespace Corvus.Azure.Storage.Tenancy
             // Now get the container and create it if it doesn't already exist.
             CloudBlobContainer container = blobClient.GetContainerReference(tenantedBlobStorageContainerDefinition.ContainerName);
 
-            BlobContainerPublicAccessType accessType = configuration.BlobStorageConfiguration.AccessType ?? tenantedBlobStorageContainerDefinition.AccessType;
+            BlobContainerPublicAccessType accessType = configuration.AccessType ?? tenantedBlobStorageContainerDefinition.AccessType;
 
             await container.CreateIfNotExistsAsync(accessType, null, null).ConfigureAwait(false);
 
@@ -224,7 +224,7 @@ namespace Corvus.Azure.Storage.Tenancy
             return $"{tenant.Id.ToLowerInvariant()}-{container}";
         }
 
-        private async Task<CloudBlobClient> CreateTenantCloudBlobClientAsync(ITenant tenant, IStorageConfiguration configuration)
+        private async Task<CloudBlobClient> CreateTenantCloudBlobClientAsync(ITenant tenant, BlobStorageConfiguration configuration)
         {
             if (tenant is null)
             {
@@ -252,7 +252,7 @@ namespace Corvus.Azure.Storage.Tenancy
             return account.CreateCloudBlobClient();
         }
 
-        private async Task<string> GetAccountKeyAsync(ITenant tenant, IStorageConfiguration storageConfiguration)
+        private async Task<string> GetAccountKeyAsync(ITenant tenant, BlobStorageConfiguration storageConfiguration)
         {
             if (tenant is null)
             {
@@ -267,7 +267,7 @@ namespace Corvus.Azure.Storage.Tenancy
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
             var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{tenant.GetKeyVaultName()}.vault.azure.net/secrets/{storageConfiguration.GetStorageAccountKeySecretName()}").ConfigureAwait(false);
+            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{tenant.GetKeyVaultName()}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
             return accountKey.Value;
         }
 
@@ -288,7 +288,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(tenantedBlobStorageContainerDefinition));
             }
 
-            IStorageConfiguration configuration = tenant.GetStorageConfiguration(containerDefinition);
+            BlobStorageConfiguration configuration = tenant.GetStorageConfiguration(containerDefinition);
 
             return await this.CreateCloudBlobContainerInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration).ConfigureAwait(false);
         }

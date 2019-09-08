@@ -21,7 +21,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <param name="tenant">The tenant.</param>
         /// <param name="definition">The blob storage container definition.</param>
         /// <returns>The configuration for the storage account for this tenant.</returns>
-        public static IStorageConfiguration GetStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition)
+        public static BlobStorageConfiguration GetStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition)
         {
             if (tenant is null)
             {
@@ -33,7 +33,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out IStorageConfiguration configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out BlobStorageConfiguration configuration))
             {
                 return configuration;
             }
@@ -46,15 +46,15 @@ namespace Corvus.Azure.Storage.Tenancy
         /// Gets the default storage configuration for the tenant.
         /// </summary>
         /// <param name="tenant">The tenant for which to get the default configuration.</param>
-        /// <returns>The Default <see cref="IStorageConfiguration"/> for the tenant.</returns>
-        public static IStorageConfiguration GetDefaultStorageConfiguration(this ITenant tenant)
+        /// <returns>The Default <see cref="BlobStorageConfiguration"/> for the tenant.</returns>
+        public static BlobStorageConfiguration GetDefaultStorageConfiguration(this ITenant tenant)
         {
             if (tenant is null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
 
-            if (tenant.Properties.TryGet(DefaultStorageConfigurationKey, out IStorageConfiguration configuration))
+            if (tenant.Properties.TryGet(DefaultStorageConfigurationKey, out BlobStorageConfiguration configuration))
             {
                 return configuration;
             }
@@ -68,7 +68,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <param name="tenant">The tenant for which to set the default configuration.</param>
         /// <param name="definition">The definition of the repository for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
-        public static void SetBlobStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition, IStorageConfiguration configuration)
+        public static void SetBlobStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition, BlobStorageConfiguration configuration)
         {
             if (tenant is null)
             {
@@ -93,7 +93,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </summary>
         /// <param name="tenant">The tenant for which to set the default configuration.</param>
         /// <param name="defaultConfiguration">The default configuration to set.</param>
-        public static void SetDefaultStorageConfiguration(this ITenant tenant, IStorageConfiguration defaultConfiguration)
+        public static void SetDefaultStorageConfiguration(this ITenant tenant, BlobStorageConfiguration defaultConfiguration)
         {
             if (tenant is null)
             {

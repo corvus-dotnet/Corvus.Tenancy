@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configuration != null)
             {
-                services.Configure<RootTenantDefaultStorageConfigurationOptions>(configuration);
+                services.Configure<RootTenantDefaultBlobStorageConfigurationOptions>(configuration);
             }
 
             services.AddContentFactory(factory => { });
@@ -46,23 +46,19 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddTenantCloudBlobContainerFactory((sp, rootTenant) =>
             {
-                RootTenantDefaultStorageConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantDefaultStorageConfigurationOptions>>().Value;
-                if (string.IsNullOrWhiteSpace(options.StorageAccountName))
+                RootTenantDefaultBlobStorageConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantDefaultBlobStorageConfigurationOptions>>().Value;
+                if (string.IsNullOrWhiteSpace(options.AccountName))
                 {
-                    ILogger<IStorageConfiguration> logger = sp.GetService<ILogger<IStorageConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.StorageAccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                    ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
+                    string message = $"No configuration has been provided for {nameof(options.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
                     logger?.LogWarning(message);
                 }
 
-                IStorageConfiguration defaultConfiguration = sp.GetRequiredService<IStorageConfiguration>();
+                BlobStorageConfiguration defaultConfiguration = sp.GetRequiredService<BlobStorageConfiguration>();
 
-                defaultConfiguration.AccountName = options.StorageAccountName;
-                defaultConfiguration.BlobStorageConfiguration = new BlobStorageConfiguration
-                {
-                    Container = string.IsNullOrWhiteSpace(options.BlobStorageContainerName) ? null : options.BlobStorageContainerName,
-                };
-
-                defaultConfiguration.SetStorageAccountKeySecretName(options.StorageKeySecretName);
+                defaultConfiguration.AccountName = options.AccountName;
+                defaultConfiguration.Container = string.IsNullOrWhiteSpace(options.BlobStorageContainerName) ? null : options.BlobStorageContainerName;
+                defaultConfiguration.AccountKeySecretName = options.AccountKeySecretName;
 
                 rootTenant.SetDefaultStorageConfiguration(defaultConfiguration);
 

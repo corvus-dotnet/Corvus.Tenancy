@@ -21,7 +21,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="tenant">The tenant.</param>
         /// <param name="definition">The Cosmos storage container definition.</param>
         /// <returns>The configuration for the Cosmos account for this tenant.</returns>
-        public static ICosmosConfiguration GetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition)
+        public static CosmosConfiguration GetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition)
         {
             if (tenant is null)
             {
@@ -34,7 +34,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out ICosmosConfiguration configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out CosmosConfiguration configuration))
             {
                 return configuration;
             }
@@ -47,15 +47,15 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// Gets the default Cosmos configuration for the tenant.
         /// </summary>
         /// <param name="tenant">The tenant for which to get the default configuration.</param>
-        /// <returns>The Default <see cref="ICosmosConfiguration"/> for the tenant.</returns>
-        public static ICosmosConfiguration GetDefaultCosmosConfiguration(this ITenant tenant)
+        /// <returns>The Default <see cref="CosmosConfiguration"/> for the tenant.</returns>
+        public static CosmosConfiguration GetDefaultCosmosConfiguration(this ITenant tenant)
         {
             if (tenant is null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
 
-            if (tenant.Properties.TryGet(DefaultCosmosConfigurationKey, out ICosmosConfiguration configuration))
+            if (tenant.Properties.TryGet(DefaultCosmosConfigurationKey, out CosmosConfiguration configuration))
             {
                 return configuration;
             }
@@ -69,7 +69,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="tenant">The tenant for which to set the default configuration.</param>
         /// <param name="definition">The definition of the Cosmos container for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
-        public static void SetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition, ICosmosConfiguration configuration)
+        public static void SetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition, CosmosConfiguration configuration)
         {
             if (tenant is null)
             {
@@ -89,7 +89,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </summary>
         /// <param name="tenant">The tenant for which to set the default configuration.</param>
         /// <param name="defaultConfiguration">The default configuration to set.</param>
-        public static void SetDefaultCosmosConfiguration(this ITenant tenant, ICosmosConfiguration defaultConfiguration)
+        public static void SetDefaultCosmosConfiguration(this ITenant tenant, CosmosConfiguration defaultConfiguration)
         {
             if (tenant is null)
             {

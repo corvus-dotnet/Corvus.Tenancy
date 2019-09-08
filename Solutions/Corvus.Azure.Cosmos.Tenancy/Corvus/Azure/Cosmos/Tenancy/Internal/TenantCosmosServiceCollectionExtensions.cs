@@ -2,7 +2,7 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Azure.Cosmos.Tenancy
+namespace Corvus.Azure.Cosmos.Tenancy.Internal
 {
     using System;
     using System.Linq;
@@ -43,7 +43,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             }
 
             services.AddRootTenant();
-            services.AddTransient<ICosmosConfiguration, CosmosConfiguration>();
+            services.AddTransient<CosmosConfiguration, CosmosConfiguration>();
             services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {
                 var result = new TenantCosmosContainerFactory(s.GetRequiredService<IConfigurationRoot>(), s.GetRequiredService<ICosmosClientBuilderFactory>());

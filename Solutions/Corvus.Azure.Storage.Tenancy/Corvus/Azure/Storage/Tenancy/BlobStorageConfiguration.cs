@@ -7,10 +7,22 @@ namespace Corvus.Azure.Storage.Tenancy
     using Microsoft.Azure.Storage.Blob;
 
     /// <summary>
-    /// Encapsulates configuration for the blob-specific aspects of a storage account.
+    /// Encapsulates configuration for a storage account.
     /// </summary>
     public class BlobStorageConfiguration
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobStorageConfiguration"/> class.
+        /// </summary>
+        public BlobStorageConfiguration()
+        {
+        }
+
+        /// <summary>
+        /// Gets or sets the account name.
+        /// </summary>
+        public string AccountName { get; set; }
+
         /// <summary>
         /// Gets or sets the container name. If set, this overrides the name specified in
         /// <see cref="BlobStorageContainerDefinition.ContainerName"/>.
@@ -22,5 +34,20 @@ namespace Corvus.Azure.Storage.Tenancy
         /// specified in <see cref="BlobStorageContainerDefinition.AccessType"/>.
         /// </summary>
         public BlobContainerPublicAccessType? AccessType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the account key secret mame.
+        /// </summary>
+        public string AccountKeySecretName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the account key configuration key.
+        /// </summary>
+        public string AccountKeyConfigurationKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to disable the tenant ID prefix.
+        /// </summary>
+        public bool DisableTenantIdPrefix { get; set; }
     }
 }

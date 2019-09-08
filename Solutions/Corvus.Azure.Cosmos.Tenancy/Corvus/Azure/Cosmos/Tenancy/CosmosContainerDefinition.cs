@@ -34,7 +34,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         }
 
         /// <summary>
-        /// Gets or sets the container name.
+        /// Gets or sets the database name.
         /// </summary>
         public string DatabaseName { get; set; }
 

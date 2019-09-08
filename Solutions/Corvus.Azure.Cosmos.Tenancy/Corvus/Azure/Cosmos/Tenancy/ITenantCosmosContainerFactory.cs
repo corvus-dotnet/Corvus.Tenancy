@@ -7,6 +7,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
     using System.Threading.Tasks;
     using Corvus.Tenancy;
     using Microsoft.Azure.Cosmos;
+    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// A factory for a <see cref="Container"/>.
@@ -15,8 +16,8 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="Container"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via the <see cref="CosmosStorageTenantExtensions.SetDefaultCosmosConfiguration(ITenant, ICosmosConfiguration)"/>
-    /// and <see cref="CosmosStorageTenantExtensions.SetCosmosConfiguration(ITenant, CosmosContainerDefinition, ICosmosConfiguration)"/>.
+    /// configuration comes from the tenant via the <see cref="CosmosStorageTenantExtensions.SetDefaultCosmosConfiguration(ITenant, CosmosConfiguration)"/>
+    /// and <see cref="CosmosStorageTenantExtensions.SetCosmosConfiguration(ITenant, CosmosContainerDefinition, CosmosConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
@@ -30,7 +31,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenantCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{System.IServiceProvider, ITenant})"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, Microsoft.Extensions.Configuration.IConfiguration)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="ITenantCosmosContainerFactory.GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
