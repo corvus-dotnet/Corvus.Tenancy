@@ -7,6 +7,8 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.Cosmos.Tenancy.Internal;
+    using Corvus.ContentHandling;
+    using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -37,13 +39,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddContentFactory(factory => { });
-            services.AddContentHandlingJsonConverters();
-
             if (configuration != null)
             {
                 services.Configure<RootTenantDefaultCosmosConfigurationOptions>(configuration);
             }
+
+            services.AddRootTenant();
 
             services.AddTenantCosmosContainerFactory((sp, rootTenant) =>
             {

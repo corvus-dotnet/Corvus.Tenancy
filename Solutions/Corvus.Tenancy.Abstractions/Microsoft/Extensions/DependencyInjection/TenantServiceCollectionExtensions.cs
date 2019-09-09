@@ -5,6 +5,7 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
     using System.Linq;
+    using Corvus.ContentHandling;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -24,8 +25,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddJsonSerializerSettings();
-            services.AddTransient<Tenant>();
+            services.AddContentSerialization(contentFactory =>
+            {
+                contentFactory.RegisterTransientContent<Tenant>();
+            });
+
             services.AddSingleton<RootTenant>();
             return services;
         }

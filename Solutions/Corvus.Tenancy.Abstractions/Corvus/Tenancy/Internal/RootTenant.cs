@@ -12,13 +12,18 @@ namespace Corvus.Tenancy
     public class RootTenant : Tenant
     {
         /// <summary>
+        /// The root tenant ID.
+        /// </summary>
+        public const string RootTenantId = "RootTenant";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RootTenant"/> class.
         /// </summary>
         /// <param name="serializerSettingsProvider">The Json Serializer Settings provider.</param>
         public RootTenant(IJsonSerializerSettingsProvider serializerSettingsProvider)
             : base(serializerSettingsProvider)
         {
-            this.Id = "Root";
+            this.Id = RootTenantId;
         }
     }
 }

@@ -10,11 +10,6 @@ namespace Corvus.Tenancy
     public static class TenantExtensions
     {
         /// <summary>
-        /// The root tenant ID.
-        /// </summary>
-        public const string RootTenantId = "RootTenant";
-
-        /// <summary>
         /// Gets the id of the parent of a tenant.
         /// </summary>
         /// <param name="tenant">The tenant.</param>
@@ -41,7 +36,7 @@ namespace Corvus.Tenancy
                 throw new System.ArgumentNullException(nameof(tenantId));
             }
 
-            if (tenantId == RootTenantId)
+            if (tenantId == RootTenant.RootTenantId)
             {
                 return null;
             }
