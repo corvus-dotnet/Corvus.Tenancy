@@ -10,13 +10,13 @@ It is built for netstandard2.0.
 ## Features
 
 ### Tenant
-Basic Tenant features, including storage and retrieval of tenants, support for tenants-of-tenants, indivudal tenant configuration and properties.
+Basic Tenant features, including storage and retrieval of tenants, support for tenants-of-tenants, individal tenant configuration and properties.
 
 ### Blob Storage
 The ability to configure, acquire, and create Blob Containers.
 
 ### Cosmos
-The ability to configure, acquire, and create Cosmos SDK V3 Container 
+The ability to configure, acquire, and create Cosmos SDK V3 Containers. 
 
 ## Licenses
 
