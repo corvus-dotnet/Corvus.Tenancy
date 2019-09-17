@@ -240,15 +240,7 @@ namespace Corvus.Azure.Storage.Tenancy
             }
             else if (string.IsNullOrWhiteSpace(configuration.AccountKeySecretName))
             {
-                try
-                {
-                    account = CloudStorageAccount.Parse(configuration.AccountName);
-                }
-                catch (FormatException ex)
-                {
-                    // TODO - REMOVE THIS CODE
-                    throw new Exception($"Failed to parse: `{configuration.AccountName}`", ex);
-                }
+                account = CloudStorageAccount.Parse(configuration.AccountName);
             }
             else
             {
