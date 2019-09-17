@@ -22,6 +22,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         public string AccountUri { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the key vault in which the account secret is stored.
+        /// </summary>
+        public string KeyVaultName { get; set; }
+
+        /// <summary>
         /// Gets or sets the account key secret mame.
         /// </summary>
         public string AccountKeySecretName { get; set; }

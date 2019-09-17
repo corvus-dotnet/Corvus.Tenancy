@@ -197,7 +197,7 @@ namespace Corvus.Azure.Storage.Tenancy
 
             CloudBlobClient blobClient = await this.clients.GetOrAdd(
                 accountCacheKey,
-                _ => this.CreateTenantCloudBlobClientAsync(tenant, configuration)).ConfigureAwait(false);
+                _ => this.CreateCloudBlobClientAsync(configuration)).ConfigureAwait(false);
 
             // Now get the container and create it if it doesn't already exist.
             CloudBlobContainer container = blobClient.GetContainerReference(tenantedBlobStorageContainerDefinition.ContainerName);
@@ -224,13 +224,8 @@ namespace Corvus.Azure.Storage.Tenancy
             return $"{tenant.Id.ToLowerInvariant()}-{container}";
         }
 
-        private async Task<CloudBlobClient> CreateTenantCloudBlobClientAsync(ITenant tenant, BlobStorageConfiguration configuration)
+        private async Task<CloudBlobClient> CreateCloudBlobClientAsync(BlobStorageConfiguration configuration)
         {
-            if (tenant is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenant));
-            }
-
             if (configuration is null)
             {
                 throw new System.ArgumentNullException(nameof(configuration));
@@ -242,9 +237,13 @@ namespace Corvus.Azure.Storage.Tenancy
             {
                 account = CloudStorageAccount.DevelopmentStorageAccount;
             }
+            else if (string.IsNullOrWhiteSpace(configuration.AccountKeySecretName))
+            {
+                account = CloudStorageAccount.Parse(configuration.AccountName);
+            }
             else
             {
-                string accountKey = await this.GetAccountKeyAsync(tenant, configuration).ConfigureAwait(false);
+                string accountKey = await this.GetAccountKeyAsync(configuration).ConfigureAwait(false);
                 var credentials = new StorageCredentials(configuration.AccountName, accountKey);
                 account = new CloudStorageAccount(credentials, configuration.AccountName, null, true);
             }
@@ -252,13 +251,8 @@ namespace Corvus.Azure.Storage.Tenancy
             return account.CreateCloudBlobClient();
         }
 
-        private async Task<string> GetAccountKeyAsync(ITenant tenant, BlobStorageConfiguration storageConfiguration)
+        private async Task<string> GetAccountKeyAsync(BlobStorageConfiguration storageConfiguration)
         {
-            if (tenant is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenant));
-            }
-
             if (storageConfiguration is null)
             {
                 throw new System.ArgumentNullException(nameof(storageConfiguration));
@@ -267,7 +261,7 @@ namespace Corvus.Azure.Storage.Tenancy
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
             var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
-            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{tenant.GetKeyVaultName()}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
+            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
             return accountKey.Value;
         }
 

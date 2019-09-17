@@ -13,7 +13,6 @@ namespace Corvus.Azure.Storage.Tenancy
     public static class BlobStorageTenantExtensions
     {
         private const string DefaultStorageConfigurationKey = "DefaultStorageConfiguration";
-        private const string KeyVaultNameKey = "KeyVaultName";
 
         /// <summary>
         /// Get the configuration for the specified blob container definition for a particular tenant.
@@ -106,41 +105,6 @@ namespace Corvus.Azure.Storage.Tenancy
             }
 
             tenant.Properties.Set(DefaultStorageConfigurationKey, defaultConfiguration);
-        }
-
-        /// <summary>
-        /// Gets the key value name for the tenant.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to set the key vault name.</param>
-        /// <returns>The name of the key vault.</returns>
-        public static string GetKeyVaultName(this ITenant tenant)
-        {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (tenant.Properties.TryGet(KeyVaultNameKey, out string vaultName))
-            {
-                return vaultName;
-            }
-
-            throw new InvalidOperationException("The vault name has not been set for the tenant");
-        }
-
-        /// <summary>
-        /// Sets the key value namefor the tenant.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to set the key vault name.</param>
-        /// <param name="keyVaultName">The name of the key vault.</param>
-        public static void SetKeyVaultName(this ITenant tenant, string keyVaultName)
-        {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            tenant.Properties.Set(KeyVaultNameKey, keyVaultName);
         }
 
         private static string GetConfigurationKey(BlobStorageContainerDefinition definition)

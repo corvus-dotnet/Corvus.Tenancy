@@ -21,6 +21,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <summary>
         /// Gets or sets the account name.
         /// </summary>
+        /// <remarks>If the account key secret name is empty, then this should contain a complete connection string.</remarks>
         public string AccountName { get; set; }
 
         /// <summary>
@@ -36,14 +37,14 @@ namespace Corvus.Azure.Storage.Tenancy
         public BlobContainerPublicAccessType? AccessType { get; set; }
 
         /// <summary>
+        /// Gets or sets the key value name.
+        /// </summary>
+        public string KeyVaultName { get; set; }
+
+        /// <summary>
         /// Gets or sets the account key secret mame.
         /// </summary>
         public string AccountKeySecretName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the account key configuration key.
-        /// </summary>
-        public string AccountKeyConfigurationKey { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable the tenant ID prefix.

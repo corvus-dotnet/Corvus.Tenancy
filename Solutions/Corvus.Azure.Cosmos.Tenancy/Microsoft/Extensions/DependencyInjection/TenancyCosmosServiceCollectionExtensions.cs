@@ -41,33 +41,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configuration != null)
             {
-                services.Configure<RootTenantDefaultCosmosConfigurationOptions>(configuration);
+                services.Configure<RootTenantCosmosConfigurationOptions>(configuration);
             }
 
             services.AddRootTenant();
 
             services.AddTenantCosmosContainerFactory((sp, rootTenant) =>
             {
-                RootTenantDefaultCosmosConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantDefaultCosmosConfigurationOptions>>().Value;
-                if (string.IsNullOrWhiteSpace(options.CosmosAccountUri))
+                RootTenantCosmosConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantCosmosConfigurationOptions>>().Value;
+                if (string.IsNullOrWhiteSpace(options.AccountUri))
                 {
                     ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.CosmosAccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                    string message = $"No configuration has been provided for {nameof(options.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
                     logger?.LogWarning(message);
                 }
 
-                CosmosConfiguration defaultConfiguration = sp.GetRequiredService<CosmosConfiguration>();
-
-                defaultConfiguration.AccountUri = options.CosmosAccountUri;
-                defaultConfiguration.ContainerName = string.IsNullOrWhiteSpace(options.CosmosContainerName) ? null : options.CosmosContainerName;
-                defaultConfiguration.DatabaseName = string.IsNullOrWhiteSpace(options.CosmosDatabaseName) ? null : options.CosmosDatabaseName;
-                defaultConfiguration.PartitionKeyPath = string.IsNullOrWhiteSpace(options.CosmosPartitionKeyPath) ? null : options.CosmosPartitionKeyPath;
-
-                defaultConfiguration.AccountKeySecretName = options.CosmosAccountKeySecretName;
-
-                rootTenant.SetDefaultCosmosConfiguration(defaultConfiguration);
-
-                rootTenant.SetKeyVaultName(options.KeyVaultName);
+                rootTenant.SetDefaultCosmosConfiguration(options.CreateCosmosConfigurationInstance());
             });
 
             return services;

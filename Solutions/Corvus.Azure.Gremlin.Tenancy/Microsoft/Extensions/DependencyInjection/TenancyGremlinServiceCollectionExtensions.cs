@@ -41,33 +41,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configuration != null)
             {
-                services.Configure<RootTenantDefaultGremlinConfigurationOptions>(configuration);
+                services.Configure<RootTenantGremlinConfigurationOptions>(configuration);
             }
 
             services.AddRootTenant();
 
             services.AddTenantGremlinContainerFactory((sp, rootTenant) =>
             {
-                RootTenantDefaultGremlinConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantDefaultGremlinConfigurationOptions>>().Value;
-                if (string.IsNullOrWhiteSpace(options.GremlinHostName))
+                RootTenantGremlinConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantGremlinConfigurationOptions>>().Value;
+                if (string.IsNullOrWhiteSpace(options.HostName))
                 {
                     ILogger<GremlinConfiguration> logger = sp.GetService<ILogger<GremlinConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.GremlinHostName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                    string message = $"No configuration has been provided for {nameof(options.HostName)}; development storage will be used. Please ensure the Storage Emulator is running.";
                     logger?.LogWarning(message);
                 }
 
-                GremlinConfiguration defaultConfiguration = sp.GetRequiredService<GremlinConfiguration>();
-
-                defaultConfiguration.HostName = options.GremlinHostName;
-                defaultConfiguration.Port = options.GremlinPort;
-                defaultConfiguration.ContainerName = string.IsNullOrWhiteSpace(options.GremlinContainerName) ? null : options.GremlinContainerName;
-                defaultConfiguration.DatabaseName = string.IsNullOrWhiteSpace(options.GremlinDatabaseName) ? null : options.GremlinDatabaseName;
-
-                defaultConfiguration.AuthKeySecretName = options.GremlinAuthKeySecretName;
-
-                rootTenant.SetDefaultGremlinConfiguration(defaultConfiguration);
-
-                rootTenant.SetKeyVaultName(options.KeyVaultName);
+                rootTenant.SetDefaultGremlinConfiguration(options.CreateGremlinConfigurationInstance());
             });
 
             return services;
