@@ -35,8 +35,8 @@ namespace Corvus.Tenancy.Specs.Bindings
                     };
                     IConfigurationRoot config = new ConfigurationBuilder()
                         .AddInMemoryCollection(configData)
-                        .AddJsonFile("local.settings.json", true, true)
                         .AddEnvironmentVariables()
+                        .AddJsonFile("local.settings.json", true, true)
                         .Build();
                     serviceCollection.AddSingleton(config);
                     serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
