@@ -41,14 +41,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configuration != null)
             {
-                services.Configure<RootTenantCosmosConfigurationOptions>(configuration);
+                services.Configure<CosmosConfiguration>(configuration.GetSection("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS"));
             }
 
             services.AddRootTenant();
 
             services.AddTenantCosmosContainerFactory((sp, rootTenant) =>
             {
-                RootTenantCosmosConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantCosmosConfigurationOptions>>().Value;
+                CosmosConfiguration options = sp.GetRequiredService<IOptions<CosmosConfiguration>>().Value;
                 if (string.IsNullOrWhiteSpace(options.AccountUri))
                 {
                     ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     logger?.LogWarning(message);
                 }
 
-                rootTenant.SetDefaultCosmosConfiguration(options.CreateCosmosConfigurationInstance());
+                rootTenant.SetDefaultCosmosConfiguration(options);
             });
 
             return services;

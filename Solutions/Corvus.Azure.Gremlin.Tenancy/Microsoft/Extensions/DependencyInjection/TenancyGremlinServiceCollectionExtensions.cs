@@ -41,14 +41,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configuration != null)
             {
-                services.Configure<RootTenantGremlinConfigurationOptions>(configuration);
+                services.Configure<GremlinConfiguration>(configuration.GetSection("ROOTTENANTGREMLINCONFIGURATIONOPTIONS"));
             }
 
             services.AddRootTenant();
 
             services.AddTenantGremlinContainerFactory((sp, rootTenant) =>
             {
-                RootTenantGremlinConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantGremlinConfigurationOptions>>().Value;
+                GremlinConfiguration options = sp.GetRequiredService<IOptions<GremlinConfiguration>>().Value;
                 if (string.IsNullOrWhiteSpace(options.HostName))
                 {
                     ILogger<GremlinConfiguration> logger = sp.GetService<ILogger<GremlinConfiguration>>();
@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     logger?.LogWarning(message);
                 }
 
-                rootTenant.SetDefaultGremlinConfiguration(options.CreateGremlinConfigurationInstance());
+                rootTenant.SetDefaultGremlinConfiguration(options);
             });
 
             return services;

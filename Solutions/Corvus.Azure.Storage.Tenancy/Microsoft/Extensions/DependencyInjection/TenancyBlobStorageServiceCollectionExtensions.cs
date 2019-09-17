@@ -40,33 +40,23 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (configuration != null)
             {
-                services.Configure<RootTenantBlobStorageConfigurationOptions>(configuration);
+                services.Configure<BlobStorageConfiguration>(configuration.GetSection("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS"));
             }
 
             services.AddRootTenant();
 
             services.AddTenantCloudBlobContainerFactory((sp, rootTenant) =>
             {
-                RootTenantBlobStorageConfigurationOptions options = sp.GetRequiredService<IOptions<RootTenantBlobStorageConfigurationOptions>>().Value;
+                BlobStorageConfiguration options = sp.GetRequiredService<IOptions<BlobStorageConfiguration>>().Value;
                 if (string.IsNullOrWhiteSpace(options.AccountName))
                 {
                     ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
 
-                    string defaultConnectionString = configuration?.GetValue<string>("STORAGEACCOUNTCONNECTIONSTRING");
-                    if (!string.IsNullOrWhiteSpace(defaultConnectionString))
-                    {
-                        options.AccountName = defaultConnectionString;
-                        string message = $"No configuration has been provided for {nameof(options.AccountName)}; the connection string in the configuration key STORAGEACCOUNTCONNECTIONSTRING will be used.";
-                        logger?.LogWarning(message);
-                    }
-                    else
-                    {
-                        string message = $"No configuration has been provided for {nameof(options.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                        logger?.LogWarning(message);
-                    }
+                    string message = $"No configuration has been provided for {nameof(options.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                    logger?.LogWarning(message);
                 }
 
-                rootTenant.SetDefaultStorageConfiguration(options.CreateBlobStorageConfigurationInstance());
+                rootTenant.SetDefaultStorageConfiguration(options);
             });
 
             return services;
