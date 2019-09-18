@@ -39,13 +39,13 @@ namespace Corvus.Tenancy.Specs.Bindings
             string containerBase = Guid.NewGuid().ToString();
 
             CosmosConfiguration config = tenantProvider.Root.GetDefaultCosmosConfiguration();
-          //  config.DatabaseName = "endjinspecsshareddatabase";
-          //  config.DisableTenantIdPrefix = true;
+            config.DatabaseName = "endjinspecssharedthroughput";
+            config.DisableTenantIdPrefix = true;
             tenantProvider.Root.SetDefaultCosmosConfiguration(config);
 
             Container tenancySpecsContainer = await factory.GetContainerForTenantAsync(
                 tenantProvider.Root,
-                new CosmosContainerDefinition("endjinspecsshareddatabase", $"{containerBase}tenancyspecs", "/partitionKey", databaseThroughput: 400));
+                new CosmosContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs", "/partitionKey", databaseThroughput: 400));
 
             featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
         }
