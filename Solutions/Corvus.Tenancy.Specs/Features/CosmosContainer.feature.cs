@@ -18,25 +18,25 @@ namespace Corvus.Tenancy.Specs.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("CloudBlobContainer")]
+    [NUnit.Framework.DescriptionAttribute("ComsosContainer")]
     [NUnit.Framework.CategoryAttribute("setupContainer")]
-    [NUnit.Framework.CategoryAttribute("setupTenantedCloudBlobContainer")]
-    public partial class CloudBlobContainerFeature
+    [NUnit.Framework.CategoryAttribute("setupTenantedCosmosContainer")]
+    public partial class ComsosContainerFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
-#line 1 "CloudBlobContainer.feature"
+#line 1 "CosmosContainer.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "CloudBlobContainer", "\tIn order to use cloud blob storage for tenanted services\r\n\tAs a developer\r\n\tI wa" +
-                    "nt to be able to manage the container", ProgrammingLanguage.CSharp, new string[] {
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "ComsosContainer", "\tIn order to use cosmos storage for tenanted services\r\n\tAs a developer\r\n\tI want t" +
+                    "o be able to manage the container", ProgrammingLanguage.CSharp, new string[] {
                         "setupContainer",
-                        "setupTenantedCloudBlobContainer"});
+                        "setupTenantedCosmosContainer"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -75,15 +75,15 @@ namespace Corvus.Tenancy.Specs.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Create a container")]
-        public virtual void CreateAContainer()
+        [NUnit.Framework.DescriptionAttribute("Create a cosmos container")]
+        public virtual void CreateACosmosContainer()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a container", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a cosmos container", null, ((string[])(null)));
 #line 10
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 11
- testRunner.Then("I should be able to get the tenanted cloud blob container", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I should be able to get the tenanted cosmos container", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }

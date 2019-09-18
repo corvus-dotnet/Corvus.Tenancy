@@ -8,4 +8,4 @@ Feature: CloudBlobContainer
 
 
 Scenario: Create a container
-	Then I should be able to get the tenanted container
+	Then I should be able to get the tenanted cloud blob container

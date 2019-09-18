@@ -41,6 +41,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                     serviceCollection.AddSingleton(config);
                     serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
                     serviceCollection.AddTenantCloudBlobContainerFactory(config);
+                    serviceCollection.AddTenantCosmosContainerFactory(config);
                 });
         }
     }

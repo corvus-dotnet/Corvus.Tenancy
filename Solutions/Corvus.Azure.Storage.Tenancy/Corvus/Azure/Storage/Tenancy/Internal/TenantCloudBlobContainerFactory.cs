@@ -4,7 +4,6 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Corvus.Tenancy;
