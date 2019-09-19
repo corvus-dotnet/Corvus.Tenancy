@@ -92,7 +92,7 @@ namespace Corvus.Tenancy
 
             if (tenant.Id == this.Root.Id)
             {
-                return tenant;
+                return this.Root;
             }
 
             CloudBlobContainer container = await this.GetContainerForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
@@ -122,7 +122,7 @@ namespace Corvus.Tenancy
 
             CloudBlobContainer cloudBlobContainer = await this.GetContainerForChildTenantsOf(parentTenantId).ConfigureAwait(false);
             Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
-            child.Id = Path.Combine(parentTenantId, Guid.NewGuid().ToString());
+            child.Id = parentTenantId.CreateChildId();
             CloudBlockBlob blob = cloudBlobContainer.GetBlockBlobReference(child.Id);
 
             using (CloudBlobStream stream = await blob.OpenWriteAsync(
@@ -148,7 +148,7 @@ namespace Corvus.Tenancy
         private async Task<CloudBlobContainer> GetContainerForChildTenantsOf(string tenantId)
         {
             // Skip the root id
-            IEnumerable<string> ids = tenantId.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
+            IEnumerable<string> ids = tenantId.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
 
             ITenant currentTenant = this.Root;
 
@@ -162,7 +162,7 @@ namespace Corvus.Tenancy
             foreach (string id in ids)
             {
                 // Add the next tenant's ID
-                currentTenantId.Append("/");
+                currentTenantId.Append("_");
                 currentTenantId.Append(id);
 
                 // Get the tenant from its parent's container

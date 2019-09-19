@@ -2,6 +2,8 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
+using System;
+
 namespace Corvus.Tenancy
 {
     /// <summary>
@@ -25,6 +27,17 @@ namespace Corvus.Tenancy
         }
 
         /// <summary>
+        /// Creates an ID for a child from the parent Id and a unique ID.
+        /// </summary>
+        /// <param name="parentId">The full parent ID.</param>
+        /// <param name="childGuid">The unique child ID.</param>
+        /// <returns>The combined ID for the child.</returns>
+        public static string CreateChildId(this string parentId, string childGuid = null)
+        {
+            return parentId + "_" + (childGuid ?? Guid.NewGuid().ToString());
+        }
+
+        /// <summary>
         /// Gets the id of the parent of a tenant.
         /// </summary>
         /// <param name="tenantId">The tenant ID.</param>
@@ -41,7 +54,7 @@ namespace Corvus.Tenancy
                 return null;
             }
 
-            return tenantId.Substring(0, tenantId.LastIndexOf('/'));
+            return tenantId.Substring(0, tenantId.LastIndexOf('_'));
         }
     }
 }
