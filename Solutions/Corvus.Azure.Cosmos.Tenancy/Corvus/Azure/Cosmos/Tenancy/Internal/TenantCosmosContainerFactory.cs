@@ -15,7 +15,6 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// A factory for a <see cref="Container"/>.
@@ -47,9 +46,9 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// </para>
     /// <para>
     /// <code>
-    /// TenantCloudBlobContainerFactory factory;
+    /// TenantCosmosContainerFactory factory;
     ///
-    /// var repository = await factory.GetBlobContainerForTenantAsync(tenantProvider.Root, new BlobStorageContainerDefinition("somecontainer"));
+    /// var repository = await factory.GetComosContainerForTenantAsync(tenantProvider.Root, new CosmosContainerDefinition("somecontainer"));
     /// </code>
     /// </para>
     /// <para>
@@ -57,12 +56,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
-    /// Note that it will be possible for code that obtains a CloudBlobContainer in this way to use the resulting object to access
-    /// the CloudBlobClient and thus access other blob contains in the same container. As such these objects should only ever be
-    /// handed to trusted code.
-    /// </para>
-    /// <para>
-    /// Note also that because we have not wrapped the resulting CloudBlobContainer in a class of our own, we cannot automatically
+    /// Note also that because we have not wrapped the resulting Container in a class of our own, we cannot automatically
     /// implement key rotation.
     /// </para>
     /// </remarks>
@@ -92,7 +86,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// </summary>
         /// <param name="tenant">The tenant for which to build the definition.</param>
         /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
-        /// <returns>A blob container definition unique to the tenant.</returns>
+        /// <returns>A Cosmos container definition unique to the tenant.</returns>
         public static CosmosContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
             if (tenant is null)
@@ -109,18 +103,18 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         }
 
         /// <summary>
-        /// Gets the cache key for a tenant blob container.
+        /// Gets the cache key for a tenant Cosmos container.
         /// </summary>
-        /// <param name="tenantBlobStorageContainerDefinition">The definition of the tenant blob container.</param>
+        /// <param name="tenantCosmosContainerDefinition">The definition of the tenant Cosmos container.</param>
         /// <returns>The cache key.</returns>
-        public static object GetKeyFor(CosmosContainerDefinition tenantBlobStorageContainerDefinition)
+        public static object GetKeyFor(CosmosContainerDefinition tenantCosmosContainerDefinition)
         {
-            if (tenantBlobStorageContainerDefinition is null)
+            if (tenantCosmosContainerDefinition is null)
             {
-                throw new System.ArgumentNullException(nameof(tenantBlobStorageContainerDefinition));
+                throw new System.ArgumentNullException(nameof(tenantCosmosContainerDefinition));
             }
 
-            return $"{tenantBlobStorageContainerDefinition.DatabaseName}__{tenantBlobStorageContainerDefinition.ContainerName}";
+            return $"{tenantCosmosContainerDefinition.DatabaseName}__{tenantCosmosContainerDefinition.ContainerName}";
         }
 
         /// <summary>
@@ -139,7 +133,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         }
 
         /// <summary>
-        /// Get a blob container for a tenant.
+        /// Get a Cosmos container for a tenant.
         /// </summary>
         /// <param name="tenant">The tenant for which to retrieve the container.</param>
         /// <param name="containerDefinition">The details of the container to create.</param>
@@ -159,12 +153,12 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(containerDefinition));
             }
 
-            CosmosContainerDefinition tenantedBlobStorageContainerDefinition = TenantCosmosContainerFactory.GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
-            object key = GetKeyFor(tenantedBlobStorageContainerDefinition);
+            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
+            object key = GetKeyFor(tenantedCosmosContainerDefinition);
 
             return this.containers.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedBlobStorageContainerDefinition).ConfigureAwait(false));
+                async _ => await this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition).ConfigureAwait(false));
         }
 
         /// <summary>
@@ -258,11 +252,11 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             return accountKey.Value;
         }
 
-        private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedBlobStorageContainerDefinition)
+        private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedCosmosContainerDefinition)
         {
             CosmosConfiguration configuration = tenant.GetCosmosConfiguration(repositoryDefinition);
 
-            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration).ConfigureAwait(false);
+            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedCosmosContainerDefinition, configuration).ConfigureAwait(false);
         }
     }
 }

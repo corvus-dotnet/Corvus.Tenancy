@@ -6,11 +6,9 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
-    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-    using Microsoft.Rest;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted

@@ -7,8 +7,6 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy.Internal;
-    using Corvus.ContentHandling;
-    using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
