@@ -2,10 +2,10 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-using System;
-
 namespace Corvus.Tenancy
 {
+    using System;
+
     /// <summary>
     /// Extensions for the <see cref="ITenant"/>.
     /// </summary>
