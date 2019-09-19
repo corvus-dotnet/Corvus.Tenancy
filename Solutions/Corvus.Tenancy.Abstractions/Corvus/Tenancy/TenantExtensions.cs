@@ -20,7 +20,7 @@ namespace Corvus.Tenancy
         {
             if (tenant is null)
             {
-                throw new System.ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(tenant));
             }
 
             return GetParentId(tenant.Id);
@@ -46,7 +46,7 @@ namespace Corvus.Tenancy
         {
             if (tenantId is null)
             {
-                throw new System.ArgumentNullException(nameof(tenantId));
+                throw new ArgumentNullException(nameof(tenantId));
             }
 
             if (tenantId == RootTenant.RootTenantId)
