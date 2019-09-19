@@ -54,7 +54,7 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Gets or sets the container definition for the tenant store.
         /// </summary>
-        public BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("endjintenancy");
+        public BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("corvustenancy");
 
         /// <inheritdoc/>
         public ITenant Root { get; }
