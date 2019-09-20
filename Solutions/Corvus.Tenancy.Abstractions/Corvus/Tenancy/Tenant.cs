@@ -37,7 +37,7 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public PropertyBag Properties
         {
-            get;
+            get; set;
         }
 
         /// <inheritdoc/>

@@ -79,17 +79,58 @@ namespace Corvus.Tenancy.Specs.Features
         public virtual void CreateAChildTenant()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a child tenant", null, ((string[])(null)));
-#line 10
+#line 9
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
-#line 11
+#line 10
  testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 12
+#line 11
  testRunner.When("I get the tenant id of the tenant called \'ChildTenant1\' and call it \'ChildTenantI" +
                     "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 13
+#line 12
  testRunner.And("I get the tenant with the id called \'ChildTenantId\' and call it \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 14
+#line 13
+ testRunner.Then("the tenant called \'Result\' should be the same as the tenant called \'ChildTenant1\'" +
+                    "", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Update a child tenant")]
+        public virtual void UpdateAChildTenant()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Update a child tenant", null, ((string[])(null)));
+#line 15
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
+#line 16
+ testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Key",
+                        "Value",
+                        "Type"});
+            table1.AddRow(new string[] {
+                        "FirstKey",
+                        "1",
+                        "integer"});
+            table1.AddRow(new string[] {
+                        "SecondKey",
+                        "This is a string",
+                        "string"});
+            table1.AddRow(new string[] {
+                        "ThirdKey",
+                        "1999-01-17",
+                        "datetimeoffset"});
+#line 17
+ testRunner.When("I update the properties of the tenant called \'ChildTenant1\'", ((string)(null)), table1, "When ");
+#line 22
+ testRunner.And("I get the tenant id of the tenant called \'ChildTenant1\' and call it \'ChildTenantI" +
+                    "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 23
+ testRunner.And("I get the tenant with the id called \'ChildTenantId\' and call it \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 24
  testRunner.Then("the tenant called \'Result\' should be the same as the tenant called \'ChildTenant1\'" +
                     "", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden

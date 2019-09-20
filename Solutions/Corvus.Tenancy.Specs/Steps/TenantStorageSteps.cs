@@ -6,6 +6,7 @@
     using Corvus.SpecFlow.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
     using TechTalk.SpecFlow;
 
@@ -55,5 +56,42 @@
             this.scenarioContext.Set(tenant, tenantName);
         }
 
+        [When(@"I update the properties of the tenant called '(.*)'")]
+        public void WhenIUpdateThePropertiesOfTheTenantCalled(string tenantName, Table table)
+        {
+            ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
+            ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
+
+            foreach (TableRow row in table.Rows)
+            {
+                row.TryGetValue("Key", out string key);
+                row.TryGetValue("Value", out string value);
+                row.TryGetValue("Type", out string type);
+                switch (type)
+                {
+                    case "string":
+                        {
+                            tenant.Properties.Set(key, value);
+                            break;
+                        }
+
+                    case "integer":
+                        {
+                            tenant.Properties.Set(key, int.Parse(value));
+                            break;
+                        }
+
+                    case "datetimeoffset":
+                        {
+                            tenant.Properties.Set(key, DateTimeOffset.Parse(value));
+                            break;
+                        }
+
+                    default:
+                        throw new InvalidOperationException($"Unknown data type '{type}'");
+                }
+            }
+            provider.UpdateTenantAsync(tenant);
+        }
     }
 }
