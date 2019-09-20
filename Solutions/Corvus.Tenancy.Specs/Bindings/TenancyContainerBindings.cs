@@ -5,6 +5,7 @@
 namespace Corvus.Tenancy.Specs.Bindings
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
@@ -38,8 +39,18 @@ namespace Corvus.Tenancy.Specs.Bindings
                         .AddEnvironmentVariables()
                         .AddJsonFile("local.settings.json", true, true)
                         .Build();
+
                     serviceCollection.AddSingleton(config);
-                    serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
+
+                    if (featureContext.FeatureInfo.Tags.Any(t => t == "withBlobStorageTenantProvider"))
+                    {
+                        serviceCollection.AddTenantProviderBlobStore();
+                    }
+                    else
+                    {
+                        serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
+                    }
+
                     serviceCollection.AddTenantCloudBlobContainerFactory(config);
                     serviceCollection.AddTenantCosmosContainerFactory(config);
                 });

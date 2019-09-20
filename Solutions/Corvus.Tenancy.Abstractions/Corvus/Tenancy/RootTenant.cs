@@ -4,6 +4,7 @@
 
 namespace Corvus.Tenancy
 {
+    using System;
     using Corvus.Extensions.Json;
 
     /// <summary>
@@ -14,7 +15,7 @@ namespace Corvus.Tenancy
         /// <summary>
         /// The root tenant ID.
         /// </summary>
-        public const string RootTenantId = "RootTenant";
+        public static readonly string RootTenantId = TenantExtensions.EncodeGuid(Guid.Parse("AB5064F2-6816-4B78-B327-951C8B08F347"));
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootTenant"/> class.

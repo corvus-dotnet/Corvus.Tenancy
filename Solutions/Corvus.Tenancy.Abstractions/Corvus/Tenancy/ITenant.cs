@@ -29,7 +29,7 @@ namespace Corvus.Tenancy
         /// The id must be formed in a path format, from the root tenant to this tenant. It is recommend that you use guids
         /// to identify your tenant, though the ids need only be unique within the parent tenant.
         /// </para>
-        /// <para>e.g. <c>RootTenant/22de5c9a-385d-48a0-8ea8-73dca9cdd0db/98c86eb9-dfbf-48ba-ba57-19561fc4114a</c>.</para>
+        /// <para>e.g. <c>RootTenant_22de5c9a-385d-48a0-8ea8-73dca9cdd0db_98c86eb9-dfbf-48ba-ba57-19561fc4114a</c>.</para>
         /// </remarks>
         string Id { get; }
 

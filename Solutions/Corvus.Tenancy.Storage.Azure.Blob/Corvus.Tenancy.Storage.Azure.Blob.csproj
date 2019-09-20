@@ -14,6 +14,10 @@
   <Import Project="..\Common.NetStandard_2_0.proj" />
 
   <ItemGroup>
+    <PackageReference Include="Corvus.Extensions" Version="0.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Corvus.Azure.Storage.Tenancy\Corvus.Azure.Storage.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Tenancy.Abstractions\Corvus.Tenancy.Abstractions.csproj" />
   </ItemGroup>

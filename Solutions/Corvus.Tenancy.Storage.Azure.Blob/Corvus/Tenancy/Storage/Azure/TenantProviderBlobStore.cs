@@ -6,11 +6,14 @@ namespace Corvus.Tenancy
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Xml;
     using Corvus.Azure.Storage.Tenancy;
+    using Corvus.Extensions;
     using Corvus.Extensions.Json;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
@@ -23,12 +26,9 @@ namespace Corvus.Tenancy
     public class TenantProviderBlobStore
         : ITenantProvider
     {
-        private static readonly BlobRequestOptions DefaultRequestOptions = new BlobRequestOptions();
-        private static readonly OperationContext DefaultOperationContext = new OperationContext();
         private readonly IServiceProvider serviceProvider;
         private readonly ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory;
         private readonly JsonSerializerSettings serializerSettings;
-        private readonly JsonSerializer serializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantProviderBlobStore"/> class.
@@ -48,7 +48,6 @@ namespace Corvus.Tenancy
             this.Root = tenant ?? throw new ArgumentNullException(nameof(tenant));
             this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory ?? throw new ArgumentNullException(nameof(tenantCloudBlobContainerFactory));
             this.serializerSettings = serializerSettingsProvider.Instance;
-            this.serializer = JsonSerializer.Create(this.serializerSettings);
         }
 
         /// <summary>
@@ -77,9 +76,20 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string continuationToken = null)
+        public async Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string continuationToken = null)
         {
-            throw new NotImplementedException();
+            if (tenantId is null)
+            {
+                throw new ArgumentNullException(nameof(tenantId));
+            }
+
+            CloudBlobContainer container = await this.GetContainerForChildTenantsOf(tenantId).ConfigureAwait(false);
+
+            BlobContinuationToken blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
+
+            BlobResultSegment segment = await container.ListBlobsSegmentedAsync(null, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
+
+            return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name).ToList(), GenerateContinuationToken(segment.ContinuationToken));
         }
 
         /// <inheritdoc/>
@@ -98,16 +108,8 @@ namespace Corvus.Tenancy
             CloudBlobContainer container = await this.GetContainerForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
 
             CloudBlockBlob blob = container.GetBlockBlobReference(tenant.Id);
-
-            using (CloudBlobStream stream = await blob.OpenWriteAsync(
-                new AccessCondition { IfMatchETag = tenant.ETag },
-                DefaultRequestOptions,
-                DefaultOperationContext).ConfigureAwait(false))
-            using (var writer = new StreamWriter(stream))
-            {
-                this.serializer.Serialize(writer, tenant);
-            }
-
+            string text = JsonConvert.SerializeObject(tenant, this.serializerSettings);
+            await blob.UploadTextAsync(text).ConfigureAwait(false);
             tenant.ETag = blob.Properties.ETag;
             return tenant;
         }
@@ -125,18 +127,49 @@ namespace Corvus.Tenancy
             child.Id = parentTenantId.CreateChildId();
             CloudBlockBlob blob = cloudBlobContainer.GetBlockBlobReference(child.Id);
 
-            using (CloudBlobStream stream = await blob.OpenWriteAsync(
-                new AccessCondition { IfMatchETag = child.ETag },
-                DefaultRequestOptions,
-                DefaultOperationContext).ConfigureAwait(false))
+            string text = JsonConvert.SerializeObject(child, this.serializerSettings);
+            await blob.UploadTextAsync(text).ConfigureAwait(false);
+            child.ETag = blob.Properties.ETag;
 
-            using (var writer = new StreamWriter(stream))
+            return child;
+        }
+
+        /// <summary>
+        /// Generates a URL-friendly continuation token from a BlobContinuationToken.
+        /// </summary>
+        /// <param name="continuationToken">The continuation token.</param>
+        /// <returns>A <see cref="BlobContinuationToken"/> built from the continuation token.</returns>
+        private static async Task<BlobContinuationToken> GetBlobContinuationTokenAsync(string continuationToken)
+        {
+            if (continuationToken == null)
             {
-                this.serializer.Serialize(writer, child);
+                return null;
             }
 
-            child.ETag = blob.Properties.ETag;
-            return child;
+            var output = new BlobContinuationToken();
+            using (var reader = XmlReader.Create(continuationToken.Base64UrlDecode().AsStream(Encoding.UTF8), new XmlReaderSettings()))
+            {
+                await output.ReadXmlAsync(reader).ConfigureAwait(false);
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Generates a URL-friendly continuation token from a BlobContinuationToken.
+        /// </summary>
+        /// <param name="continuationToken">The blob continuation token.</param>
+        /// <returns>A URL-friendly string.</returns>
+        private static string GenerateContinuationToken(BlobContinuationToken continuationToken)
+        {
+            var output = new StringBuilder();
+            using (var writer = XmlWriter.Create(output, new XmlWriterSettings() { Indent = false }))
+            {
+                continuationToken.WriteXml(writer);
+                writer.Flush();
+            }
+
+            return output.ToString().Base64UrlEncode();
         }
 
         /// <summary>
@@ -147,26 +180,19 @@ namespace Corvus.Tenancy
         /// <returns>A blob container containing the child tenants of that parent tenant.</returns>
         private async Task<CloudBlobContainer> GetContainerForChildTenantsOf(string tenantId)
         {
-            // Skip the root id
-            IEnumerable<string> ids = tenantId.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
-
             ITenant currentTenant = this.Root;
 
             // Get the repo for the root tenant
             CloudBlobContainer cloudBlobContainer = await this.GetCloudBlobContainer(currentTenant).ConfigureAwait(false);
 
-            // And set the current tenant ID to the root tenant id
-            var currentTenantId = new StringBuilder(currentTenant.Id);
+            // Skip the root id
+            IEnumerable<string> ids = tenantId.GetParentTree().Skip(1);
 
             // Now, looping over all the other tenant IDs in the path
             foreach (string id in ids)
             {
-                // Add the next tenant's ID
-                currentTenantId.Append("_");
-                currentTenantId.Append(id);
-
                 // Get the tenant from its parent's container
-                currentTenant = await this.GetTenantFromContainerAsync(currentTenantId.ToString(), cloudBlobContainer).ConfigureAwait(false);
+                currentTenant = await this.GetTenantFromContainerAsync(id, cloudBlobContainer).ConfigureAwait(false);
 
                 // Then get the container for that tenant
                 cloudBlobContainer = await this.GetCloudBlobContainer(currentTenant).ConfigureAwait(false);
@@ -190,14 +216,8 @@ namespace Corvus.Tenancy
         {
             CloudBlockBlob blob = container.GetBlockBlobReference(tenantId);
 
-            using (Stream stream = await blob.OpenReadAsync(
-                null,
-                DefaultRequestOptions,
-                DefaultOperationContext).ConfigureAwait(false))
-            using (var jsonReader = new JsonTextReader(new StreamReader(stream)))
-            {
-                return this.serializer.Deserialize(jsonReader) as ITenant;
-            }
+            string text = await blob.DownloadTextAsync().ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);
         }
     }
 }
