@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     logger?.LogWarning(message);
                 }
 
-                rootTenant.SetDefaultStorageConfiguration(options);
+                rootTenant.SetDefaultBlobStorageConfiguration(options);
             });
 
             return services;

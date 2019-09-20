@@ -25,7 +25,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="CloudBlobContainer"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via the <see cref="BlobStorageTenantExtensions.SetDefaultStorageConfiguration(ITenant, BlobStorageConfiguration)"/>
+    /// configuration comes from the tenant via the <see cref="BlobStorageTenantExtensions.SetDefaultBlobStorageConfiguration(ITenant, BlobStorageConfiguration)"/>
     /// and <see cref="BlobStorageTenantExtensions.SetBlobStorageConfiguration(ITenant, BlobStorageContainerDefinition, BlobStorageConfiguration)"/>.
     /// </para>
     /// <para>
@@ -295,7 +295,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(tenantedBlobStorageContainerDefinition));
             }
 
-            BlobStorageConfiguration configuration = tenant.GetStorageConfiguration(containerDefinition);
+            BlobStorageConfiguration configuration = tenant.GetBlobStorageConfiguration(containerDefinition);
 
             return await this.CreateCloudBlobContainerInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration).ConfigureAwait(false);
         }

@@ -7,6 +7,7 @@ namespace Corvus.Tenancy
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     /// <summary>
     /// Extensions for the <see cref="ITenant"/>.
@@ -37,6 +38,11 @@ namespace Corvus.Tenancy
         /// <returns>The combined ID for the child.</returns>
         public static string CreateChildId(this string parentId)
         {
+            if (parentId == RootTenant.RootTenantId)
+            {
+                return EncodeGuids(true, new Guid[0]);
+            }
+
             Guid[] guids = DecodeGuids(parentId);
             return EncodeGuids(true, guids);
         }
@@ -77,6 +83,12 @@ namespace Corvus.Tenancy
             }
 
             Span<Guid> guids = DecodeGuids(tenantId);
+
+            if (guids.Length == 1)
+            {
+                return RootTenant.RootTenantId;
+            }
+
             return EncodeGuids(guids.Slice(0, guids.Length - 1));
         }
 

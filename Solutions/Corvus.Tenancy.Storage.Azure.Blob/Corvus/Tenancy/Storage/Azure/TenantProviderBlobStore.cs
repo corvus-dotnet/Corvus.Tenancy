@@ -26,6 +26,8 @@ namespace Corvus.Tenancy
     public class TenantProviderBlobStore
         : ITenantProvider
     {
+        private const string LiveTenantsPrefix = "live/";
+        private const string DeletedTenantsPrefix = "deleted/";
         private readonly IServiceProvider serviceProvider;
         private readonly ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory;
         private readonly JsonSerializerSettings serializerSettings;
@@ -71,7 +73,7 @@ namespace Corvus.Tenancy
                 return this.Root;
             }
 
-            CloudBlobContainer container = await this.GetContainerForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
+            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
             return await this.GetTenantFromContainerAsync(tenantId, container).ConfigureAwait(false);
         }
 
@@ -83,13 +85,13 @@ namespace Corvus.Tenancy
                 throw new ArgumentNullException(nameof(tenantId));
             }
 
-            CloudBlobContainer container = await this.GetContainerForChildTenantsOf(tenantId).ConfigureAwait(false);
+            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId).ConfigureAwait(false);
 
             BlobContinuationToken blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
 
-            BlobResultSegment segment = await container.ListBlobsSegmentedAsync(null, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
+            BlobResultSegment segment = await container.ListBlobsSegmentedAsync(LiveTenantsPrefix, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
 
-            return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name).ToList(), GenerateContinuationToken(segment.ContinuationToken));
+            return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(segment.ContinuationToken));
         }
 
         /// <inheritdoc/>
@@ -105,9 +107,9 @@ namespace Corvus.Tenancy
                 return this.Root;
             }
 
-            CloudBlobContainer container = await this.GetContainerForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
+            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
 
-            CloudBlockBlob blob = container.GetBlockBlobReference(tenant.Id);
+            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenant.Id, container);
             string text = JsonConvert.SerializeObject(tenant, this.serializerSettings);
             await blob.UploadTextAsync(text).ConfigureAwait(false);
             tenant.ETag = blob.Properties.ETag;
@@ -122,16 +124,48 @@ namespace Corvus.Tenancy
                 throw new ArgumentNullException(nameof(parentTenantId));
             }
 
-            CloudBlobContainer cloudBlobContainer = await this.GetContainerForChildTenantsOf(parentTenantId).ConfigureAwait(false);
+            (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
             Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
             child.Id = parentTenantId.CreateChildId();
-            CloudBlockBlob blob = cloudBlobContainer.GetBlockBlobReference(child.Id);
+
+            // At the least, we need to copy the default blob storage settings from its parent
+            // to support the tenant blob store provider. We would expect this to be overridden
+            // by clients that wanted to establish their own settings.
+            BlobStorageConfiguration defaultStorageConfiguration = parentTenant.GetDefaultBlobStorageConfiguration();
+            child.SetDefaultBlobStorageConfiguration(defaultStorageConfiguration);
+            if (parentTenant.HasStorageBlobConfiguration(this.ContainerDefinition))
+            {
+                child.SetBlobStorageConfiguration(this.ContainerDefinition, parentTenant.GetBlobStorageConfiguration(this.ContainerDefinition));
+            }
+
+            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
 
             string text = JsonConvert.SerializeObject(child, this.serializerSettings);
             await blob.UploadTextAsync(text).ConfigureAwait(false);
             child.ETag = blob.Properties.ETag;
 
             return child;
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteTenantAsync(string tenantId, string eTag = null)
+        {
+            if (tenantId is null)
+            {
+                throw new ArgumentNullException(nameof(tenantId));
+            }
+
+            if (tenantId == this.Root.Id)
+            {
+                throw new InvalidOperationException("You can not delete the root tenant.");
+            }
+
+            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
+            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
+            string blobText = await blob.DownloadTextAsync().ConfigureAwait(false);
+            CloudBlockBlob deletedBlob = container.GetBlockBlobReference(DeletedTenantsPrefix + tenantId);
+            await deletedBlob.UploadTextAsync(blobText).ConfigureAwait(false);
+            await blob.DeleteIfExistsAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -162,6 +196,11 @@ namespace Corvus.Tenancy
         /// <returns>A URL-friendly string.</returns>
         private static string GenerateContinuationToken(BlobContinuationToken continuationToken)
         {
+            if (continuationToken == null)
+            {
+                return null;
+            }
+
             var output = new StringBuilder();
             using (var writer = XmlWriter.Create(output, new XmlWriterSettings() { Indent = false }))
             {
@@ -172,21 +211,31 @@ namespace Corvus.Tenancy
             return output.ToString().Base64UrlEncode();
         }
 
+        private static CloudBlockBlob GetLiveTenantBlockBlobReference(string tenantId, CloudBlobContainer container)
+        {
+            return container.GetBlockBlobReference(LiveTenantsPrefix + tenantId);
+        }
+
         /// <summary>
         /// Gets a blob container in which we store the child tenants of a given
         /// tenant.
         /// </summary>
         /// <param name="tenantId">The id of the parent tenant.</param>
-        /// <returns>A blob container containing the child tenants of that parent tenant.</returns>
-        private async Task<CloudBlobContainer> GetContainerForChildTenantsOf(string tenantId)
+        /// <returns>The parent tenant, and a blob container containing the child tenants of that parent tenant.</returns>
+        private async Task<(ITenant, CloudBlobContainer)> GetContainerAndTenantForChildTenantsOf(string tenantId)
         {
             ITenant currentTenant = this.Root;
 
             // Get the repo for the root tenant
             CloudBlobContainer cloudBlobContainer = await this.GetCloudBlobContainer(currentTenant).ConfigureAwait(false);
 
+            if (tenantId == RootTenant.RootTenantId)
+            {
+                return (this.Root, cloudBlobContainer);
+            }
+
             // Skip the root id
-            IEnumerable<string> ids = tenantId.GetParentTree().Skip(1);
+            IEnumerable<string> ids = tenantId.GetParentTree();
 
             // Now, looping over all the other tenant IDs in the path
             foreach (string id in ids)
@@ -199,7 +248,7 @@ namespace Corvus.Tenancy
             }
 
             // Finally, return the tenant repository which contains the children of the specified tenant
-            return cloudBlobContainer;
+            return (currentTenant, cloudBlobContainer);
         }
 
         /// <summary>
@@ -214,7 +263,7 @@ namespace Corvus.Tenancy
 
         private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container)
         {
-            CloudBlockBlob blob = container.GetBlockBlobReference(tenantId);
+            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
 
             string text = await blob.DownloadTextAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);

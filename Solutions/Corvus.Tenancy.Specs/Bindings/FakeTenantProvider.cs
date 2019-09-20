@@ -18,6 +18,11 @@
             throw new NotImplementedException();
         }
 
+        public Task DeleteTenantAsync(string tenantId, string eTag = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string continuationToken = null)
         {
             throw new NotImplementedException();

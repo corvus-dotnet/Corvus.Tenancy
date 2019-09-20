@@ -46,5 +46,13 @@ namespace Corvus.Tenancy
         /// <returns>The updated tenant.</returns>
         /// <remarks>Note that this will update the ETag of the tenant.</remarks>
         Task<ITenant> UpdateTenantAsync(ITenant tenant);
+
+        /// <summary>
+        /// Deletes the given tenant.
+        /// </summary>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <param name="eTag">An optional ETag. The tenant will only be deleted if the etag matches, or is null.</param>
+        /// <returns>A <see cref="Task"/> which completes once the tenant is deleted.</returns>
+        Task DeleteTenantAsync(string tenantId, string eTag = null);
     }
 }
