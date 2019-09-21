@@ -14,7 +14,7 @@
   <Import Project="..\Common.NetStandard_2_0.proj" />
 
   <ItemGroup>
-    <PackageReference Include="Corvus.ContentHandling.Json" Version="0.10.0" />
+    <PackageReference Include="Corvus.ContentHandling.Json" Version="0.11.0" />
     <PackageReference Include="Corvus.Extensions" Version="0.7.0" />
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
