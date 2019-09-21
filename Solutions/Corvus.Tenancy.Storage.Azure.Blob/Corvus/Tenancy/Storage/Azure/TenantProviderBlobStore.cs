@@ -239,7 +239,7 @@ namespace Corvus.Tenancy
             }
 
             var output = new BlobContinuationToken();
-            using (var reader = XmlReader.Create(continuationToken.Base64UrlDecode().AsStream(Encoding.UTF8), new XmlReaderSettings()))
+            using (var reader = XmlReader.Create(continuationToken.Base64UrlDecode().AsStream(Encoding.Unicode), new XmlReaderSettings { Async = true }))
             {
                 await output.ReadXmlAsync(reader).ConfigureAwait(false);
             }

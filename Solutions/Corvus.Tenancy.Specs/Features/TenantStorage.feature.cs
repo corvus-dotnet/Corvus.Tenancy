@@ -83,7 +83,7 @@ namespace Corvus.Tenancy.Specs.Features
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 10
- testRunner.When("I get a tenant with id \'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I get a tenant with id \"NotFound\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 11
  testRunner.Then("it should throw a TenantNotFoundException", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
@@ -99,15 +99,15 @@ this.ScenarioInitialize(scenarioInfo);
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 14
- testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("I create a child tenant called \"ChildTenant1\" for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 15
- testRunner.When("I get the tenant id of the tenant called \'ChildTenant1\' and call it \'ChildTenantI" +
-                    "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I get the tenant id of the tenant called \"ChildTenant1\" and call it \"ChildTenantI" +
+                    "d\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 16
- testRunner.And("I get the tenant with the id called \'ChildTenantId\' and call it \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I get the tenant with the id called \"ChildTenantId\" and call it \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 17
- testRunner.Then("the tenant called \'ChildTenant1\' should have the same ID as the tenant called \'Re" +
-                    "sult\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the tenant called \"ChildTenant1\" should have the same ID as the tenant called \"Re" +
+                    "sult\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -121,7 +121,7 @@ this.ScenarioInitialize(scenarioInfo);
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 20
- testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("I create a child tenant called \"ChildTenant1\" for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "Key",
@@ -140,15 +140,15 @@ this.ScenarioInitialize(scenarioInfo);
                         "1999-01-17",
                         "datetimeoffset"});
 #line 21
- testRunner.When("I update the properties of the tenant called \'ChildTenant1\'", ((string)(null)), table1, "When ");
+ testRunner.When("I update the properties of the tenant called \"ChildTenant1\"", ((string)(null)), table1, "When ");
 #line 26
- testRunner.And("I get the tenant id of the tenant called \'ChildTenant1\' and call it \'ChildTenantI" +
-                    "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I get the tenant id of the tenant called \"ChildTenant1\" and call it \"ChildTenantI" +
+                    "d\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 27
- testRunner.And("I get the tenant with the id called \'ChildTenantId\' and call it \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I get the tenant with the id called \"ChildTenantId\" and call it \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 28
- testRunner.Then("the tenant called \'ChildTenant1\' should have the same ID as the tenant called \'Re" +
-                    "sult\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the tenant called \"ChildTenant1\" should have the same ID as the tenant called \"Re" +
+                    "sult\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Key",
@@ -167,7 +167,7 @@ this.ScenarioInitialize(scenarioInfo);
                         "1999-01-17",
                         "datetimeoffset"});
 #line 29
- testRunner.And("the tenant called \'Result\' should have the properties", ((string)(null)), table2, "And ");
+ testRunner.And("the tenant called \"Result\" should have the properties", ((string)(null)), table2, "And ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -181,18 +181,18 @@ this.ScenarioInitialize(scenarioInfo);
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 36
- testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("I create a child tenant called \"ChildTenant1\" for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 37
- testRunner.And("I create a child tenant called \'ChildTenant2\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I create a child tenant called \"ChildTenant2\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 38
- testRunner.When("I get the tenant id of the tenant called \'ChildTenant2\' and call it \'ChildTenantI" +
-                    "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I get the tenant id of the tenant called \"ChildTenant2\" and call it \"ChildTenantI" +
+                    "d\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 39
- testRunner.And("I get the tenant with the id called \'ChildTenantId\' and call it \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I get the tenant with the id called \"ChildTenantId\" and call it \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 40
- testRunner.Then("the tenant called \'ChildTenant2\' should have the same ID as the tenant called \'Re" +
-                    "sult\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("the tenant called \"ChildTenant2\" should have the same ID as the tenant called \"Re" +
+                    "sult\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -206,25 +206,25 @@ this.ScenarioInitialize(scenarioInfo);
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
 #line 43
- testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Given("I create a child tenant called \"ChildTenant1\" for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 44
- testRunner.And("I create a child tenant called \'ChildTenant2\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I create a child tenant called \"ChildTenant2\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 45
- testRunner.And("I create a child tenant called \'ChildTenant3\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I create a child tenant called \"ChildTenant3\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 46
- testRunner.And("I create a child tenant called \'ChildTenant4\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I create a child tenant called \"ChildTenant4\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 47
- testRunner.And("I create a child tenant called \'ChildTenant5\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I create a child tenant called \"ChildTenant5\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 48
- testRunner.When("I get the tenant id of the tenant called \'ChildTenant1\' and call it \'ChildTenantI" +
-                    "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I get the tenant id of the tenant called \"ChildTenant1\" and call it \"ChildTenantI" +
+                    "d\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 49
- testRunner.And("I get the children of the tenant with the id called \'ChildTenantId\' and call them" +
-                    " \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I get the children of the tenant with the id called \"ChildTenantId\" with maxItems" +
+                    " 20 and call them \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "TenantName"});
@@ -237,8 +237,61 @@ this.ScenarioInitialize(scenarioInfo);
             table3.AddRow(new string[] {
                         "ChildTenant5"});
 #line 50
- testRunner.Then("the ids of the children called \'Result\' should match the ids of the tenants calle" +
+ testRunner.Then("the ids of the children called \"Result\" should match the ids of the tenants calle" +
                     "d", ((string)(null)), table3, "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Get children with continuation token")]
+        public virtual void GetChildrenWithContinuationToken()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get children with continuation token", null, ((string[])(null)));
+#line 57
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
+#line 58
+ testRunner.Given("I create a child tenant called \"ChildTenant1\" for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 59
+ testRunner.And("I create a child tenant called \"ChildTenant2\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 60
+ testRunner.And("I create a child tenant called \"ChildTenant3\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 61
+ testRunner.And("I create a child tenant called \"ChildTenant4\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 62
+ testRunner.And("I create a child tenant called \"ChildTenant5\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 63
+ testRunner.When("I get the tenant id of the tenant called \"ChildTenant1\" and call it \"ChildTenantI" +
+                    "d\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 64
+ testRunner.And("I get the children of the tenant with the id called \"ChildTenantId\" with maxItems" +
+                    " 2 and call them \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 65
+ testRunner.And("I get the children of the tenant with the id called \"ChildTenantId\" with maxItems" +
+                    " 20 and continuation token \"Result\" and call them \"Result2\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 66
+ testRunner.Then("there should be 2 tenants in \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 67
+ testRunner.And("there should be 2 tenants in \"Result2\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+                        "TenantName"});
+            table4.AddRow(new string[] {
+                        "ChildTenant5"});
+            table4.AddRow(new string[] {
+                        "ChildTenant4"});
+            table4.AddRow(new string[] {
+                        "ChildTenant3"});
+            table4.AddRow(new string[] {
+                        "ChildTenant2"});
+#line 68
+ testRunner.And("the ids of the children called \"Result\" and \"Result2\" should each match 2 of the " +
+                    "ids of the tenants called", ((string)(null)), table4, "And ");
 #line hidden
             this.ScenarioCleanup();
         }
@@ -248,46 +301,46 @@ this.ScenarioInitialize(scenarioInfo);
         public virtual void DeleteAChild()
         {
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Delete a child", null, ((string[])(null)));
-#line 57
+#line 75
 this.ScenarioInitialize(scenarioInfo);
             this.ScenarioStart();
-#line 58
- testRunner.Given("I create a child tenant called \'ChildTenant1\' for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 59
- testRunner.And("I create a child tenant called \'ChildTenant2\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 60
- testRunner.And("I create a child tenant called \'ChildTenant3\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 61
- testRunner.And("I create a child tenant called \'ChildTenant4\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 62
- testRunner.And("I create a child tenant called \'ChildTenant5\' for the tenant called \'ChildTenant1" +
-                    "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 63
- testRunner.When("I get the tenant id of the tenant called \'ChildTenant1\' and call it \'ChildTenantI" +
-                    "d\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 64
- testRunner.And("I get the tenant id of the tenant called \'ChildTenant3\' and call it \'DeletedChild" +
-                    "TenantId\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 65
- testRunner.And("I delete the tenant with the id called \'DeletedChildTenantId\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 66
- testRunner.And("I get the children of the tenant with the id called \'ChildTenantId\' and call them" +
-                    " \'Result\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 76
+ testRunner.Given("I create a child tenant called \"ChildTenant1\" for the root tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 77
+ testRunner.And("I create a child tenant called \"ChildTenant2\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 78
+ testRunner.And("I create a child tenant called \"ChildTenant3\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 79
+ testRunner.And("I create a child tenant called \"ChildTenant4\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 80
+ testRunner.And("I create a child tenant called \"ChildTenant5\" for the tenant called \"ChildTenant1" +
+                    "\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 81
+ testRunner.When("I get the tenant id of the tenant called \"ChildTenant1\" and call it \"ChildTenantI" +
+                    "d\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 82
+ testRunner.And("I get the tenant id of the tenant called \"ChildTenant3\" and call it \"DeletedChild" +
+                    "TenantId\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 83
+ testRunner.And("I delete the tenant with the id called \"DeletedChildTenantId\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 84
+ testRunner.And("I get the children of the tenant with the id called \"ChildTenantId\" with maxItems" +
+                    " 20 and call them \"Result\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "TenantName"});
-            table4.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "ChildTenant2"});
-            table4.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "ChildTenant4"});
-            table4.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "ChildTenant5"});
-#line 67
- testRunner.Then("the ids of the children called \'Result\' should match the ids of the tenants calle" +
-                    "d", ((string)(null)), table4, "Then ");
+#line 85
+ testRunner.Then("the ids of the children called \"Result\" should match the ids of the tenants calle" +
+                    "d", ((string)(null)), table5, "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
