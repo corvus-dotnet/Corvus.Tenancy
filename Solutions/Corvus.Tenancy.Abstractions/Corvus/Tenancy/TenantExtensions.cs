@@ -7,7 +7,6 @@ namespace Corvus.Tenancy
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
 
     /// <summary>
     /// Extensions for the <see cref="ITenant"/>.
@@ -82,14 +81,21 @@ namespace Corvus.Tenancy
                 return null;
             }
 
-            Span<Guid> guids = DecodeGuids(tenantId);
-
-            if (guids.Length == 1)
+            try
             {
-                return RootTenant.RootTenantId;
-            }
+                Span<Guid> guids = DecodeGuids(tenantId);
 
-            return EncodeGuids(guids.Slice(0, guids.Length - 1));
+                if (guids.Length == 1)
+                {
+                    return RootTenant.RootTenantId;
+                }
+
+                return EncodeGuids(guids.Slice(0, guids.Length - 1));
+            }
+            catch (Exception ex)
+            {
+                throw new FormatException("Invalid tenantId format.", ex);
+            }
         }
 
         /// <summary>
@@ -219,7 +225,7 @@ namespace Corvus.Tenancy
 
             if (guidBytes.Length % 16 != 0)
             {
-                throw new InvalidOperationException("The byte length should be a multple of 16.");
+                throw new FormatException("The byte length should be a multple of 16.");
             }
 
             var result = new Guid[guidBytes.Length / 16];

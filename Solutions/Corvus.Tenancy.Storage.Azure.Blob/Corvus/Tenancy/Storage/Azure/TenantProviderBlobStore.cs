@@ -6,15 +6,15 @@ namespace Corvus.Tenancy
 {
     using System;
     using System.Collections.Generic;
-    using System.Dynamic;
-    using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Extensions;
     using Corvus.Extensions.Json;
+    using Corvus.Tenancy.Exceptions;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +61,7 @@ namespace Corvus.Tenancy
         public ITenant Root { get; }
 
         /// <inheritdoc/>
-        public async Task<ITenant> GetTenantAsync(string tenantId)
+        public async Task<ITenant> GetTenantAsync(string tenantId, string etag = null)
         {
             if (tenantId is null)
             {
@@ -73,8 +73,19 @@ namespace Corvus.Tenancy
                 return this.Root;
             }
 
-            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
-            return await this.GetTenantFromContainerAsync(tenantId, container).ConfigureAwait(false);
+            try
+            {
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
+                return await this.GetTenantFromContainerAsync(tenantId, container, etag).ConfigureAwait(false);
+            }
+            catch (FormatException fex)
+            {
+                throw new TenantNotFoundException("Unsupported tenant ID", fex);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            {
+                throw new TenantNotFoundException();
+            }
         }
 
         /// <inheritdoc/>
@@ -85,13 +96,23 @@ namespace Corvus.Tenancy
                 throw new ArgumentNullException(nameof(tenantId));
             }
 
-            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId).ConfigureAwait(false);
+            try
+            {
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId).ConfigureAwait(false);
 
-            BlobContinuationToken blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
+                BlobContinuationToken blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
 
-            BlobResultSegment segment = await container.ListBlobsSegmentedAsync(LiveTenantsPrefix, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
-
-            return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(segment.ContinuationToken));
+                BlobResultSegment segment = await container.ListBlobsSegmentedAsync(LiveTenantsPrefix, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
+                return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(segment.ContinuationToken));
+            }
+            catch (FormatException fex)
+            {
+                throw new TenantNotFoundException("Unsupported tenant ID", fex);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            {
+                throw new TenantNotFoundException();
+            }
         }
 
         /// <inheritdoc/>
@@ -107,13 +128,28 @@ namespace Corvus.Tenancy
                 return this.Root;
             }
 
-            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
+            try
+            {
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
 
-            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenant.Id, container);
-            string text = JsonConvert.SerializeObject(tenant, this.serializerSettings);
-            await blob.UploadTextAsync(text).ConfigureAwait(false);
-            tenant.ETag = blob.Properties.ETag;
-            return tenant;
+                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenant.Id, container);
+                string text = JsonConvert.SerializeObject(tenant, this.serializerSettings);
+                await blob.UploadTextAsync(text).ConfigureAwait(false);
+                tenant.ETag = blob.Properties.ETag;
+                return tenant;
+            }
+            catch (FormatException fex)
+            {
+                throw new TenantNotFoundException("Unsupported tenant ID", fex);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            {
+                throw new TenantNotFoundException();
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            {
+                throw new TenantConflictException();
+            }
         }
 
         /// <inheritdoc/>
@@ -124,31 +160,42 @@ namespace Corvus.Tenancy
                 throw new ArgumentNullException(nameof(parentTenantId));
             }
 
-            (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
-            Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
-            child.Id = parentTenantId.CreateChildId();
-
-            // At the least, we need to copy the default blob storage settings from its parent
-            // to support the tenant blob store provider. We would expect this to be overridden
-            // by clients that wanted to establish their own settings.
-            BlobStorageConfiguration defaultStorageConfiguration = parentTenant.GetDefaultBlobStorageConfiguration();
-            child.SetDefaultBlobStorageConfiguration(defaultStorageConfiguration);
-            if (parentTenant.HasStorageBlobConfiguration(this.ContainerDefinition))
+            try
             {
-                child.SetBlobStorageConfiguration(this.ContainerDefinition, parentTenant.GetBlobStorageConfiguration(this.ContainerDefinition));
+                (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
+                Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
+                child.Id = parentTenantId.CreateChildId();
+
+                // At the least, we need to copy the default blob storage settings from its parent
+                // to support the tenant blob store provider. We would expect this to be overridden
+                // by clients that wanted to establish their own settings.
+                BlobStorageConfiguration defaultStorageConfiguration = parentTenant.GetDefaultBlobStorageConfiguration();
+                child.SetDefaultBlobStorageConfiguration(defaultStorageConfiguration);
+                if (parentTenant.HasStorageBlobConfiguration(this.ContainerDefinition))
+                {
+                    child.SetBlobStorageConfiguration(this.ContainerDefinition, parentTenant.GetBlobStorageConfiguration(this.ContainerDefinition));
+                }
+
+                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
+
+                string text = JsonConvert.SerializeObject(child, this.serializerSettings);
+                await blob.UploadTextAsync(text).ConfigureAwait(false);
+                child.ETag = blob.Properties.ETag;
+
+                return child;
             }
-
-            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
-
-            string text = JsonConvert.SerializeObject(child, this.serializerSettings);
-            await blob.UploadTextAsync(text).ConfigureAwait(false);
-            child.ETag = blob.Properties.ETag;
-
-            return child;
+            catch (FormatException fex)
+            {
+                throw new TenantNotFoundException("Unsupported tenant ID", fex);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            {
+                throw new TenantNotFoundException();
+            }
         }
 
         /// <inheritdoc/>
-        public async Task DeleteTenantAsync(string tenantId, string eTag = null)
+        public async Task DeleteTenantAsync(string tenantId)
         {
             if (tenantId is null)
             {
@@ -160,12 +207,23 @@ namespace Corvus.Tenancy
                 throw new InvalidOperationException("You can not delete the root tenant.");
             }
 
-            (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
-            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
-            string blobText = await blob.DownloadTextAsync().ConfigureAwait(false);
-            CloudBlockBlob deletedBlob = container.GetBlockBlobReference(DeletedTenantsPrefix + tenantId);
-            await deletedBlob.UploadTextAsync(blobText).ConfigureAwait(false);
-            await blob.DeleteIfExistsAsync().ConfigureAwait(false);
+            try
+            {
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
+                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
+                string blobText = await blob.DownloadTextAsync().ConfigureAwait(false);
+                CloudBlockBlob deletedBlob = container.GetBlockBlobReference(DeletedTenantsPrefix + tenantId);
+                await deletedBlob.UploadTextAsync(blobText).ConfigureAwait(false);
+                await blob.DeleteIfExistsAsync().ConfigureAwait(false);
+            }
+            catch (FormatException fex)
+            {
+                throw new TenantNotFoundException("Unsupported tenant ID", fex);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            {
+                throw new TenantNotFoundException();
+            }
         }
 
         /// <summary>
@@ -241,7 +299,7 @@ namespace Corvus.Tenancy
             foreach (string id in ids)
             {
                 // Get the tenant from its parent's container
-                currentTenant = await this.GetTenantFromContainerAsync(id, cloudBlobContainer).ConfigureAwait(false);
+                currentTenant = await this.GetTenantFromContainerAsync(id, cloudBlobContainer, null).ConfigureAwait(false);
 
                 // Then get the container for that tenant
                 cloudBlobContainer = await this.GetCloudBlobContainer(currentTenant).ConfigureAwait(false);
@@ -261,12 +319,22 @@ namespace Corvus.Tenancy
             return this.tenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(parentTenant, this.ContainerDefinition);
         }
 
-        private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container)
+        private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string etag)
         {
             CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
-
-            string text = await blob.DownloadTextAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);
+            try
+            {
+                string text = await blob.DownloadTextAsync(Encoding.UTF8, string.IsNullOrEmpty(etag) ? null : AccessCondition.GenerateIfNoneMatchCondition(etag), null, null).ConfigureAwait(false);
+                return JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotModified)
+            {
+                throw new TenantNotModifiedException();
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            {
+                throw new TenantNotFoundException();
+            }
         }
     }
 }

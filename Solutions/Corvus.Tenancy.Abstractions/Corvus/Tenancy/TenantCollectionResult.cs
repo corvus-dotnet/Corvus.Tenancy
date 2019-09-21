@@ -5,7 +5,6 @@
 namespace Corvus.Tenancy
 {
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
 
     /// <summary>
     /// A result of a request for a collection of tenants.

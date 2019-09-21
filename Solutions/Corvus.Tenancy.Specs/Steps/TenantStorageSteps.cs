@@ -3,11 +3,9 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using Corvus.Extensions.Json;
     using Corvus.SpecFlow.Extensions;
+    using Corvus.Tenancy.Exceptions;
     using Microsoft.Extensions.DependencyInjection;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
     using TechTalk.SpecFlow;
 
@@ -167,5 +165,26 @@
             string tenantId = this.scenarioContext.Get<string>(tenantIdName);
             return provider.DeleteTenantAsync(tenantId);
         }
+
+        [When(@"I get a tenant with id '(.*)'")]
+        public async Task WhenIGetATenantWithId(string tenantId)
+        {
+            ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
+            try
+            {
+                await provider.GetTenantAsync(tenantId);
+            }
+            catch(Exception ex)
+            {
+                this.scenarioContext.Set(ex);
+            }
+        }
+
+        [Then(@"it should throw a TenantNotFoundException")]
+        public void ThenItShouldThrowATenantNotFoundException()
+        {
+            Assert.IsInstanceOf<TenantNotFoundException>(this.scenarioContext.Get<Exception>());
+        }
+
     }
 }

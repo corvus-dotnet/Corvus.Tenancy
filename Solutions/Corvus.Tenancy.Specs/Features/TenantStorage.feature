@@ -6,6 +6,10 @@ Feature: TenantStorage
 	As a tenant owner
 	I want to be able to manage tenants
 
+Scenario: Get a tenant that does not exist
+	When I get a tenant with id 'NotFound'
+	Then it should throw a TenantNotFoundException
+
 Scenario: Create a child tenant
 	Given I create a child tenant called 'ChildTenant1' for the root tenant
 	When I get the tenant id of the tenant called 'ChildTenant1' and call it 'ChildTenantId'

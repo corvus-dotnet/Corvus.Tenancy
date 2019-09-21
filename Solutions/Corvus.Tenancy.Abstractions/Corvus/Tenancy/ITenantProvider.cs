@@ -20,8 +20,9 @@ namespace Corvus.Tenancy
         /// Gets the tenant for a given tenant ID.
         /// </summary>
         /// <param name="tenantId">The id of the tenant for which to get the parent.</param>
+        /// <param name="eTag">An optional ETag. The tenant will only be deleted if the etag matches, or is null.</param>
         /// <returns>The parent of the specified tenant, or null if this is the <see cref="Root"/> tenant.</returns>
-        Task<ITenant> GetTenantAsync(string tenantId);
+        Task<ITenant> GetTenantAsync(string tenantId, string eTag = null);
 
         /// <summary>
         /// Gets the child tenants for a given tenant.
@@ -51,8 +52,7 @@ namespace Corvus.Tenancy
         /// Deletes the given tenant.
         /// </summary>
         /// <param name="tenantId">The tenant ID.</param>
-        /// <param name="eTag">An optional ETag. The tenant will only be deleted if the etag matches, or is null.</param>
         /// <returns>A <see cref="Task"/> which completes once the tenant is deleted.</returns>
-        Task DeleteTenantAsync(string tenantId, string eTag = null);
+        Task DeleteTenantAsync(string tenantId);
     }
 }

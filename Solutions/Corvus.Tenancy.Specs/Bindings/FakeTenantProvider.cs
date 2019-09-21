@@ -18,7 +18,7 @@
             throw new NotImplementedException();
         }
 
-        public Task DeleteTenantAsync(string tenantId, string eTag = null)
+        public Task DeleteTenantAsync(string tenantId)
         {
             throw new NotImplementedException();
         }
@@ -28,7 +28,7 @@
             throw new NotImplementedException();
         }
 
-        public Task<ITenant> GetTenantAsync(string tenantId)
+        public Task<ITenant> GetTenantAsync(string tenantId, string etag = null)
         {
             if (tenantId == RootTenant.RootTenantId)
             {
