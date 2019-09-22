@@ -5,7 +5,6 @@
 namespace Corvus.Tenancy
 {
     using Corvus.Extensions.Json;
-    using Newtonsoft.Json;
 
     /// <summary>
     /// Describes a tenant in a multitenanted system.
@@ -41,7 +40,6 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        [JsonIgnore]
         public string ETag { get; set; }
 
         /// <inheritdoc/>
