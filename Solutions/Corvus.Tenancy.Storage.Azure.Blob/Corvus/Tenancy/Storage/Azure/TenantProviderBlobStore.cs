@@ -325,7 +325,9 @@ namespace Corvus.Tenancy
             try
             {
                 string text = await blob.DownloadTextAsync(Encoding.UTF8, string.IsNullOrEmpty(etag) ? null : AccessCondition.GenerateIfNoneMatchCondition(etag), null, null).ConfigureAwait(false);
-                return JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);
+                ITenant tenant = JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);
+                tenant.ETag = blob.Properties.ETag;
+                return tenant;
             }
             catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotModified)
             {

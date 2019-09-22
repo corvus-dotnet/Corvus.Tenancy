@@ -10,6 +10,21 @@ Scenario: Get a tenant that does not exist
 	When I get a tenant with id "NotFound"
 	Then it should throw a TenantNotFoundException
 
+Scenario: Get a tenant with an etag retrieved from a created tenant
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the ETag of the tenant called "ChildTenant1" and call it "ChildTenantETag"
+	When I get the tenant with the id called "ChildTenantId" and the ETag called "ChildTenantETag"
+	Then it should throw a TenantNotModifiedException
+
+Scenario: Get a tenant with an etag retrieved from a tenant got from the repo
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the tenant with the id called "ChildTenantId" and call it "Result"
+	And I get the ETag of the tenant called "Result" and call it "ResultETag"
+	When I get the tenant with the id called "ChildTenantId" and the ETag called "ResultETag"
+	Then it should throw a TenantNotModifiedException
+
 Scenario: Create a child tenant
 	Given I create a child tenant called "ChildTenant1" for the root tenant
 	When I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"

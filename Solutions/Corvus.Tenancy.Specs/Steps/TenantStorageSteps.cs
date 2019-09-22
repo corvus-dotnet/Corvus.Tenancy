@@ -21,6 +21,7 @@
             this.scenarioContext = scenarioContext;
         }
 
+        [Given("I get the tenant id of the tenant called \"(.*)\" and call it \"(.*)\"")]
         [When("I get the tenant id of the tenant called \"(.*)\" and call it \"(.*)\"")]
         public void WhenIGetTheTenantIdOfTheTenantCalledAndCallIt(string tenantName, string tenantIdName)
         {
@@ -28,6 +29,7 @@
             this.scenarioContext.Set(tenant.Id, tenantIdName);
         }
 
+        [Given("I get the tenant with the id called \"(.*)\" and call it \"(.*)\"")]
         [When("I get the tenant with the id called \"(.*)\" and call it \"(.*)\"")]
         public async Task WhenIGetTheTenantWithTheIdCalled(string tenantIdName, string tenantName)
         {
@@ -203,7 +205,7 @@
             {
                 await provider.GetTenantAsync(tenantId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.scenarioContext.Set(ex);
             }
@@ -213,6 +215,33 @@
         public void ThenItShouldThrowATenantNotFoundException()
         {
             Assert.IsInstanceOf<TenantNotFoundException>(this.scenarioContext.Get<Exception>());
+        }
+
+        [Given(@"I get the ETag of the tenant called ""(.*)"" and call it ""(.*)""")]
+        public void GivenIGetTheETagOfTheTenantCalledAndCallIt(string tenantName, string eTagName)
+        {
+            ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
+            this.scenarioContext.Set(tenant.ETag, eTagName);
+        }
+
+        [When(@"I get the tenant with the id called ""(.*)"" and the ETag called ""(.*)""")]
+        public async Task WhenIGetTheTenantWithTheIdCalledAndTheETagCalled(string tenantIdName, string tenantETagName)
+        {
+            try
+            {
+                ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
+                ITenant tenant = await provider.GetTenantAsync(this.scenarioContext.Get<string>(tenantIdName), this.scenarioContext.Get<string>(tenantETagName));
+            }
+            catch (Exception ex)
+            {
+                this.scenarioContext.Set(ex);
+            }
+        }
+
+        [Then(@"it should throw a TenantNotModifiedException")]
+        public void ThenItShouldThrowATenantNotModifiedException()
+        {
+            Assert.IsInstanceOf<TenantNotModifiedException>(this.scenarioContext.Get<Exception>());
         }
 
     }
