@@ -7,6 +7,7 @@ namespace Corvus.Azure.Storage.Tenancy
     using System;
     using System.Linq;
     using Corvus.Tenancy;
+    using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -46,7 +47,9 @@ namespace Corvus.Azure.Storage.Tenancy
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
                 ITenant tenant = s.GetRequiredService<RootTenant>();
-                var result = new TenantCloudBlobContainerFactory(s.GetRequiredService<IConfigurationRoot>());
+                IConfigurationRoot configurationRoot = s.GetRequiredService<IConfigurationRoot>();
+                var serviceTokenProvider = new AzureServiceTokenProvider(configurationRoot["AzureServicesAuthConnectionString"]);
+                var result = new TenantCloudBlobContainerFactory(serviceTokenProvider);
                 configureRootTenant(s, tenant);
                 return result;
             });

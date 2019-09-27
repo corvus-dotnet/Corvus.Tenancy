@@ -66,22 +66,21 @@ namespace Corvus.Azure.Storage.Tenancy
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public class TenantCloudBlobContainerFactory : ITenantCloudBlobContainerFactory
+    internal class TenantCloudBlobContainerFactory : ITenantCloudBlobContainerFactory
     {
         private const string DevelopmentStorageConnectionString = "UseDevelopmentStorage=true";
 
         private readonly ConcurrentDictionary<object, Task<CloudBlobClient>> clients = new ConcurrentDictionary<object, Task<CloudBlobClient>>();
         private readonly ConcurrentDictionary<object, Task<CloudBlobContainer>> containers = new ConcurrentDictionary<object, Task<CloudBlobContainer>>();
-        private readonly IConfiguration configuration;
+        private readonly AzureServiceTokenProvider serviceTokenProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudBlobContainerFactory"/> class.
         /// </summary>
-        /// <param name="configuration">The current configuration. Used to determine the connection
-        /// string to use when requesting an access token for KeyVault.</param>
-        public TenantCloudBlobContainerFactory(IConfiguration configuration)
+        /// <param name="serviceTokenProvider">A token provider to use when requesting an access token for KeyVault.</param>
+        public TenantCloudBlobContainerFactory(AzureServiceTokenProvider serviceTokenProvider)
         {
-            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            this.serviceTokenProvider = serviceTokenProvider ?? throw new System.ArgumentNullException(nameof(serviceTokenProvider));
         }
 
         /// <summary>
@@ -270,8 +269,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(storageConfiguration));
             }
 
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
-            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(this.serviceTokenProvider.KeyVaultTokenCallback));
 
             Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
             return accountKey.Value;
