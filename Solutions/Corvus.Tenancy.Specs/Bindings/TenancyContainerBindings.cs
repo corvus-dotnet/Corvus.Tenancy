@@ -59,7 +59,9 @@ namespace Corvus.Tenancy.Specs.Bindings
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
                     };
 
-                    serviceCollection.AddTenantCosmosContainerFactory(config, options);
+                    config.Bind("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS", options.RootTenantCosmosConfiguration);
+
+                    serviceCollection.AddTenantCosmosContainerFactory(options);
                 });
         }
     }

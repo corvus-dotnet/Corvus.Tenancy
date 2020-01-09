@@ -24,7 +24,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
         /// <returns>The service collection.</returns>
         /// <remarks>
-        /// This is typically called by <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(IServiceCollection, IConfiguration, TenantCosmosContainerFactoryOptions)"/>.
+        /// This is typically called by <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(IServiceCollection, TenantCosmosContainerFactoryOptions)"/>.
         /// </remarks>
         public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, TenantCosmosContainerFactoryOptions options = null)
         {
