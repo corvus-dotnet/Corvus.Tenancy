@@ -21,11 +21,12 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// </summary>
         /// <param name="services">The target service collection.</param>
         /// <param name="configureRootTenant">A function that configures the root tenant.</param>
+        /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
         /// <returns>The service collection.</returns>
         /// <remarks>
-        /// This is typically called by <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(IServiceCollection, IConfiguration)"/>.
+        /// This is typically called by <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(IServiceCollection, IConfiguration, TenantCosmosContainerFactoryOptions)"/>.
         /// </remarks>
-        public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant)
+        public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, TenantCosmosContainerFactoryOptions options = null)
         {
             if (services is null)
             {
@@ -46,7 +47,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             services.AddTransient<CosmosConfiguration, CosmosConfiguration>();
             services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {
-                var result = new TenantCosmosContainerFactory(s.GetRequiredService<IConfigurationRoot>(), s.GetRequiredService<ICosmosClientBuilderFactory>());
+                var result = new TenantCosmosContainerFactory(s.GetRequiredService<ICosmosClientBuilderFactory>(), options);
                 configureRootTenant(s, s.GetRequiredService<RootTenant>());
                 return result;
             });

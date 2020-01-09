@@ -6,6 +6,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
@@ -52,7 +53,13 @@ namespace Corvus.Tenancy.Specs.Bindings
                     }
 
                     serviceCollection.AddTenantCloudBlobContainerFactory(config);
-                    serviceCollection.AddTenantCosmosContainerFactory(config);
+
+                    var options = new TenantCosmosContainerFactoryOptions
+                    {
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                    };
+
+                    serviceCollection.AddTenantCosmosContainerFactory(config, options);
                 });
         }
     }

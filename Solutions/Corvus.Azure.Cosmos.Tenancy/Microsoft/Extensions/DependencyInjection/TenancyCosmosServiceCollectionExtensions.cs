@@ -27,10 +27,12 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <see cref="IOptions{RootTenantDefaultCosmosConfigurationOptions}"/> will be
         /// supplied to DI in some other way. This will typically be the root configuration.
         /// </param>
+        /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantCosmosContainerFactory(
             this IServiceCollection services,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            TenantCosmosContainerFactoryOptions options = null)
         {
             if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
@@ -46,18 +48,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddCosmosClientExtensions();
 
-            services.AddTenantCosmosContainerFactory((sp, rootTenant) =>
-            {
-                CosmosConfiguration options = sp.GetRequiredService<IOptions<CosmosConfiguration>>().Value;
-                if (string.IsNullOrWhiteSpace(options.AccountUri))
+            services.AddTenantCosmosContainerFactory(
+                (sp, rootTenant) =>
                 {
-                    ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                    logger?.LogWarning(message);
-                }
+                    CosmosConfiguration options = sp.GetRequiredService<IOptions<CosmosConfiguration>>().Value;
+                    if (string.IsNullOrWhiteSpace(options.AccountUri))
+                    {
+                        ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
+                        string message = $"No configuration has been provided for {nameof(options.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                        logger?.LogWarning(message);
+                    }
 
-                rootTenant.SetDefaultCosmosConfiguration(options);
-            });
+                    rootTenant.SetDefaultCosmosConfiguration(options);
+                },
+                options);
 
             return services;
         }
