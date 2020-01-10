@@ -21,41 +21,32 @@ namespace Microsoft.Extensions.DependencyInjection
         /// tenant's default storage account settings based on configuration settings.
         /// </summary>
         /// <param name="services">The service collection.</param>
-        /// <param name="configuration">
-        /// Configuration from which to read the settings, or null if the
-        /// <see cref="IOptions{RootTenantDefaultStorageConfigurationOptions}"/> will be
-        /// supplied to DI in some other way. This will typically be the root configuration.
-        /// </param>
+        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantCloudBlobContainerFactory(
             this IServiceCollection services,
-            IConfiguration configuration)
+            TenantCloudBlobContainerFactoryOptions options)
         {
             if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
             }
 
-            if (configuration != null)
-            {
-                services.Configure<BlobStorageConfiguration>(configuration.GetSection("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS"));
-            }
-
             services.AddRootTenant();
 
-            services.AddTenantCloudBlobContainerFactory((sp, rootTenant) =>
+            services.AddTenantCloudBlobContainerFactory(
+                (sp, rootTenant) =>
             {
-                BlobStorageConfiguration options = sp.GetRequiredService<IOptions<BlobStorageConfiguration>>().Value;
-                if (string.IsNullOrWhiteSpace(options.AccountName))
+                if (string.IsNullOrWhiteSpace(options.RootTenantBlobStorageConfiguration?.AccountName))
                 {
                     ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
 
-                    string message = $"No configuration has been provided for {nameof(options.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                    string message = $"No configuration has been provided for {nameof(options.RootTenantBlobStorageConfiguration.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
                     logger?.LogWarning(message);
                 }
 
-                rootTenant.SetDefaultBlobStorageConfiguration(options);
-            });
+                rootTenant.SetDefaultBlobStorageConfiguration(options.RootTenantBlobStorageConfiguration);
+            }, options);
 
             return services;
         }

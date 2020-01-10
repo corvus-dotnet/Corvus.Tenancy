@@ -30,7 +30,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenantBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{System.IServiceProvider, ITenant})"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenantBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{System.IServiceProvider, ITenant}, TenantCloudBlobContainerFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="ITenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(ITenant, BlobStorageContainerDefinition)"/>, passing

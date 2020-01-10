@@ -20,11 +20,12 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </summary>
         /// <param name="services">The target service collection.</param>
         /// <param name="configureRootTenant">A function that configures the root tenant.</param>
+        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
         /// <returns>The service collection.</returns>
         /// <remarks>
-        /// This is typically called by <see cref="TenancyBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(IServiceCollection, IConfiguration)"/>.
+        /// This is typically called by <see cref="TenancyBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(IServiceCollection, TenantCloudBlobContainerFactoryOptions)"/>.
         /// </remarks>
-        public static IServiceCollection AddTenantCloudBlobContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant)
+        public static IServiceCollection AddTenantCloudBlobContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, TenantCloudBlobContainerFactoryOptions options)
         {
             if (services is null)
             {
@@ -36,17 +37,12 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(configureRootTenant));
             }
 
-            if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
-            {
-                return services;
-            }
-
             services.AddRootTenant();
             services.AddTransient<BlobStorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
                 ITenant tenant = s.GetRequiredService<RootTenant>();
-                var result = new TenantCloudBlobContainerFactory(s.GetRequiredService<IConfigurationRoot>());
+                var result = new TenantCloudBlobContainerFactory(options);
                 configureRootTenant(s, tenant);
                 return result;
             });
