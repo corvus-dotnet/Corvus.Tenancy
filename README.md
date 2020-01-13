@@ -3,7 +3,11 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Tenancy/master/LICENSE)
 [![IMM](https://endimmfuncdev.azurewebsites.net/api/imm/github/corvus-dotnet/Corvus.Tenancy/total?cache=false)](https://endimmfuncdev.azurewebsites.net/api/imm/github/corvus-dotnet/Corvus.Tenancy/total?cache=false)
 
-This provides Tenancy support
+Defines:
+
+* abstractions for tenant identity and tenant configuration to support development of multi-tenant services
+* abstractions for storage and retrieval of that information, and provider-specific implementations of these abstractions
+* abstractions for tenanted storage, and provider-specific implementations of these abstractions
 
 It is built for netstandard2.0.
 
@@ -13,10 +17,13 @@ It is built for netstandard2.0.
 Basic Tenant features, including storage and retrieval of tenants, support for tenants-of-tenants, individal tenant configuration and properties.
 
 ### Blob Storage
-The ability to configure, acquire, and create Blob Containers.
+The ability to configure, acquire, and create Blob Containers for a tenant.
 
 ### Cosmos
 The ability to configure, acquire, and create Cosmos SDK V3 Containers. 
+
+### Gremlin
+The ability to configure, acquire, and create Gremlin Containers. 
 
 ## Licenses
 
