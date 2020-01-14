@@ -4,12 +4,11 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
     using System.Linq;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy.Internal;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -28,6 +27,11 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             TenantGremlinContainerFactoryOptions options)
         {
+            if (options is null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
             if (services.Any(s => typeof(ITenantGremlinContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
@@ -38,7 +42,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTenantGremlinContainerFactory(
                 (sp, rootTenant) =>
             {
-                if (string.IsNullOrWhiteSpace(options.RootTenantGremlinConfiguration?.HostName))
+                if (options.RootTenantGremlinConfiguration is null)
+                {
+                    throw new ArgumentNullException(nameof(options.RootTenantGremlinConfiguration));
+                }
+
+                if (string.IsNullOrWhiteSpace(options.RootTenantGremlinConfiguration.HostName))
                 {
                     ILogger<GremlinConfiguration> logger = sp.GetService<ILogger<GremlinConfiguration>>();
                     string message = $"No configuration has been provided for {nameof(options.RootTenantGremlinConfiguration.HostName)}; development storage will be used. Please ensure the Storage Emulator is running.";

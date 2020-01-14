@@ -4,6 +4,7 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
     using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.Cosmos.Tenancy.Internal;
@@ -24,8 +25,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantCosmosContainerFactory(
             this IServiceCollection services,
-            TenantCosmosContainerFactoryOptions options = null)
+            TenantCosmosContainerFactoryOptions options)
         {
+            if (options is null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
             if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
@@ -38,7 +44,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTenantCosmosContainerFactory(
                 (sp, rootTenant) =>
                 {
-                    if (string.IsNullOrWhiteSpace(options?.RootTenantCosmosConfiguration.AccountUri))
+                    if (options.RootTenantCosmosConfiguration is null)
+                    {
+                        throw new ArgumentNullException(nameof(options.RootTenantCosmosConfiguration));
+                    }
+
+                    if (string.IsNullOrWhiteSpace(options.RootTenantCosmosConfiguration.AccountUri))
                     {
                         ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
                         string message = $"No configuration has been provided for {nameof(options.RootTenantCosmosConfiguration.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";

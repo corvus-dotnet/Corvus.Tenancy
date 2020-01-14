@@ -4,11 +4,10 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
     using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -27,6 +26,11 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             TenantCloudBlobContainerFactoryOptions options)
         {
+            if (options is null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
             if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
@@ -37,7 +41,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTenantCloudBlobContainerFactory(
                 (sp, rootTenant) =>
             {
-                if (string.IsNullOrWhiteSpace(options.RootTenantBlobStorageConfiguration?.AccountName))
+                if (options.RootTenantBlobStorageConfiguration is null)
+                {
+                    throw new ArgumentNullException(nameof(options.RootTenantBlobStorageConfiguration));
+                }
+
+                if (string.IsNullOrWhiteSpace(options.RootTenantBlobStorageConfiguration.AccountName))
                 {
                     ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
 
