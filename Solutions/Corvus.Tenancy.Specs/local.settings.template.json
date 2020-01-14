@@ -1,8 +1,10 @@
 {
   "RootTenantBlobStorageConfigurationOptions": {
-    "AccountName": "{ADD YOUR CONNECTION STRING HERE, OR REMOVE ENTIRELY TO USE THE STORAGE EMULATOR}"
+    "AccountName": "{ADD YOUR ACCOUNT NAME HERE, OR REMOVE ENTIRELY TO USE THE STORAGE EMULATOR}"
     // [OR CONFIGURE A COMPLETE BLOB STORAGE CONFIGURATION INSTANCE]
   },
-  // Default to using local Cosmos emulator but can be updated to point to live service
-  "AzureServicesAuthConnectionString": "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+  "RootTenantCosmosConfigurationOptions": {
+    "AccountUri": "{ADD YOUR ACCOUNT URI HERE, OR REMOVE ENTIRELY TO USE THE COSMOS EMULATOR}"
+    // [OR CONFIGURE A COMPLETE COSMOS CONFIGURATION INSTANCE]
+  }
 }
