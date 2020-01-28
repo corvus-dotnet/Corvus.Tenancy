@@ -5,9 +5,7 @@
 namespace Corvus.Azure.Storage.Tenancy
 {
     using System;
-    using System.Linq;
     using Corvus.Tenancy;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -20,12 +18,12 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </summary>
         /// <param name="services">The target service collection.</param>
         /// <param name="configureRootTenant">A function that configures the root tenant.</param>
-        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
         /// <returns>The service collection.</returns>
         /// <remarks>
         /// This is typically called by <see cref="TenancyBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(IServiceCollection, TenantCloudBlobContainerFactoryOptions)"/>.
         /// </remarks>
-        public static IServiceCollection AddTenantCloudBlobContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, TenantCloudBlobContainerFactoryOptions options)
+        public static IServiceCollection AddTenantCloudBlobContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, Func<IServiceProvider, TenantCloudBlobContainerFactoryOptions> getOptions)
         {
             if (services is null)
             {
@@ -41,6 +39,8 @@ namespace Corvus.Azure.Storage.Tenancy
             services.AddTransient<BlobStorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
+                TenantCloudBlobContainerFactoryOptions options = getOptions(s);
+
                 ITenant tenant = s.GetRequiredService<RootTenant>();
                 var result = new TenantCloudBlobContainerFactory(options);
                 configureRootTenant(s, tenant);

@@ -27,11 +27,20 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             TenantCosmosContainerFactoryOptions options)
         {
-            if (options is null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            return services.AddTenantCosmosContainerFactory(_ => options);
+        }
 
+        /// <summary>
+        /// Adds services required by tenancy Cosmos based stores, and configures the default
+        /// tenant's default Cosmos account settings based on configuration settings.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
+        /// <returns>The modified service collection.</returns>
+        public static IServiceCollection AddTenantCosmosContainerFactory(
+        this IServiceCollection services,
+        Func<IServiceProvider, TenantCosmosContainerFactoryOptions> getOptions)
+        {
             if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
@@ -44,6 +53,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTenantCosmosContainerFactory(
                 (sp, rootTenant) =>
                 {
+                    TenantCosmosContainerFactoryOptions options = getOptions(sp);
+
+                    if (options is null)
+                    {
+                        throw new ArgumentNullException(nameof(options));
+                    }
+
                     if (options.RootTenantCosmosConfiguration is null)
                     {
                         throw new ArgumentNullException(nameof(options.RootTenantCosmosConfiguration));
@@ -58,7 +74,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     rootTenant.SetDefaultCosmosConfiguration(options.RootTenantCosmosConfiguration);
                 },
-                options);
+                getOptions);
 
             return services;
         }

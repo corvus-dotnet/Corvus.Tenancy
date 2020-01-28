@@ -27,11 +27,20 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             TenantGremlinContainerFactoryOptions options)
         {
-            if (options is null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            return services.AddTenantGremlinContainerFactory(_ => options);
+        }
 
+        /// <summary>
+        /// Adds services required by tenancy Gremlin based stores, and configures the default
+        /// tenant's default Gremlin account settings based on configuration settings.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
+        /// <returns>The modified service collection.</returns>
+        public static IServiceCollection AddTenantGremlinContainerFactory(
+        this IServiceCollection services,
+        Func<IServiceProvider, TenantGremlinContainerFactoryOptions> getOptions)
+        {
             if (services.Any(s => typeof(ITenantGremlinContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
@@ -42,6 +51,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTenantGremlinContainerFactory(
                 (sp, rootTenant) =>
             {
+                TenantGremlinContainerFactoryOptions options = getOptions(sp);
+
+                if (options is null)
+                {
+                    throw new ArgumentNullException(nameof(options));
+                }
+
                 if (options.RootTenantGremlinConfiguration is null)
                 {
                     throw new ArgumentNullException(nameof(options.RootTenantGremlinConfiguration));
@@ -55,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 rootTenant.SetDefaultGremlinConfiguration(options.RootTenantGremlinConfiguration);
-            }, options);
+            }, getOptions);
 
             return services;
         }

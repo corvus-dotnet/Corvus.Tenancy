@@ -8,7 +8,6 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     using System.Linq;
     using Corvus.Extensions.Cosmos;
     using Corvus.Tenancy;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -21,12 +20,12 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// </summary>
         /// <param name="services">The target service collection.</param>
         /// <param name="configureRootTenant">A function that configures the root tenant.</param>
-        /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
         /// <returns>The service collection.</returns>
         /// <remarks>
         /// This is typically called by <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(IServiceCollection, TenantCosmosContainerFactoryOptions)"/>.
         /// </remarks>
-        public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, TenantCosmosContainerFactoryOptions options = null)
+        public static IServiceCollection AddTenantCosmosContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, Func<IServiceProvider, TenantCosmosContainerFactoryOptions> getOptions)
         {
             if (services is null)
             {
@@ -47,6 +46,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             services.AddTransient<CosmosConfiguration, CosmosConfiguration>();
             services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {
+                TenantCosmosContainerFactoryOptions options = getOptions(s);
                 var result = new TenantCosmosContainerFactory(s.GetRequiredService<ICosmosClientBuilderFactory>(), options);
                 configureRootTenant(s, s.GetRequiredService<RootTenant>());
                 return result;

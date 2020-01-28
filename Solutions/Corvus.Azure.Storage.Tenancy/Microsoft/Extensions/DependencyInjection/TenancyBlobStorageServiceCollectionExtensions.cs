@@ -26,11 +26,20 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             TenantCloudBlobContainerFactoryOptions options)
         {
-            if (options is null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            return services.AddTenantCloudBlobContainerFactory(_ => options);
+        }
 
+        /// <summary>
+        /// Adds services required by tenancy Azure storage based stores, and configures the default
+        /// tenant's default storage account settings based on configuration settings.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
+        /// <returns>The modified service collection.</returns>
+        public static IServiceCollection AddTenantCloudBlobContainerFactory(
+            this IServiceCollection services,
+            Func<IServiceProvider, TenantCloudBlobContainerFactoryOptions> getOptions)
+        {
             if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
@@ -41,6 +50,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTenantCloudBlobContainerFactory(
                 (sp, rootTenant) =>
             {
+                TenantCloudBlobContainerFactoryOptions options = getOptions(sp);
+
+                if (options is null)
+                {
+                    throw new ArgumentNullException(nameof(options));
+                }
+
                 if (options.RootTenantBlobStorageConfiguration is null)
                 {
                     throw new ArgumentNullException(nameof(options.RootTenantBlobStorageConfiguration));
@@ -55,7 +71,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
 
                 rootTenant.SetDefaultBlobStorageConfiguration(options.RootTenantBlobStorageConfiguration);
-            }, options);
+            }, getOptions);
 
             return services;
         }

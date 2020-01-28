@@ -20,12 +20,12 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
         /// </summary>
         /// <param name="services">The target service collection.</param>
         /// <param name="configureRootTenant">A function that configures the root tenant.</param>
-        /// <param name="options">Configuration for the TenantGremlinContainerFactory.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
         /// <returns>The service collection.</returns>
         /// <remarks>
         /// This is typically called by <see cref="TenancyGremlinServiceCollectionExtensions.AddTenantGremlinContainerFactory(IServiceCollection, TenantGremlinContainerFactoryOptions)"/>.
         /// </remarks>
-        public static IServiceCollection AddTenantGremlinContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, TenantGremlinContainerFactoryOptions options)
+        public static IServiceCollection AddTenantGremlinContainerFactory(this IServiceCollection services, Action<IServiceProvider, ITenant> configureRootTenant, Func<IServiceProvider, TenantGremlinContainerFactoryOptions> getOptions)
         {
             if (services is null)
             {
@@ -46,6 +46,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
             services.AddTransient<GremlinConfiguration, GremlinConfiguration>();
             services.AddSingleton<ITenantGremlinContainerFactory>(s =>
             {
+                TenantGremlinContainerFactoryOptions options = getOptions(s);
                 var result = new TenantGremlinContainerFactory(options);
                 configureRootTenant(s, s.GetRequiredService<RootTenant>());
                 return result;
