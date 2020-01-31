@@ -2,5 +2,10 @@
   "RootTenantBlobStorageConfigurationOptions": {
     "AccountName": "{ADD YOUR CONNECTION STRING HERE, OR REMOVE ENTIRELY TO USE THE STORAGE EMULATOR}"
     // [OR CONFIGURE A COMPLETE BLOB STORAGE CONFIGURATION INSTANCE]
+  },
+  "RootTenantCosmosConfigurationOptions": {
+    "AccountUri": "https://{ADD YOUR COSMOSDB ACCOUNT NAME HERE}.documents.azure.com/",
+    "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
+    "AccountKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}"
   }
 }
