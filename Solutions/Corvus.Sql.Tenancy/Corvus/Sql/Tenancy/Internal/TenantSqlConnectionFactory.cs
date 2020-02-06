@@ -224,7 +224,7 @@ namespace Corvus.Sql.Tenancy.Internal
             if (string.IsNullOrEmpty(storageConfiguration.ConnectionString))
             {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
-                var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
                 SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
                 return accountKey.Value;
             }

@@ -232,7 +232,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
         private async Task<string> GetAuthKey(GremlinConfiguration storageConfiguration)
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
-            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             SecretBundle authKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AuthKeySecretName}").ConfigureAwait(false);
             return authKey.Value;
