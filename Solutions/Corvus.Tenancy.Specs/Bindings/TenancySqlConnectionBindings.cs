@@ -30,9 +30,16 @@ namespace Corvus.Tenancy.Specs.Bindings
             // You have to get the factory out before you can configure it, or there is no default configuration...
             ITenantSqlConnectionFactory _ = serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
             SqlConfiguration config = tenantProvider.Root.GetDefaultSqlConfiguration();
-            config.IsLocalDatabase = true;
-            config.ConnectionString = "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true";
-            config.DisableTenantIdPrefix = true;
+
+            /// Fall back on a local database
+            if (string.IsNullOrEmpty(config.ConnectionString) &&
+                string.IsNullOrEmpty(config.ConnectionStringConfigurationKey) &&
+                string.IsNullOrEmpty(config.ConnectionStringSecretName))
+            {
+                config.IsLocalDatabase = true;
+                config.ConnectionString = "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true";
+                config.DisableTenantIdPrefix = true;
+            }
             tenantProvider.Root.SetDefaultSqlConfiguration(config);
         }
     }
