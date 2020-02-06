@@ -53,6 +53,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     serviceCollection.AddTenantCloudBlobContainerFactory(config);
                     serviceCollection.AddTenantCosmosContainerFactory(config);
+                    serviceCollection.AddTenantSqlConnectionFactory(config);
                 });
         }
     }

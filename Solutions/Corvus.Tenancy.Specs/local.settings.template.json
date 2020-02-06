@@ -7,5 +7,9 @@
     "AccountUri": "https://{ADD YOUR COSMOSDB ACCOUNT NAME HERE}.documents.azure.com/",
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
     "AccountKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}"
+  },
+  "RootTenantSqlConnectionOptions": {
+    "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
+    "ConnectionStringSecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR SQL SERVER CONNECTION STRING (WITHOUT DEFAULTCATALOG) HERE/}"
   }
 }

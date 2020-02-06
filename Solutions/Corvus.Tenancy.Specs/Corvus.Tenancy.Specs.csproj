@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <SpecFlowObsoleteCodeBehindFiles Remove="Features\CloudBlobContainer - Copy.feature.cs" />
+    <SpecFlowObsoleteCodeBehindFiles Remove="Features\CosmosContainer - Copy.feature.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,12 +35,26 @@
   <ItemGroup>
     <ProjectReference Include="..\Corvus.Azure.Cosmos.Tenancy\Corvus.Azure.Cosmos.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Azure.Storage.Tenancy\Corvus.Azure.Storage.Tenancy.csproj" />
+    <ProjectReference Include="..\Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Tenancy.Storage.Azure.Blob\Corvus.Tenancy.Storage.Azure.Blob.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Features\SqlConnection.feature.cs">
+      <DependentUpon>SqlConnection.feature</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <None Update="specflow.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SpecFlowFeatureFiles Update="Features\SqlConnection.feature">
+      <Visible>$(UsingMicrosoftNETSdk)</Visible>
+      <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
+    </SpecFlowFeatureFiles>
   </ItemGroup>
 </Project>

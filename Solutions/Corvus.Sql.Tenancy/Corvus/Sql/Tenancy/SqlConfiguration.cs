@@ -39,6 +39,19 @@ namespace Corvus.Sql.Tenancy
         public bool DisableTenantIdPrefix { get; set; }
 
         /// <summary>
+        /// Gets or sets the base connection string for the server.
+        /// </summary>
+        /// <remarks>
+        /// This is used in test scenarios to set an explicit base connection string. In production, you would typically use the keyvault connection string.
+        /// </remarks>
+        public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this is a local database.
+        /// </summary>
+        public bool IsLocalDatabase { get; set; }
+
+        /// <summary>
         /// Gets or sets the database name. If set, this overrides the value
         /// specified in <see cref="SqlConnectionDefinition.Database"/>.
         /// </summary>

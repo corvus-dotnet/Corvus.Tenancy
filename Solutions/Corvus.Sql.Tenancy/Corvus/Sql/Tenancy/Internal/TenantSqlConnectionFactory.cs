@@ -188,13 +188,10 @@ namespace Corvus.Sql.Tenancy.Internal
         private async Task<SqlConnection> CreateSqlConnectionAsync(SqlConfiguration configuration)
         {
             if (string.IsNullOrEmpty(configuration.ConnectionStringSecretName) &&
+                string.IsNullOrEmpty(configuration.ConnectionString) &&
                 (string.IsNullOrEmpty(configuration.Database) || configuration.Database.Equals(DevelopmentStorageConnectionString)))
             {
                 return new SqlConnection(DevelopmentStorageConnectionString);
-            }
-            else if (string.IsNullOrEmpty(configuration.ConnectionStringSecretName))
-            {
-                return new SqlConnection(configuration.Database);
             }
             else
             {
@@ -206,8 +203,16 @@ namespace Corvus.Sql.Tenancy.Internal
                 var connectionStringBuilder = new StringBuilder(connectionString);
                 if (!string.IsNullOrEmpty(configuration.Database))
                 {
-                    // Append the database name as initial catalog if available
-                    DbConnectionStringBuilder.AppendKeyValuePair(connectionStringBuilder, "InitialCatalog", configuration.Database);
+                    if (configuration.IsLocalDatabase)
+                    {
+                        // Append the database name as initial catalog if available
+                        DbConnectionStringBuilder.AppendKeyValuePair(connectionStringBuilder, "Database", configuration.Database);
+                    }
+                    else
+                    {
+                        // Append the database name as initial catalog if available
+                        DbConnectionStringBuilder.AppendKeyValuePair(connectionStringBuilder, "InitialCatalog", configuration.Database);
+                    }
                 }
 
                 return new SqlConnection(connectionStringBuilder.ToString());
@@ -216,10 +221,15 @@ namespace Corvus.Sql.Tenancy.Internal
 
         private async Task<string> GetConnectionStringAsync(SqlConfiguration storageConfiguration)
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
-            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
-            SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
-            return accountKey.Value;
+            if (string.IsNullOrEmpty(storageConfiguration.ConnectionString))
+            {
+                var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
+                var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+                SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
+                return accountKey.Value;
+            }
+
+            return storageConfiguration.ConnectionString;
         }
 
         private Task<SqlConnection> CreateSqlConnectionAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition, SqlConnectionDefinition tenantedSqlConnectionDefinition)
