@@ -15,7 +15,7 @@
             this.featureContext = featureContext;
         }
 
-        [Then(@"I should be able to get the tenanted cosmos container")]
+        [Then("I should be able to get the tenanted cosmos container")]
         public void ThenIShouldBeAbleToGetTheTenantedContainer()
         {
             Container cosmosContainer = this.featureContext.Get<Container>(TenancyCosmosContainerBindings.TenancySpecsContainer);

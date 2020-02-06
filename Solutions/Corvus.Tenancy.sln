@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Azure.Cosmos.Tenancy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Tenancy.Specs", "Corvus.Tenancy.Specs\Corvus.Tenancy.Specs.csproj", "{FFE322E2-9A3B-4DCD-BBFB-DD9FFCFE0A50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvus.Azure.Gremlin.Tenancy", "Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj", "{920CD7B4-7320-4892-8DDA-03C48F25F30E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Azure.Gremlin.Tenancy", "Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj", "{920CD7B4-7320-4892-8DDA-03C48F25F30E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvus.Sql.Tenancy", "Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj", "{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{920CD7B4-7320-4892-8DDA-03C48F25F30E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{920CD7B4-7320-4892-8DDA-03C48F25F30E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{920CD7B4-7320-4892-8DDA-03C48F25F30E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

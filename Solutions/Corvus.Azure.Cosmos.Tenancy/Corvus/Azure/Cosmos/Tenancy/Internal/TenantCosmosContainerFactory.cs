@@ -87,7 +87,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <param name="tenant">The tenant for which to build the definition.</param>
         /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
         /// <returns>A Cosmos container definition unique to the tenant.</returns>
-        public static CosmosContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
+        public static CosmosContainerDefinition GetContainerDefinitionForTenant(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
             if (tenant is null)
             {
@@ -153,7 +153,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(containerDefinition));
             }
 
-            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
+            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenant(tenant, containerDefinition);
             object key = GetKeyFor(tenantedCosmosContainerDefinition);
 
             return this.containers.GetOrAdd(

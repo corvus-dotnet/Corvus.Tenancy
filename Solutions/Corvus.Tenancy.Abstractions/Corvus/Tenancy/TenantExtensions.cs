@@ -113,7 +113,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="guid">The guid to encode.</param>
         /// <returns>A string representing the combined and encoded tenant ID.</returns>
-        public static string EncodeGuid(Guid guid)
+        public static string EncodeGuid(this Guid guid)
         {
             return EncodeGuids(false, guid);
         }
@@ -123,7 +123,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="bytes">The bytes to encode.</param>
         /// <returns>A string composed of pairs of hex digits for the byte array.</returns>
-        public static string ByteArrayToHexViaLookup32(byte[] bytes)
+        public static string ByteArrayToHexViaLookup32(this byte[] bytes)
         {
             uint[] lookup32 = Lookup32;
             char[] result = new char[bytes.Length * 2];

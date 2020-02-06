@@ -89,7 +89,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
         /// <param name="tenant">The tenant for which to build the definition.</param>
         /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
         /// <returns>A blob container definition unique to the tenant.</returns>
-        public static GremlinContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, GremlinContainerDefinition containerDefinition)
+        public static GremlinContainerDefinition GetContainerDefinitionForTenant(ITenant tenant, GremlinContainerDefinition containerDefinition)
         {
             if (tenant is null)
             {
@@ -155,7 +155,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(containerDefinition));
             }
 
-            GremlinContainerDefinition tenantedBlobStorageContainerDefinition = TenantGremlinContainerFactory.GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
+            GremlinContainerDefinition tenantedBlobStorageContainerDefinition = TenantGremlinContainerFactory.GetContainerDefinitionForTenant(tenant, containerDefinition);
             object key = GetKeyFor(tenantedBlobStorageContainerDefinition);
 
             return this.clients.GetOrAdd(
