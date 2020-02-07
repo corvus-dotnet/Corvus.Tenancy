@@ -28,12 +28,6 @@ namespace Corvus.Sql.Tenancy
         public string ConnectionStringSecretName { get; set; }
 
         /// <summary>
-        /// Gets or sets the configuration key which contains the connection string that connects to the server.
-        /// </summary>
-        /// <remarks>In production scenarios, you would typically use KeyVault to secure your connection strings. See <see cref="ConnectionStringSecretName"/>. This allows an alternative configuration-based source for the connection string.</remarks>
-        public string ConnectionStringConfigurationKey { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to disable the tenant ID prefix.
         /// </summary>
         public bool DisableTenantIdPrefix { get; set; }

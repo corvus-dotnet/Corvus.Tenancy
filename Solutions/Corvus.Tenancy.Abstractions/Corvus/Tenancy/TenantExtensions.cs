@@ -118,12 +118,13 @@ namespace Corvus.Tenancy
             return EncodeGuids(false, guid);
         }
 
+#pragma warning disable RCS1224 // Make method an extension method.
         /// <summary>
         /// Convert a byte array to a hex string.
         /// </summary>
         /// <param name="bytes">The bytes to encode.</param>
         /// <returns>A string composed of pairs of hex digits for the byte array.</returns>
-        public static string ByteArrayToHexViaLookup32(this byte[] bytes)
+        public static string ByteArrayToHexViaLookup32(byte[] bytes)
         {
             uint[] lookup32 = Lookup32;
             char[] result = new char[bytes.Length * 2];
@@ -136,6 +137,7 @@ namespace Corvus.Tenancy
 
             return new string(result);
         }
+#pragma warning restore RCS1224 // Make method an extension method.
 
         private static uint[] CreateLookup32()
         {

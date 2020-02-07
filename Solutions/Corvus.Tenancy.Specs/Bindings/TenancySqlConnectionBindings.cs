@@ -33,7 +33,6 @@ namespace Corvus.Tenancy.Specs.Bindings
 
             /// Fall back on a local database
             if (string.IsNullOrEmpty(config.ConnectionString) &&
-                string.IsNullOrEmpty(config.ConnectionStringConfigurationKey) &&
                 string.IsNullOrEmpty(config.ConnectionStringSecretName))
             {
                 config.IsLocalDatabase = true;
