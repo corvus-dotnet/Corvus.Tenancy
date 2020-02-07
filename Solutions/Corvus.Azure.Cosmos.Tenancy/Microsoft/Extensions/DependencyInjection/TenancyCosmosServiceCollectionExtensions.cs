@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The service collection.</param>
         /// <param name="configuration">
         /// Configuration from which to read the settings, or null if the
-        /// <see cref="IOptions{SqlConfiguration}"/> will be
+        /// <see cref="IOptions{CosmosConfiguration}"/> will be
         /// supplied to DI in some other way. This will typically be the root configuration.
         /// </param>
         /// <returns>The modified service collection.</returns>
