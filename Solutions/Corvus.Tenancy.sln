@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Azure.Cosmos.Tenancy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Tenancy.Specs", "Corvus.Tenancy.Specs\Corvus.Tenancy.Specs.csproj", "{FFE322E2-9A3B-4DCD-BBFB-DD9FFCFE0A50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvus.Azure.Gremlin.Tenancy", "Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj", "{920CD7B4-7320-4892-8DDA-03C48F25F30E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Azure.Gremlin.Tenancy", "Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj", "{920CD7B4-7320-4892-8DDA-03C48F25F30E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
