@@ -4,11 +4,10 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    using System;
     using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -21,41 +20,58 @@ namespace Microsoft.Extensions.DependencyInjection
         /// tenant's default storage account settings based on configuration settings.
         /// </summary>
         /// <param name="services">The service collection.</param>
-        /// <param name="configuration">
-        /// Configuration from which to read the settings, or null if the
-        /// <see cref="IOptions{RootTenantDefaultStorageConfigurationOptions}"/> will be
-        /// supplied to DI in some other way. This will typically be the root configuration.
-        /// </param>
+        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantCloudBlobContainerFactory(
             this IServiceCollection services,
-            IConfiguration configuration)
+            TenantCloudBlobContainerFactoryOptions options)
+        {
+            return services.AddTenantCloudBlobContainerFactory(_ => options);
+        }
+
+        /// <summary>
+        /// Adds services required by tenancy Azure storage based stores, and configures the default
+        /// tenant's default storage account settings based on configuration settings.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="getOptions">Function to get the configuration options.</param>
+        /// <returns>The modified service collection.</returns>
+        public static IServiceCollection AddTenantCloudBlobContainerFactory(
+            this IServiceCollection services,
+            Func<IServiceProvider, TenantCloudBlobContainerFactoryOptions> getOptions)
         {
             if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
             }
 
-            if (configuration != null)
-            {
-                services.Configure<BlobStorageConfiguration>(configuration.GetSection("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS"));
-            }
-
             services.AddRootTenant();
 
-            services.AddTenantCloudBlobContainerFactory((sp, rootTenant) =>
+            services.AddTenantCloudBlobContainerFactory(
+                (sp, rootTenant) =>
             {
-                BlobStorageConfiguration options = sp.GetRequiredService<IOptions<BlobStorageConfiguration>>().Value;
-                if (string.IsNullOrWhiteSpace(options.AccountName))
+                TenantCloudBlobContainerFactoryOptions options = getOptions(sp);
+
+                if (options is null)
+                {
+                    throw new ArgumentNullException(nameof(options));
+                }
+
+                if (options.RootTenantBlobStorageConfiguration is null)
+                {
+                    throw new ArgumentNullException(nameof(options.RootTenantBlobStorageConfiguration));
+                }
+
+                if (string.IsNullOrWhiteSpace(options.RootTenantBlobStorageConfiguration.AccountName))
                 {
                     ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
 
-                    string message = $"No configuration has been provided for {nameof(options.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                    string message = $"No configuration has been provided for {nameof(options.RootTenantBlobStorageConfiguration.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
                     logger?.LogWarning(message);
                 }
 
-                rootTenant.SetDefaultBlobStorageConfiguration(options);
-            });
+                rootTenant.SetDefaultBlobStorageConfiguration(options.RootTenantBlobStorageConfiguration);
+            }, getOptions);
 
             return services;
         }

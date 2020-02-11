@@ -20,10 +20,10 @@ namespace Corvus.Tenancy.Specs.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("ComsosContainer")]
+    [NUnit.Framework.DescriptionAttribute("CosmosContainer")]
     [NUnit.Framework.CategoryAttribute("setupContainer")]
     [NUnit.Framework.CategoryAttribute("setupTenantedCosmosContainer")]
-    public partial class ComsosContainerFeature
+    public partial class CosmosContainerFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
@@ -39,7 +39,7 @@ namespace Corvus.Tenancy.Specs.Features
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "ComsosContainer", "\tIn order to use cosmos storage for tenanted services\r\n\tAs a developer\r\n\tI want t" +
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "CosmosContainer", "\tIn order to use cosmos storage for tenanted services\r\n\tAs a developer\r\n\tI want t" +
                     "o be able to manage the container", ProgrammingLanguage.CSharp, new string[] {
                         "setupContainer",
                         "setupTenantedCosmosContainer"});

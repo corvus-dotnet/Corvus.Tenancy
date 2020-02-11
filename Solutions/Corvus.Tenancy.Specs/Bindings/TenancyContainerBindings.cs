@@ -6,6 +6,8 @@ namespace Corvus.Tenancy.Specs.Bindings
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Corvus.Azure.Cosmos.Tenancy;
+    using Corvus.Azure.Storage.Tenancy;
     using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
     using Microsoft.Extensions.Configuration;
@@ -51,8 +53,23 @@ namespace Corvus.Tenancy.Specs.Bindings
                         serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
                     }
 
-                    serviceCollection.AddTenantCloudBlobContainerFactory(config);
-                    serviceCollection.AddTenantCosmosContainerFactory(config);
+                    var blobOptions = new TenantCloudBlobContainerFactoryOptions
+                    {
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                    };
+
+                    config.Bind("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS", blobOptions.RootTenantBlobStorageConfiguration);
+
+                    serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
+
+                    var cosmosOptions = new TenantCosmosContainerFactoryOptions
+                    {
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                    };
+
+                    config.Bind("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS", cosmosOptions.RootTenantCosmosConfiguration);
+
+                    serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
                 });
         }
     }

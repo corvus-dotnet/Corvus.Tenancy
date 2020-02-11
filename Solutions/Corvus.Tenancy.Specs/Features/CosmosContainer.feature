@@ -1,7 +1,7 @@
 ﻿@setupContainer
 @setupTenantedCosmosContainer
 
-Feature: ComsosContainer
+Feature: CosmosContainer
 	In order to use cosmos storage for tenanted services
 	As a developer
 	I want to be able to manage the container
