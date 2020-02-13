@@ -31,7 +31,7 @@ namespace Corvus.Sql.Tenancy
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancySqlServiceCollectionExtensions.AddTenantSqlConnectionFactory(IServiceCollection, Microsoft.Extensions.Configuration.IConfiguration)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancySqlServiceCollectionExtensions.AddTenantSqlConnectionFactory(IServiceCollection, TenantSqlConnectionFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a sql connection for a tenant, you simply call <see cref="GetSqlConnectionForTenantAsync(ITenant, SqlConnectionDefinition)"/>, passing

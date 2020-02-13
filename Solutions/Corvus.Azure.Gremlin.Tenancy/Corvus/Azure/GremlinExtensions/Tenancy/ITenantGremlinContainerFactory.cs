@@ -30,7 +30,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
     /// serviceCollection.AddTenantGremlinContainerFactory();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyGremlinServiceCollectionExtensions.AddTenantGremlinContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, Microsoft.Extensions.Configuration.IConfiguration)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyGremlinServiceCollectionExtensions.AddTenantGremlinContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, TenantGremlinContainerFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a gremlin client for a container for a tenant, you simply call <see cref="ITenantGremlinContainerFactory.GetClientForTenantAsync(ITenant, GremlinContainerDefinition)"/>, passing

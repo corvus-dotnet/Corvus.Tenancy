@@ -36,7 +36,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyGremlinServiceCollectionExtensions.AddTenantGremlinContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, Microsoft.Extensions.Configuration.IConfiguration)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyGremlinServiceCollectionExtensions.AddTenantGremlinContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, TenantGremlinContainerFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a Gremlin container for a tenant, you simply call <see cref="TenantGremlinContainerFactory.GetClientForTenantAsync(ITenant, GremlinContainerDefinition)"/>, passing
@@ -71,16 +71,15 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 
         private readonly ConcurrentDictionary<object, Task<GremlinServer>> servers = new ConcurrentDictionary<object, Task<GremlinServer>>();
         private readonly ConcurrentDictionary<object, Task<GremlinClient>> clients = new ConcurrentDictionary<object, Task<GremlinClient>>();
-        private readonly IConfiguration configuration;
+        private readonly TenantGremlinContainerFactoryOptions options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantGremlinContainerFactory"/> class.
         /// </summary>
-        /// <param name="configuration">The current configuration. Used to determine the connection
-        /// string to use when requesting an access token for KeyVault.</param>
-        public TenantGremlinContainerFactory(IConfiguration configuration)
+        /// <param name="options">Configuration for the TenantGremlinContainerFactory.</param>
+        public TenantGremlinContainerFactory(TenantGremlinContainerFactoryOptions options)
         {
-            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            this.options = options;
         }
 
         /// <summary>
@@ -231,7 +230,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 
         private async Task<string> GetAuthKey(GremlinConfiguration storageConfiguration)
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
+            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
             using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             SecretBundle authKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AuthKeySecretName}").ConfigureAwait(false);

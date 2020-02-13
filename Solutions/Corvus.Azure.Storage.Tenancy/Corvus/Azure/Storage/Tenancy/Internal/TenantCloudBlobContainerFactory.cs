@@ -39,7 +39,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, Microsoft.Extensions.Configuration.IConfiguration)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, TenantCloudBlobContainerFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="TenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(ITenant, BlobStorageContainerDefinition)"/>, passing
@@ -72,16 +72,15 @@ namespace Corvus.Azure.Storage.Tenancy
 
         private readonly ConcurrentDictionary<object, Task<CloudBlobClient>> clients = new ConcurrentDictionary<object, Task<CloudBlobClient>>();
         private readonly ConcurrentDictionary<object, Task<CloudBlobContainer>> containers = new ConcurrentDictionary<object, Task<CloudBlobContainer>>();
-        private readonly IConfiguration configuration;
+        private readonly TenantCloudBlobContainerFactoryOptions options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudBlobContainerFactory"/> class.
         /// </summary>
-        /// <param name="configuration">The current configuration. Used to determine the connection
-        /// string to use when requesting an access token for KeyVault.</param>
-        public TenantCloudBlobContainerFactory(IConfiguration configuration)
+        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
+        public TenantCloudBlobContainerFactory(TenantCloudBlobContainerFactoryOptions options = null)
         {
-            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            this.options = options;
         }
 
         /// <summary>
@@ -268,7 +267,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(storageConfiguration));
             }
 
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
+            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
             using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);

@@ -39,7 +39,7 @@ namespace Corvus.Sql.Tenancy.Internal
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="Microsoft.Extensions.DependencyInjection.TenancySqlServiceCollectionExtensions.AddTenantSqlConnectionFactory(IServiceCollection, IConfiguration)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="Microsoft.Extensions.DependencyInjection.TenancySqlServiceCollectionExtensions.AddTenantSqlConnectionFactory(IServiceCollection, TenantSqlConnectionFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a Sql connection for a tenant, you simply call <see cref="GetSqlConnectionForTenantAsync(ITenant, SqlConnectionDefinition)"/>, passing
@@ -65,17 +65,16 @@ namespace Corvus.Sql.Tenancy.Internal
     {
         private const string DevelopmentStorageConnectionString = "Server=(localdb)\\mssqllocaldb;Database=testtenant;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-        private readonly IConfiguration configuration;
         private readonly ConcurrentDictionary<object, Task<string>> connectionStrings = new ConcurrentDictionary<object, Task<string>>();
+        private readonly TenantSqlConnectionFactoryOptions options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantSqlConnectionFactory"/> class.
         /// </summary>
-        /// <param name="configuration">The current configuration. Used to determine the connection
-        /// string to use when requesting an access token for KeyVault.</param>
-        public TenantSqlConnectionFactory(IConfiguration configuration)
+        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
+        public TenantSqlConnectionFactory(TenantSqlConnectionFactoryOptions options = null)
         {
-            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.options = options;
         }
 
         /// <summary>
@@ -233,7 +232,7 @@ namespace Corvus.Sql.Tenancy.Internal
 
             if (string.IsNullOrEmpty(storageConfiguration.ConnectionString))
             {
-                var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
+                var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
                 using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
                 SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
                 return accountKey.Value;

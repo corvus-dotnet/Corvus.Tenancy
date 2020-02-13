@@ -38,7 +38,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, Microsoft.Extensions.Configuration.IConfiguration)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, TenantCosmosContainerFactoryOptions)"/>.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a Cosmos container for a tenant, you simply call <see cref="TenantCosmosContainerFactory.GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
@@ -66,19 +66,18 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 
         private readonly ConcurrentDictionary<object, Task<CosmosClient>> clients = new ConcurrentDictionary<object, Task<CosmosClient>>();
         private readonly ConcurrentDictionary<object, Task<Container>> containers = new ConcurrentDictionary<object, Task<Container>>();
-        private readonly IConfiguration configuration;
+        private readonly TenantCosmosContainerFactoryOptions options;
         private readonly ICosmosClientBuilderFactory cosmosClientBuilderFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCosmosContainerFactory"/> class.
         /// </summary>
-        /// <param name="configuration">The current configuration. Used to determine the connection
-        /// string to use when requesting an access token for KeyVault.</param>
         /// <param name="cosmosClientBuilderFactory">Client builder factory.</param>
-        public TenantCosmosContainerFactory(IConfiguration configuration, ICosmosClientBuilderFactory cosmosClientBuilderFactory)
+        /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
+        public TenantCosmosContainerFactory(ICosmosClientBuilderFactory cosmosClientBuilderFactory, TenantCosmosContainerFactoryOptions options = null)
         {
-            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
             this.cosmosClientBuilderFactory = cosmosClientBuilderFactory ?? throw new System.ArgumentNullException(nameof(cosmosClientBuilderFactory));
+            this.options = options;
         }
 
         /// <summary>
@@ -246,7 +245,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 
         private async Task<string> GetAccountKeyAsync(CosmosConfiguration storageConfiguration)
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
+            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
             using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
