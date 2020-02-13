@@ -28,7 +28,7 @@ namespace Corvus.Sql.Tenancy
         /// file) use the following code in your startup:
         /// </p>
         /// <code><![CDATA[
-        /// services.AddTenantSqlConnectionFactory(configurationRoot.Get<TenantCloudBlobContainerFactoryOptions>());
+        /// services.AddTenantSqlConnectionFactory(configurationRoot.Get<TenantSqlConnectionFactoryOptions>());
         /// ]]></code>
         /// <p>
         /// The <c>Get&lt;T&gt;</c> method used here is an extension method in the
