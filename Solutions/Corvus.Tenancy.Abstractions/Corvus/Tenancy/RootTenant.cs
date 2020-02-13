@@ -15,7 +15,10 @@ namespace Corvus.Tenancy
         /// <summary>
         /// The root tenant ID.
         /// </summary>
-        public static readonly string RootTenantId = TenantExtensions.EncodeGuid(Guid.Parse("AB5064F2-6816-4B78-B327-951C8B08F347"));
+        /// <remarks>
+        /// This is encoded to <c>f26450ab1668784bb327951c8b08f347</c>.
+        /// </remarks>
+        public static readonly string RootTenantId = Guid.Parse("AB5064F2-6816-4B78-B327-951C8B08F347").EncodeGuid();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootTenant"/> class.

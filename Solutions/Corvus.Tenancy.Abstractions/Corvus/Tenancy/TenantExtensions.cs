@@ -113,11 +113,12 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="guid">The guid to encode.</param>
         /// <returns>A string representing the combined and encoded tenant ID.</returns>
-        public static string EncodeGuid(Guid guid)
+        public static string EncodeGuid(this Guid guid)
         {
             return EncodeGuids(false, guid);
         }
 
+#pragma warning disable RCS1224 // Make method an extension method.
         /// <summary>
         /// Convert a byte array to a hex string.
         /// </summary>
@@ -136,6 +137,7 @@ namespace Corvus.Tenancy
 
             return new string(result);
         }
+#pragma warning restore RCS1224 // Make method an extension method.
 
         private static uint[] CreateLookup32()
         {

@@ -15,7 +15,7 @@
             this.featureContext = featureContext;
         }
 
-        [Then(@"I should be able to get the tenanted cloud blob container")]
+        [Then("I should be able to get the tenanted cloud blob container")]
         public void ThenIShouldBeAbleToGetTheTenantedContainer()
         {
             CloudBlobContainer cloudBlobContainer = this.featureContext.Get<CloudBlobContainer>(TenancyCloudBlobContainerBindings.TenancySpecsContainer);

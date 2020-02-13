@@ -45,7 +45,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
             Container tenancySpecsContainer = await factory.GetContainerForTenantAsync(
                 tenantProvider.Root,
-                new CosmosContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs", "/partitionKey", databaseThroughput: 400));
+                new CosmosContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs", "/partitionKey", databaseThroughput: 400)).ConfigureAwait(false);
 
             featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
         }
@@ -59,10 +59,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         public static Task TeardownCosmosDB(FeatureContext featureContext)
         {
             return featureContext.RunAndStoreExceptionsAsync(
-                async () =>
-                {
-                    await featureContext.Get<Container>(TenancySpecsContainer).DeleteContainerAsync().ConfigureAwait(false);
-                });
+                async () => await featureContext.Get<Container>(TenancySpecsContainer).DeleteContainerAsync().ConfigureAwait(false));
         }
     }
 }

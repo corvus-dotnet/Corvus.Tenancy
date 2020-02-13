@@ -213,11 +213,9 @@ namespace Corvus.Azure.Storage.Tenancy
         private static string HashAndEncodeContainerName(string containerName)
         {
             byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using (SHA1 hash = new SHA1CryptoServiceProvider())
-            {
-                byte[] hashedBytes = hash.ComputeHash(byteContents);
-                return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
-            }
+            using var hash = new SHA1CryptoServiceProvider();
+            byte[] hashedBytes = hash.ComputeHash(byteContents);
+            return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
         }
 
         private static string BuildTenantSpecificContainerName(ITenant tenant, string container)
@@ -270,7 +268,7 @@ namespace Corvus.Azure.Storage.Tenancy
             }
 
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
             return accountKey.Value;

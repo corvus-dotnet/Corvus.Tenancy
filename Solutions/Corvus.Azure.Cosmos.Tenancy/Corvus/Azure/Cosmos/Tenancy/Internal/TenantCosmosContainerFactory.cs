@@ -86,6 +86,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <param name="tenant">The tenant for which to build the definition.</param>
         /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
         /// <returns>A Cosmos container definition unique to the tenant.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "RCS1047:Non-asynchronous method name should not end with 'Async'.", Justification = "Temporarily reverting for a proper fix in its own PR. See Issue #65")]
         public static CosmosContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
             if (tenant is null)
@@ -245,7 +246,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         private async Task<string> GetAccountKeyAsync(CosmosConfiguration storageConfiguration)
         {
             var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
             return accountKey.Value;

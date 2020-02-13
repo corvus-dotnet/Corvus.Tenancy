@@ -40,7 +40,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
             CloudBlobContainer tenancySpecsContainer = await factory.GetBlobContainerForTenantAsync(
                 tenantProvider.Root,
-                new BlobStorageContainerDefinition($"{containerBase}tenancyspecs"));
+                new BlobStorageContainerDefinition($"{containerBase}tenancyspecs")).ConfigureAwait(false);
 
             featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
         }
@@ -54,10 +54,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         public static Task TeardownCosmosDB(FeatureContext featureContext)
         {
             return featureContext.RunAndStoreExceptionsAsync(
-                async () =>
-                {
-                    await featureContext.Get<CloudBlobContainer>(TenancySpecsContainer).DeleteAsync().ConfigureAwait(false);
-                });
+                async () => await featureContext.Get<CloudBlobContainer>(TenancySpecsContainer).DeleteAsync().ConfigureAwait(false));
         }
     }
 }
