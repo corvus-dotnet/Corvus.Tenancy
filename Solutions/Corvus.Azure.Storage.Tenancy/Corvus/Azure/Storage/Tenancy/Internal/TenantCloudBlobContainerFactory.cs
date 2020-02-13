@@ -214,7 +214,7 @@ namespace Corvus.Azure.Storage.Tenancy
         private static string HashAndEncodeContainerName(string containerName)
         {
             byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using SHA1 hash = new SHA1CryptoServiceProvider();
+            using var hash = new SHA1CryptoServiceProvider();
             byte[] hashedBytes = hash.ComputeHash(byteContents);
             return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
         }
