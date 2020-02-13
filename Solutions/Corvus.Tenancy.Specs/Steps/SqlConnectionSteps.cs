@@ -36,26 +36,26 @@
             Assert.IsNotNull(sqlConnection);
         }
 
-        [Given(@"a SqlConfiguration")]
+        [Given("a SqlConfiguration")]
         public void GivenASqlConfiguration(Table table)
         {
             Assert.AreEqual(1, table.Rows.Count);
             this.scenarioContext.Set(new SqlConfiguration { ConnectionString = table.Rows[0]["ConnectionString"], ConnectionStringSecretName = table.Rows[0]["ConnectionStringSecretName"], KeyVaultName = table.Rows[0]["KeyVaultName"] });
         }
 
-        [When(@"I validate the configuration")]
+        [When("I validate the configuration")]
         public void WhenIValidateTheConfiguration()
         {
             this.scenarioContext.Set(this.scenarioContext.Get<SqlConfiguration>().Validate(), "Result");
         }
 
-        [Then(@"the result should be valid")]
+        [Then("the result should be valid")]
         public void ThenTheResultShouldBeValid()
         {
             Assert.IsTrue(this.scenarioContext.Get<bool>("Result"));
         }
 
-        [Then(@"the result should be invalid")]
+        [Then("the result should be invalid")]
         public void ThenTheResultShouldBeInvalid()
         {
             Assert.IsFalse(this.scenarioContext.Get<bool>("Result"));
