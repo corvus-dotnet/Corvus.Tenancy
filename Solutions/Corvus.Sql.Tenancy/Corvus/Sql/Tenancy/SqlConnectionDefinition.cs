@@ -5,8 +5,12 @@
 namespace Corvus.Sql.Tenancy
 {
     /// <summary>
-    /// A definition of a SQL Connection.
+    /// Specifies the name of a database to be used to create a SQL connection.
     /// </summary>
+    /// <remarks>
+    /// This is typically used in conjunction with a <see cref="SqlConfiguration"/> which provides a base SQL connection string for a server,
+    /// via an <see cref="ITenantSqlConnectionFactory"/>, in order to create a <see cref="System.Data.SqlClient.SqlConnection"/>.
+    /// </remarks>
     public class SqlConnectionDefinition
     {
         /// <summary>
