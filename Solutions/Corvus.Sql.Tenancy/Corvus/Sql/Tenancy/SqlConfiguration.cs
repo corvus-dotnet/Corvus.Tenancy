@@ -24,7 +24,12 @@ namespace Corvus.Sql.Tenancy
         /// <summary>
         /// Gets or sets the secret name for the connection string that connects to the server.
         /// </summary>
-        /// <remarks>This connection string will typically <em>not</em> include the <c>InitialCatalog=blah</c> value, as this will be set by the <see cref="SqlConnectionDefinition.Database"/> property.</remarks>
+        /// <remarks>
+        /// <para>
+        /// This should be a connection to a given server, and will <em>not</em> include the <c>InitialCatalog=blah</c> value, as this will be set by the <see cref="SqlConnectionDefinition.Database"/> property.
+        /// </para>
+        /// <para>If this property is set, then the KeyVaultName should also be set.</para>
+        /// </remarks>
         public string ConnectionStringSecretName { get; set; }
 
         /// <summary>
@@ -50,8 +55,50 @@ namespace Corvus.Sql.Tenancy
         /// specified in <see cref="SqlConnectionDefinition.Database"/>.
         /// </summary>
         /// <remarks>
-        /// This is used to append the <c>InitialCatalog</c> property of the connection string supplied.
+        /// This is used to append the <c>InitialCatalog</c> or <c>Database</c> property of the server connection string supplied.
         /// </remarks>
         public string Database { get; set; }
+
+        /// <summary>
+        /// Validates the connection string.
+        /// </summary>
+        /// <returns>True if the connection string is valid.</returns>
+        /// <remarks>
+        /// The configuration must either have no <see cref="ConnectionString"/>, <see cref="KeyVaultName"/> or <see cref="ConnectionStringSecretName"/> set,
+        /// OR a <see cref="ConnectionString"/> but no <see cref="KeyVaultName"/> or <see cref="ConnectionStringSecretName"/>, OR
+        /// a <see cref="KeyVaultName"/> and a <see cref="ConnectionStringSecretName"/> but no <see cref="ConnectionString"/>.
+        /// </remarks>
+        public bool Validate()
+        {
+            return
+                this.IsEmpty() ||
+                (!this.HasIncompleteKeyVaultDetailsAndNoExplicitConnectionString() &&
+                !this.HasExplicitConnectionStringAndAtLeastPartialKeyVaultName());
+        }
+
+        /// <summary>
+        /// Determines if the configuration is empty.
+        /// </summary>
+        /// <returns>True if the configuration has no <see cref="ConnectionString"/>, <see cref="KeyVaultName"/> or <see cref="ConnectionStringSecretName"/> set.</returns>
+        internal bool IsEmpty()
+        {
+            return string.IsNullOrEmpty(this.ConnectionString) &&
+                string.IsNullOrEmpty(this.KeyVaultName) &&
+                string.IsNullOrEmpty(this.ConnectionStringSecretName);
+        }
+
+        private bool HasExplicitConnectionStringAndAtLeastPartialKeyVaultName()
+        {
+            return !string.IsNullOrEmpty(this.ConnectionString) &&
+                    (!string.IsNullOrEmpty(this.KeyVaultName) ||
+                     !string.IsNullOrEmpty(this.ConnectionStringSecretName));
+        }
+
+        private bool HasIncompleteKeyVaultDetailsAndNoExplicitConnectionString()
+        {
+            return string.IsNullOrEmpty(this.ConnectionString) &&
+                    (string.IsNullOrEmpty(this.KeyVaultName) ||
+                     string.IsNullOrEmpty(this.ConnectionStringSecretName));
+        }
     }
 }

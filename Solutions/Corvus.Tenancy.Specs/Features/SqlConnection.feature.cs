@@ -86,7 +86,7 @@ namespace Corvus.Tenancy.Specs.Features
         {
             string[] tagsOfScenario = ((string[])(null));
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a sql connection", null, ((string[])(null)));
-#line 10
+#line 8
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -106,8 +106,63 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-#line 11
+#line 9
  testRunner.Then("I should be able to get the tenanted SqlConnection", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Validate a SqlConfiguration")]
+        [NUnit.Framework.TestCaseAttribute("", "", "", "valid", null)]
+        [NUnit.Framework.TestCaseAttribute("Something", "", "", "valid", null)]
+        [NUnit.Framework.TestCaseAttribute("Something", "Something", "", "invalid", null)]
+        [NUnit.Framework.TestCaseAttribute("Something", "", "Something", "invalid", null)]
+        [NUnit.Framework.TestCaseAttribute("Something", "Something", "Something", "invalid", null)]
+        [NUnit.Framework.TestCaseAttribute("", "Something", "", "invalid", null)]
+        [NUnit.Framework.TestCaseAttribute("", "", "Something", "invalid", null)]
+        [NUnit.Framework.TestCaseAttribute("", "Something", "Something", "valid", null)]
+        public virtual void ValidateASqlConfiguration(string connectionString, string keyVaultName, string connectionStringSecretName, string result, string[] exampleTags)
+        {
+            string[] tagsOfScenario = exampleTags;
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Validate a SqlConfiguration", null, exampleTags);
+#line 11
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+                TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                            "ConnectionString",
+                            "KeyVaultName",
+                            "ConnectionStringSecretName"});
+                table1.AddRow(new string[] {
+                            string.Format("{0}", connectionString),
+                            string.Format("{0}", keyVaultName),
+                            string.Format("{0}", connectionStringSecretName)});
+#line 12
+ testRunner.Given("a SqlConfiguration", ((string)(null)), table1, "Given ");
+#line hidden
+#line 15
+ testRunner.When("I validate the configuration", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 16
+ testRunner.Then(string.Format("the result should be {0}", result), ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

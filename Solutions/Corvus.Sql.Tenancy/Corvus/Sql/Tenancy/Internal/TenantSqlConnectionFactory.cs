@@ -4,6 +4,7 @@
 
 namespace Corvus.Sql.Tenancy.Internal
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Data.Common;
     using System.Data.SqlClient;
@@ -74,7 +75,7 @@ namespace Corvus.Sql.Tenancy.Internal
         /// string to use when requesting an access token for KeyVault.</param>
         public TenantSqlConnectionFactory(IConfiguration configuration)
         {
-            this.configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         /// <summary>
@@ -87,12 +88,12 @@ namespace Corvus.Sql.Tenancy.Internal
         {
             if (tenant is null)
             {
-                throw new System.ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(tenant));
             }
 
             if (connectionDefinition is null)
             {
-                throw new System.ArgumentNullException(nameof(connectionDefinition));
+                throw new ArgumentNullException(nameof(connectionDefinition));
             }
 
             return new SqlConnectionDefinition(BuildTenantSpecificDatabaseName(tenant, connectionDefinition.Database));
@@ -107,7 +108,7 @@ namespace Corvus.Sql.Tenancy.Internal
         {
             if (tenantSqlConnectionDefinition is null)
             {
-                throw new System.ArgumentNullException(nameof(tenantSqlConnectionDefinition));
+                throw new ArgumentNullException(nameof(tenantSqlConnectionDefinition));
             }
 
             return $"{tenantSqlConnectionDefinition.Database}";
@@ -122,7 +123,7 @@ namespace Corvus.Sql.Tenancy.Internal
         {
             if (storageConfiguration is null)
             {
-                throw new System.ArgumentNullException(nameof(storageConfiguration));
+                throw new ArgumentNullException(nameof(storageConfiguration));
             }
 
             return string.IsNullOrEmpty(storageConfiguration.Database) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.Database}";
@@ -138,12 +139,12 @@ namespace Corvus.Sql.Tenancy.Internal
         {
             if (tenant is null)
             {
-                throw new System.ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(tenant));
             }
 
             if (connectionDefinition is null)
             {
-                throw new System.ArgumentNullException(nameof(connectionDefinition));
+                throw new ArgumentNullException(nameof(connectionDefinition));
             }
 
             SqlConnectionDefinition tenantedSqlConnectionDefinition = GetContainerDefinitionForTenant(tenant, connectionDefinition);
@@ -161,17 +162,17 @@ namespace Corvus.Sql.Tenancy.Internal
         {
             if (tenant is null)
             {
-                throw new System.ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(tenant));
             }
 
             if (tenantedSqlConnectionDefinition is null)
             {
-                throw new System.ArgumentNullException(nameof(tenantedSqlConnectionDefinition));
+                throw new ArgumentNullException(nameof(tenantedSqlConnectionDefinition));
             }
 
             if (configuration is null)
             {
-                throw new System.ArgumentNullException(nameof(configuration));
+                throw new ArgumentNullException(nameof(configuration));
             }
 
             configuration.Database = string.IsNullOrWhiteSpace(configuration.Database)
@@ -185,11 +186,15 @@ namespace Corvus.Sql.Tenancy.Internal
 
         private static string BuildTenantSpecificDatabaseName(ITenant tenant, string database) => $"{tenant.Id.ToLowerInvariant()}-{database}";
 
+        private static void ThrowConfigurationException(SqlConfiguration storageConfiguration)
+        {
+            throw new InvalidOperationException("You must provide either a ConnectionString or both a KeyVaultName and a ConnectionStringSecretName to configure your SqlConnection. " +
+                $"You have provided ConnectionString=\"{storageConfiguration.ConnectionString}\", KeyVaultName=\"{storageConfiguration.KeyVaultName}\", ConnectionStringSecretName=\"{storageConfiguration.ConnectionStringSecretName}\"");
+        }
+
         private async Task<SqlConnection> CreateSqlConnectionAsync(SqlConfiguration configuration)
         {
-            if (string.IsNullOrEmpty(configuration.ConnectionStringSecretName) &&
-                string.IsNullOrEmpty(configuration.ConnectionString) &&
-                (string.IsNullOrEmpty(configuration.Database) || configuration.Database.Equals(DevelopmentStorageConnectionString)))
+            if (configuration.IsEmpty())
             {
                 return new SqlConnection(DevelopmentStorageConnectionString);
             }
@@ -221,12 +226,22 @@ namespace Corvus.Sql.Tenancy.Internal
 
         private async Task<string> GetConnectionStringAsync(SqlConfiguration storageConfiguration)
         {
+            if (!storageConfiguration.Validate())
+            {
+                ThrowConfigurationException(storageConfiguration);
+            }
+
             if (string.IsNullOrEmpty(storageConfiguration.ConnectionString))
             {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider(this.configuration["AzureServicesAuthConnectionString"]);
                 using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
                 SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
                 return accountKey.Value;
+            }
+
+            if (!string.IsNullOrEmpty(storageConfiguration.KeyVaultName) || !string.IsNullOrEmpty(storageConfiguration.ConnectionStringSecretName))
+            {
+                ThrowConfigurationException(storageConfiguration);
             }
 
             return storageConfiguration.ConnectionString;
