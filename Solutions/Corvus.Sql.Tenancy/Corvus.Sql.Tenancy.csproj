@@ -6,8 +6,8 @@
 
   <PropertyGroup>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageDescription></PackageDescription>
-    <PackageTags></PackageTags>
+    <PackageDescription>Provides a means of obtaining a SqlConnection configured for a particular server and database instance, for Corvus's notion of a tenant.</PackageDescription>
+    <PackageTags>sql;endjin;tenancy</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
