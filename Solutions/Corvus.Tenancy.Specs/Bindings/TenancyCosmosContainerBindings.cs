@@ -38,7 +38,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
             string containerBase = Guid.NewGuid().ToString();
 
-            CosmosConfiguration config = tenantProvider.Root.GetDefaultCosmosConfiguration();
+            CosmosConfiguration config = tenantProvider.Root.GetDefaultCosmosConfiguration()!;
             config.DatabaseName = "endjinspecssharedthroughput";
             config.DisableTenantIdPrefix = true;
             tenantProvider.Root.SetDefaultCosmosConfiguration(config);

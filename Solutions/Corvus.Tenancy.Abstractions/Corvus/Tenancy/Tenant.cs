@@ -4,6 +4,7 @@
 
 namespace Corvus.Tenancy
 {
+    using System;
     using Corvus.Extensions.Json;
 
     /// <summary>
@@ -15,6 +16,8 @@ namespace Corvus.Tenancy
         /// The registered content type for the tenant.
         /// </summary>
         public const string RegisteredContentType = "application/vnd.corvus.tenancy.tenant";
+
+        private string? id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Tenant"/> class.
@@ -28,10 +31,16 @@ namespace Corvus.Tenancy
             }
 
             this.Properties = new PropertyBag(settingsProvider.Instance);
+
+            this.Id = string.Empty;
         }
 
         /// <inheritdoc/>
-        public string Id { get; set; }
+        public string Id
+        {
+            get => this.id ?? throw new InvalidOperationException("This tenant has not been supplied with an " + nameof(this.Id));
+            set => this.id = value ?? throw new ArgumentNullException();
+        }
 
         /// <inheritdoc/>
         public PropertyBag Properties
@@ -40,7 +49,7 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public string ETag { get; set; }
+        public string? ETag { get; set; }
 
         /// <inheritdoc/>
         public string ContentType

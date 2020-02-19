@@ -16,7 +16,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenantIds">The collection of tenantIds produced by the request.</param>
         /// <param name="continuationToken">The continuation token to pass to retrieve the next batch of tenants.</param>
-        public TenantCollectionResult(IEnumerable<string> tenantIds, string continuationToken)
+        public TenantCollectionResult(IEnumerable<string> tenantIds, string? continuationToken)
         {
             this.Tenants = new List<string>(tenantIds) ?? throw new System.ArgumentNullException(nameof(tenantIds));
             this.ContinuationToken = continuationToken;
@@ -30,6 +30,6 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Gets the continuation token to pass to the API for the next batch of tenants.
         /// </summary>
-        public string ContinuationToken { get; }
+        public string? ContinuationToken { get; }
     }
 }

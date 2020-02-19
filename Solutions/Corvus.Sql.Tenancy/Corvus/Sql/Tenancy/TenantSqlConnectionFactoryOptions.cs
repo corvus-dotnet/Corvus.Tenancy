@@ -46,7 +46,7 @@ namespace Corvus.Sql.Tenancy
         /// <c>AzureServicesAuthConnectionString</c>.
         /// </p>
         /// </remarks>
-        public string AzureServicesAuthConnectionString { get; set; }
+        public string? AzureServicesAuthConnectionString { get; set; }
 
         /// <summary>
         /// Gets or sets the SqlConfiguration configuration for the root tenant.

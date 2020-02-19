@@ -186,24 +186,25 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(configuration));
             }
 
+            // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
             string tenantedDatabaseName = string.IsNullOrWhiteSpace(configuration.DatabaseName)
                 ? tenantedGremlinContainerDefinition.DatabaseName
                 : (configuration.DisableTenantIdPrefix
-                    ? configuration.DatabaseName
-                    : BuildTenantSpecificDatabaseName(tenant, configuration.DatabaseName));
+                    ? configuration.DatabaseName!
+                    : BuildTenantSpecificDatabaseName(tenant, configuration.DatabaseName!));
 
             string tenantedContainerName = string.IsNullOrWhiteSpace(configuration.ContainerName)
                 ? tenantedGremlinContainerDefinition.ContainerName
                 : (configuration.DisableTenantIdPrefix
-                    ? configuration.ContainerName
-                    : BuildTenantSpecificContainerName(tenant, configuration.ContainerName));
+                    ? configuration.ContainerName!
+                    : BuildTenantSpecificContainerName(tenant, configuration.ContainerName!));
 
             // Get the Gremlin client for the specified configuration.
             object accountCacheKey = GetKeyFor(configuration);
 
             GremlinServer gremlinServer = await this.servers.GetOrAdd(
                 accountCacheKey,
-                _ => this.CreateTenantGremlinServerAsync(tenant, configuration)).ConfigureAwait(false);
+                _ => this.CreateTenantGremlinServerAsync(configuration, tenantedDatabaseName, tenantedContainerName)).ConfigureAwait(false);
 
             // TODO: do we need to create the database/container?
             return new GremlinClient(gremlinServer, new GraphSONJTokenReader(), mimeType: GremlinClient.GraphSON2MimeType);
@@ -213,18 +214,19 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 
         private static string BuildTenantSpecificDatabaseName(ITenant tenant, string database) => $"{tenant.Id.ToLowerInvariant()}-{database}";
 
-        private static string BuildTenantSpecificUserName(ITenant tenant, GremlinConfiguration configuration) => $"/dbs/{BuildTenantSpecificDatabaseName(tenant, configuration.DatabaseName)}/colls/{BuildTenantSpecificContainerName(tenant, configuration.DatabaseName)}";
+        private static string BuildTenantSpecificUserName(string databaseName, string containerName) => $"/dbs/{databaseName}/colls/{containerName}";
 
-        private async Task<GremlinServer> CreateTenantGremlinServerAsync(ITenant tenant, GremlinConfiguration configuration)
+        private async Task<GremlinServer> CreateTenantGremlinServerAsync(GremlinConfiguration configuration, string databaseName, string containerName)
         {
+            string username = BuildTenantSpecificUserName(databaseName, containerName);
             if (string.IsNullOrEmpty(configuration.HostName) || configuration.HostName == DevelopmentHostName)
             {
-                return new GremlinServer(DevelopmentHostName, DevelopmentPort, true, BuildTenantSpecificUserName(tenant, configuration), DevelopmentAuthKey);
+                return new GremlinServer(DevelopmentHostName, DevelopmentPort, true, username, DevelopmentAuthKey);
             }
             else
             {
                 string authKey = await this.GetAuthKey(configuration).ConfigureAwait(false);
-                return new GremlinServer(configuration.HostName, configuration.Port, true, BuildTenantSpecificUserName(tenant, configuration), authKey);
+                return new GremlinServer(configuration.HostName, configuration.Port, true, username, authKey);
             }
         }
 
@@ -239,9 +241,12 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 
         private async Task<GremlinClient> CreateTenantGremlinClient(ITenant tenant, GremlinContainerDefinition repositoryDefinition, GremlinContainerDefinition tenantedBlobStorageContainerDefinition)
         {
-            GremlinConfiguration configuration = tenant.GetGremlinConfiguration(repositoryDefinition);
+            GremlinConfiguration? configuration = tenant.GetGremlinConfiguration(repositoryDefinition);
 
-            return await this.CreateGremlinClientInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration).ConfigureAwait(false);
+            // Although GetGremlinConfiguration can return null, CreateGremlinClientInstanceAsync
+            // will detect that and throw, so it's OK to silence the compiler warning with the null
+            // forgiving operator here.
+            return await this.CreateGremlinClientInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration!).ConfigureAwait(false);
         }
     }
 }

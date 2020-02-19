@@ -20,7 +20,7 @@ namespace Corvus.Sql.Tenancy
         /// <param name="tenant">The tenant.</param>
         /// <param name="definition">The Sql storage container definition.</param>
         /// <returns>The configuration for the Sql account for this tenant.</returns>
-        public static SqlConfiguration GetSqlConfiguration(this ITenant tenant, SqlConnectionDefinition definition)
+        public static SqlConfiguration? GetSqlConfiguration(this ITenant tenant, SqlConnectionDefinition definition)
         {
             if (tenant is null)
             {
@@ -47,7 +47,7 @@ namespace Corvus.Sql.Tenancy
         /// </summary>
         /// <param name="tenant">The tenant for which to get the default configuration.</param>
         /// <returns>The Default <see cref="SqlConfiguration"/> for the tenant.</returns>
-        public static SqlConfiguration GetDefaultSqlConfiguration(this ITenant tenant)
+        public static SqlConfiguration? GetDefaultSqlConfiguration(this ITenant tenant)
         {
             if (tenant is null)
             {

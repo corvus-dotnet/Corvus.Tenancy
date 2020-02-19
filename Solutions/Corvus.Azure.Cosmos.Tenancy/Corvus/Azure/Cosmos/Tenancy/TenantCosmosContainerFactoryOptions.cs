@@ -4,7 +4,6 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy
 {
-    using System;
     using Corvus.Azure.Cosmos.Tenancy.Internal;
 
     /// <summary>
@@ -47,7 +46,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <c>AzureServicesAuthConnectionString</c>.
         /// </p>
         /// </remarks>
-        public string AzureServicesAuthConnectionString { get; set; }
+        public string? AzureServicesAuthConnectionString { get; set; }
 
         /// <summary>
         /// Gets or sets the Cosmos configuration for the root tenant.

@@ -7,6 +7,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Collections.Generic;
     using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
+    using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.SpecFlow.Extensions;
     using Corvus.Sql.Tenancy;
@@ -72,6 +73,14 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
 
+                    var gremlinOptions = new TenantGremlinContainerFactoryOptions
+                    {
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                    };
+
+                    config.Bind("ROOTTENANTGREMLINCONFIGURATIONOPTIONS", gremlinOptions.RootTenantGremlinConfiguration);
+
+                    serviceCollection.AddTenantGremlinContainerFactory(gremlinOptions);
 
                     var sqlOptions = new TenantSqlConnectionFactoryOptions
                     {

@@ -66,13 +66,13 @@ namespace Corvus.Sql.Tenancy.Internal
         private const string DevelopmentStorageConnectionString = "Server=(localdb)\\mssqllocaldb;Database=testtenant;Trusted_Connection=True;MultipleActiveResultSets=true";
 
         private readonly ConcurrentDictionary<object, Task<string>> connectionStrings = new ConcurrentDictionary<object, Task<string>>();
-        private readonly TenantSqlConnectionFactoryOptions options;
+        private readonly TenantSqlConnectionFactoryOptions? options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantSqlConnectionFactory"/> class.
         /// </summary>
         /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
-        public TenantSqlConnectionFactory(TenantSqlConnectionFactoryOptions options = null)
+        public TenantSqlConnectionFactory(TenantSqlConnectionFactoryOptions? options = null)
         {
             this.options = options;
         }
@@ -174,11 +174,12 @@ namespace Corvus.Sql.Tenancy.Internal
                 throw new ArgumentNullException(nameof(configuration));
             }
 
+            // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
             configuration.Database = string.IsNullOrWhiteSpace(configuration.Database)
                 ? tenantedSqlConnectionDefinition.Database
                 : configuration.DisableTenantIdPrefix
                     ? configuration.Database
-                    : BuildTenantSpecificDatabaseName(tenant, configuration.Database);
+                    : BuildTenantSpecificDatabaseName(tenant, configuration.Database!);
 
             return await this.CreateSqlConnectionAsync(configuration).ConfigureAwait(false);
         }
@@ -243,14 +244,15 @@ namespace Corvus.Sql.Tenancy.Internal
                 ThrowConfigurationException(storageConfiguration);
             }
 
-            return storageConfiguration.ConnectionString;
+            // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
+            return storageConfiguration.ConnectionString!;
         }
 
         private Task<SqlConnection> CreateSqlConnectionAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition, SqlConnectionDefinition tenantedSqlConnectionDefinition)
         {
-            SqlConfiguration configuration = tenant.GetSqlConfiguration(connectionDefinition);
+            SqlConfiguration? configuration = tenant.GetSqlConfiguration(connectionDefinition);
 
-            return this.CreateSqlConnectionAsync(tenant, tenantedSqlConnectionDefinition, configuration);
+            return this.CreateSqlConnectionAsync(tenant, tenantedSqlConnectionDefinition, configuration!);
         }
     }
 }

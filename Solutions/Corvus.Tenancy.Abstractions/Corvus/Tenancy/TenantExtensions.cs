@@ -20,7 +20,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenant">The tenant.</param>
         /// <returns>The id of the parent of the specified tenant, or null if this is the <see cref="ITenantProvider.Root"/> tenant.</returns>
-        public static string GetParentId(this ITenant tenant)
+        public static string? GetParentId(this ITenant tenant)
         {
             if (tenant is null)
             {
@@ -28,6 +28,27 @@ namespace Corvus.Tenancy
             }
 
             return GetParentId(tenant.Id);
+        }
+
+        /// <summary>
+        /// Gets the id of the parent of a tenant, throwing an exception if the tenant has no parent (i.e., if
+        /// it is the root tenant).
+        /// </summary>
+        /// <param name="tenant">The tenant.</param>
+        /// <returns>The id of the parent of the specified tenant.</returns>
+        /// <remarks>
+        /// This is for use in scenarios where the caller believes that the tenant ID is not that of the root.
+        /// This is common, because the root is often handled as a special case, meaning that by the time we
+        /// get to calling this method, we've already ruled out the possibility that there is no parent.
+        /// </remarks>
+        public static string GetRequiredParentId(this ITenant tenant)
+        {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            return GetRequiredParentId(tenant.Id);
         }
 
         /// <summary>
@@ -69,7 +90,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenantId">The tenant ID.</param>
         /// <returns>The ID of the parent of the specified tenant, or null if this is the <see cref="ITenantProvider.Root"/> tenant ID.</returns>
-        public static string GetParentId(this string tenantId)
+        public static string? GetParentId(this string tenantId)
         {
             if (tenantId is null)
             {
@@ -97,6 +118,20 @@ namespace Corvus.Tenancy
                 throw new FormatException("Invalid tenantId format.", ex);
             }
         }
+
+        /// <summary>
+        /// Gets the id of the parent of a tenant, throwing an exception if the tenant has no parent (i.e., if
+        /// it is the root tenant).
+        /// </summary>
+        /// <param name="tenantId">The tenant ID.</param>
+        /// <returns>The ID of the parent of the specified tenant.</returns>
+        /// <remarks>
+        /// This is for use in scenarios where the caller believes that the tenant ID is not that of the root.
+        /// This is common, because the root is often handled as a special case, meaning that by the time we
+        /// get to calling this method, we've already ruled out the possibility that there is no parent.
+        /// </remarks>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "RCS1224:Make method an extension method.", Justification = "Extension methods on basic types such string are evil")]
+        public static string GetRequiredParentId(string tenantId) => GetParentId(tenantId) ?? throw new ArgumentException("Must not be root tenant", nameof(tenantId));
 
         /// <summary>
         /// Encodes a path of guids as a tenant ID.

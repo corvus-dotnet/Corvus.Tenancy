@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using Corvus.Tenancy;
+    using Corvus.Tenancy.Exceptions;
 
     internal class FakeTenantProvider : ITenantProvider
     {
@@ -27,21 +28,21 @@
 #pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
-        public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string continuationToken = null)
+        public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string? continuationToken = null)
         {
 #pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
 #pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
-        public Task<ITenant> GetTenantAsync(string tenantId, string etag = null)
+        public Task<ITenant> GetTenantAsync(string tenantId, string? etag = null)
         {
-            if (tenantId == RootTenant.RootTenantId)
+            if (tenantId != RootTenant.RootTenantId)
             {
-                return Task.FromResult(this.Root);
+                throw new TenantNotFoundException();
             }
 
-            return Task.FromResult(default(ITenant));
+            return Task.FromResult(this.Root);
         }
 
         public Task<ITenant> UpdateTenantAsync(ITenant tenant)

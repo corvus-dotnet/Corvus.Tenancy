@@ -72,13 +72,13 @@ namespace Corvus.Azure.Storage.Tenancy
 
         private readonly ConcurrentDictionary<object, Task<CloudBlobClient>> clients = new ConcurrentDictionary<object, Task<CloudBlobClient>>();
         private readonly ConcurrentDictionary<object, Task<CloudBlobContainer>> containers = new ConcurrentDictionary<object, Task<CloudBlobContainer>>();
-        private readonly TenantCloudBlobContainerFactoryOptions options;
+        private readonly TenantCloudBlobContainerFactoryOptions? options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudBlobContainerFactory"/> class.
         /// </summary>
         /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
-        public TenantCloudBlobContainerFactory(TenantCloudBlobContainerFactoryOptions options = null)
+        public TenantCloudBlobContainerFactory(TenantCloudBlobContainerFactoryOptions? options = null)
         {
             this.options = options;
         }
@@ -187,11 +187,12 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(configuration));
             }
 
+            // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
             string tenantedContainerName = string.IsNullOrWhiteSpace(configuration.Container)
                 ? tenantedBlobStorageContainerDefinition.ContainerName
                 : (configuration.DisableTenantIdPrefix
-                    ? configuration.Container
-                    : BuildTenantSpecificContainerName(tenant, configuration.Container));
+                    ? configuration.Container!
+                    : BuildTenantSpecificContainerName(tenant, configuration.Container!));
 
             // Get the cloud blob client for the specified configuration.
             object accountCacheKey = GetKeyFor(configuration);
@@ -242,7 +243,8 @@ namespace Corvus.Azure.Storage.Tenancy
 
             CloudStorageAccount account;
 
-            if (string.IsNullOrEmpty(configuration.AccountName) || configuration.AccountName.Equals(DevelopmentStorageConnectionString))
+            // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
+            if (string.IsNullOrEmpty(configuration.AccountName) || configuration.AccountName!.Equals(DevelopmentStorageConnectionString))
             {
                 account = CloudStorageAccount.DevelopmentStorageAccount;
             }
@@ -291,9 +293,9 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(tenantedBlobStorageContainerDefinition));
             }
 
-            BlobStorageConfiguration configuration = tenant.GetBlobStorageConfiguration(containerDefinition);
+            BlobStorageConfiguration? configuration = tenant.GetBlobStorageConfiguration(containerDefinition);
 
-            return await this.CreateCloudBlobContainerInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration).ConfigureAwait(false);
+            return await this.CreateCloudBlobContainerInstanceAsync(tenant, tenantedBlobStorageContainerDefinition, configuration!).ConfigureAwait(false);
         }
     }
 }

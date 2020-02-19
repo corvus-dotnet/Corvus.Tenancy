@@ -24,7 +24,7 @@ namespace Corvus.Sql.Tenancy
         /// <summary>
         /// Gets or sets the name of the key vault in which the connection string for the server is stored.
         /// </summary>
-        public string KeyVaultName { get; set; }
+        public string? KeyVaultName { get; set; }
 
         /// <summary>
         /// Gets or sets the secret name for the connection string that connects to the server.
@@ -35,7 +35,7 @@ namespace Corvus.Sql.Tenancy
         /// </para>
         /// <para>If this property is set, then the KeyVaultName should also be set.</para>
         /// </remarks>
-        public string ConnectionStringSecretName { get; set; }
+        public string? ConnectionStringSecretName { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable the tenant ID prefix.
@@ -48,7 +48,7 @@ namespace Corvus.Sql.Tenancy
         /// <remarks>
         /// This is used in test scenarios to set an explicit base connection string. In production, you would typically use the keyvault connection string.
         /// </remarks>
-        public string ConnectionString { get; set; }
+        public string? ConnectionString { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this is a local database.
@@ -62,7 +62,7 @@ namespace Corvus.Sql.Tenancy
         /// <remarks>
         /// This is used to append the <c>InitialCatalog</c> or <c>Database</c> property of the server connection string supplied.
         /// </remarks>
-        public string Database { get; set; }
+        public string? Database { get; set; }
 
         /// <summary>
         /// Validates the connection string.

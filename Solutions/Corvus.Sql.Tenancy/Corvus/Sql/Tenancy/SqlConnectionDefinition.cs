@@ -4,6 +4,8 @@
 
 namespace Corvus.Sql.Tenancy
 {
+    using System;
+
     /// <summary>
     /// Specifies the name of a database to be used to create a SQL connection.
     /// </summary>
@@ -13,6 +15,8 @@ namespace Corvus.Sql.Tenancy
     /// </remarks>
     public class SqlConnectionDefinition
     {
+        private string? database;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SqlConnectionDefinition"/> class.
         /// </summary>
@@ -37,6 +41,10 @@ namespace Corvus.Sql.Tenancy
         /// <para>Note that this would typically be the database name. In test scenarios, you may choose to provide an entire connection string for the database in this property.</para>
         /// <para>Otherwise, it is used to append the <c>InitialCatalog</c> property of the connection string supplied through the <see cref="SqlConfiguration"/>.</para>
         /// </remarks>
-        public string Database { get; set; }
+        public string Database
+        {
+            get => this.database ?? throw new InvalidOperationException(nameof(this.Database) + " has not been set");
+            set => this.database = value ?? throw new ArgumentNullException();
+        }
     }
 }
