@@ -72,7 +72,6 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
 
-
                     var sqlOptions = new TenantSqlConnectionFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]

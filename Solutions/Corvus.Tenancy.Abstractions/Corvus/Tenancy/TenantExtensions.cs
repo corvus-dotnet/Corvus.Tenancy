@@ -20,7 +20,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenant">The tenant.</param>
         /// <returns>The id of the parent of the specified tenant, or null if this is the <see cref="ITenantProvider.Root"/> tenant.</returns>
-        public static string GetParentId(this ITenant tenant)
+        public static string? GetParentId(this ITenant tenant)
         {
             if (tenant is null)
             {
@@ -69,7 +69,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenantId">The tenant ID.</param>
         /// <returns>The ID of the parent of the specified tenant, or null if this is the <see cref="ITenantProvider.Root"/> tenant ID.</returns>
-        public static string GetParentId(this string tenantId)
+        public static string? GetParentId(this string tenantId)
         {
             if (tenantId is null)
             {

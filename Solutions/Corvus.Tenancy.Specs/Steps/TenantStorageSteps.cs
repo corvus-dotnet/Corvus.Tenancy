@@ -34,7 +34,7 @@
         public async Task WhenIGetTheTenantWithTheIdCalled(string tenantIdName, string tenantName)
         {
             ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
-            ITenant tenant = await provider.GetTenantAsync(this.scenarioContext.Get<string>(tenantIdName)).ConfigureAwait(false);
+            ITenant? tenant = await provider.GetTenantAsync(this.scenarioContext.Get<string>(tenantIdName)).ConfigureAwait(false);
             this.scenarioContext.Set(tenant, tenantName);
         }
 
@@ -227,7 +227,7 @@
             try
             {
                 ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
-                ITenant tenant = await provider.GetTenantAsync(this.scenarioContext.Get<string>(tenantIdName), this.scenarioContext.Get<string>(tenantETagName)).ConfigureAwait(false);
+                ITenant? tenant = await provider.GetTenantAsync(this.scenarioContext.Get<string>(tenantIdName), this.scenarioContext.Get<string>(tenantETagName)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

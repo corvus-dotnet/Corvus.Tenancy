@@ -14,6 +14,8 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </summary>
         public CosmosContainerDefinition()
         {
+            this.DatabaseName = string.Empty;
+            this.ContainerName = string.Empty;
         }
 
         /// <summary>
@@ -24,7 +26,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <param name="partitionKeyPath">The <see cref="PartitionKeyPath"/>.</param>
         /// <param name="containerThroughput">The <see cref="ContainerThroughput"/>, or null if default container-level throughput is to be used.</param>
         /// <param name="databaseThroughput">The <see cref="DatabaseThroughput"/>, or null if no database-level throughput is required.</param>
-        public CosmosContainerDefinition(string databaseName, string containerName, string partitionKeyPath, int? containerThroughput = null, int? databaseThroughput = null)
+        public CosmosContainerDefinition(string databaseName, string containerName, string? partitionKeyPath, int? containerThroughput = null, int? databaseThroughput = null)
         {
             this.DatabaseName = databaseName;
             this.ContainerName = containerName;
@@ -56,6 +58,6 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <summary>
         /// Gets or sets the partition key path.
         /// </summary>
-        public string PartitionKeyPath { get; set; }
+        public string? PartitionKeyPath { get; set; }
     }
 }

@@ -27,21 +27,20 @@
 #pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
-        public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string continuationToken = null)
+        public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string? continuationToken = null)
         {
 #pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
 #pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
-        public Task<ITenant> GetTenantAsync(string tenantId, string etag = null)
+        public Task<ITenant?> GetTenantAsync(string tenantId, string? etag = null)
         {
-            if (tenantId == RootTenant.RootTenantId)
-            {
-                return Task.FromResult(this.Root);
-            }
+            ITenant? result = tenantId == RootTenant.RootTenantId
+                ? this.Root
+                : null;
 
-            return Task.FromResult(default(ITenant));
+            return Task.FromResult(result);
         }
 
         public Task<ITenant> UpdateTenantAsync(ITenant tenant)

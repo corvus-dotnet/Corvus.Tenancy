@@ -66,7 +66,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 
         private readonly ConcurrentDictionary<object, Task<CosmosClient>> clients = new ConcurrentDictionary<object, Task<CosmosClient>>();
         private readonly ConcurrentDictionary<object, Task<Container>> containers = new ConcurrentDictionary<object, Task<Container>>();
-        private readonly TenantCosmosContainerFactoryOptions options;
+        private readonly TenantCosmosContainerFactoryOptions? options;
         private readonly ICosmosClientBuilderFactory cosmosClientBuilderFactory;
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// </summary>
         /// <param name="cosmosClientBuilderFactory">Client builder factory.</param>
         /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
-        public TenantCosmosContainerFactory(ICosmosClientBuilderFactory cosmosClientBuilderFactory, TenantCosmosContainerFactoryOptions options = null)
+        public TenantCosmosContainerFactory(ICosmosClientBuilderFactory cosmosClientBuilderFactory, TenantCosmosContainerFactoryOptions? options = null)
         {
             this.cosmosClientBuilderFactory = cosmosClientBuilderFactory ?? throw new System.ArgumentNullException(nameof(cosmosClientBuilderFactory));
             this.options = options;
@@ -185,17 +185,24 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(configuration));
             }
 
+            // Note: the use of the null forgiving operator in the next two statements is necessary
+            // only for as long as we target .NET Standard 2.0. It does not have the NotNullWhen
+            // attribute on string.IsNullOrWhiteSpace, meaning the compiler cannot infer that
+            // configuration.DatabaseName will be non-null in the 2nd half of these conditional
+            // statements. These kinds of attributes are present in .NET Core 3.0 or later, and
+            // .NET Standard 2.1 or later, so these assertions will become redundant once we
+            // drop support for .NET Standard 2.0.
             string tenantedDatabaseName = string.IsNullOrWhiteSpace(configuration.DatabaseName)
                 ? tenantedCosmosContainerDefinition.DatabaseName
                 : (configuration.DisableTenantIdPrefix
-                    ? configuration.DatabaseName
-                    : BuildTenantSpecificDatabaseName(tenant, configuration.DatabaseName));
+                    ? configuration.DatabaseName!
+                    : BuildTenantSpecificDatabaseName(tenant, configuration.DatabaseName!));
 
             string tenantedContainerName = string.IsNullOrWhiteSpace(configuration.ContainerName)
                 ? tenantedCosmosContainerDefinition.ContainerName
                 : (configuration.DisableTenantIdPrefix
-                    ? configuration.ContainerName
-                    : BuildTenantSpecificContainerName(tenant, configuration.ContainerName));
+                    ? configuration.ContainerName!
+                    : BuildTenantSpecificContainerName(tenant, configuration.ContainerName!));
 
             // Get the Cosmos client for the specified configuration.
             object accountCacheKey = GetKeyFor(configuration);
@@ -225,7 +232,9 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         private async Task<CosmosClient> CreateCosmosClientAsync(CosmosConfiguration configuration)
         {
             CosmosClientBuilder builder;
-            if (string.IsNullOrEmpty(configuration.AccountUri) || configuration.AccountUri.Equals(DevelopmentStorageConnectionString))
+
+            // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
+            if (string.IsNullOrEmpty(configuration.AccountUri) || configuration.AccountUri!.Equals(DevelopmentStorageConnectionString))
             {
                 builder = this.cosmosClientBuilderFactory.CreateCosmosClientBuilder(DevelopmentStorageConnectionString);
             }
@@ -254,9 +263,12 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 
         private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedCosmosContainerDefinition)
         {
-            CosmosConfiguration configuration = tenant.GetCosmosConfiguration(repositoryDefinition);
+            CosmosConfiguration? configuration = tenant.GetCosmosConfiguration(repositoryDefinition);
 
-            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedCosmosContainerDefinition, configuration).ConfigureAwait(false);
+            // Although GetCosmosConfiguration can return null, CreateCosmosContainerInstanceAsync
+            // will detect that and throw, so it's OK to silence the compiler warning with the null
+            // forgiving operator here.
+            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedCosmosContainerDefinition, configuration!).ConfigureAwait(false);
         }
     }
 }
