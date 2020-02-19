@@ -169,11 +169,11 @@ namespace Corvus.Tenancy
                 // At the least, we need to copy the default blob storage settings from its parent
                 // to support the tenant blob store provider. We would expect this to be overridden
                 // by clients that wanted to establish their own settings.
-                BlobStorageConfiguration defaultStorageConfiguration = parentTenant.GetDefaultBlobStorageConfiguration();
-                child.SetDefaultBlobStorageConfiguration(defaultStorageConfiguration);
+                BlobStorageConfiguration? defaultStorageConfiguration = parentTenant.GetDefaultBlobStorageConfiguration();
+                child.SetDefaultBlobStorageConfiguration(defaultStorageConfiguration!);
                 if (parentTenant.HasStorageBlobConfiguration(this.ContainerDefinition))
                 {
-                    child.SetBlobStorageConfiguration(this.ContainerDefinition, parentTenant.GetBlobStorageConfiguration(this.ContainerDefinition));
+                    child.SetBlobStorageConfiguration(this.ContainerDefinition, parentTenant.GetBlobStorageConfiguration(this.ContainerDefinition) !);
                 }
 
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
