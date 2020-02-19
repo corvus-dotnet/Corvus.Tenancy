@@ -9,6 +9,13 @@
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
     "AccountKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}"
   },
+  "RootTenantGremlinConfigurationOptions": {
+    // [REMOVE THESE SETTINGS ENTIRELY TO USE THE COSMOS EMULATOR]
+    "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
+    "AuthKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}",
+    "HostName": "{ADD YOUR COSMOSDB ACCOUNT NAME HERE.gremlin.cosmosdb.azure.com",
+    "Port": 443
+  },
   "RootTenantSqlConfigurationOptions": {
     // [REMOVE THESE SETTINGS ENTIRELY TO USE A STANDARD LOCALDB]
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
