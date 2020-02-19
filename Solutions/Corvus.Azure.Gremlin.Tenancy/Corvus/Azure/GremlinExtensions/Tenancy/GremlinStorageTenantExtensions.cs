@@ -20,7 +20,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// <param name="tenant">The tenant.</param>
         /// <param name="definition">The Gremlin storage container definition.</param>
         /// <returns>The configuration for the Gremlin account for this tenant.</returns>
-        public static GremlinConfiguration GetGremlinConfiguration(this ITenant tenant, GremlinContainerDefinition definition)
+        public static GremlinConfiguration? GetGremlinConfiguration(this ITenant tenant, GremlinContainerDefinition definition)
         {
             if (tenant is null)
             {
@@ -47,7 +47,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// </summary>
         /// <param name="tenant">The tenant for which to get the default configuration.</param>
         /// <returns>The Default <see cref="GremlinConfiguration"/> for the tenant.</returns>
-        public static GremlinConfiguration GetDefaultGremlinConfiguration(this ITenant tenant)
+        public static GremlinConfiguration? GetDefaultGremlinConfiguration(this ITenant tenant)
         {
             if (tenant is null)
             {
