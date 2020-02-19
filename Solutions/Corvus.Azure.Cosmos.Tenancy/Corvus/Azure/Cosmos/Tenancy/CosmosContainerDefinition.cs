@@ -4,18 +4,21 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy
 {
+    using System;
+
     /// <summary>
     /// A definition of a Cosmos container.
     /// </summary>
     public class CosmosContainerDefinition
     {
+        private string? databaseName;
+        private string? containerName;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CosmosContainerDefinition"/> class.
         /// </summary>
         public CosmosContainerDefinition()
         {
-            this.DatabaseName = string.Empty;
-            this.ContainerName = string.Empty;
         }
 
         /// <summary>
@@ -38,7 +41,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <summary>
         /// Gets or sets the database name.
         /// </summary>
-        public string DatabaseName { get; set; }
+        public string DatabaseName
+        {
+            get => this.databaseName ?? throw new InvalidOperationException(nameof(this.DatabaseName) + " has not been set");
+            set => this.databaseName = value ?? throw new ArgumentNullException();
+        }
 
         /// <summary>
         /// Gets or sets the database throughput, where database-level throughput is required.
@@ -48,7 +55,11 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <summary>
         /// Gets or sets the container name.
         /// </summary>
-        public string ContainerName { get; set; }
+        public string ContainerName
+        {
+            get => this.containerName ?? throw new InvalidOperationException(nameof(this.ContainerName) + " has not been set");
+            set => this.containerName = value ?? throw new ArgumentNullException();
+        }
 
         /// <summary>
         /// Gets or sets the container throughput, where container-level throughput is required.

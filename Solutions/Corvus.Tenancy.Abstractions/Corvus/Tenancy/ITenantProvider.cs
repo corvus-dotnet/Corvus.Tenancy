@@ -5,6 +5,7 @@
 namespace Corvus.Tenancy
 {
     using System.Threading.Tasks;
+    using Corvus.Tenancy.Exceptions;
 
     /// <summary>
     /// Provides tenant information.
@@ -20,9 +21,17 @@ namespace Corvus.Tenancy
         /// Gets the tenant for a given tenant ID.
         /// </summary>
         /// <param name="tenantId">The id of the tenant for which to get the parent.</param>
-        /// <param name="eTag">An optional ETag. The tenant will only be deleted if the etag matches, or is null.</param>
-        /// <returns>The parent of the specified tenant, or null if this is the <see cref="Root"/> tenant.</returns>
-        Task<ITenant?> GetTenantAsync(string tenantId, string? eTag = null);
+        /// <param name="eTag">
+        /// An optional ETag. If the etag matches, this method will throw <see cref="TenantNotModifiedException"/>.
+        /// </param>
+        /// <returns>A task that produces the specified tenant.</returns>
+        /// <exception cref="TenantNotModifiedException">
+        /// Thrown if the stored tenant has the same etag as was passed.
+        /// </exception>
+        /// <exception cref="TenantNotFoundException">
+        /// Thrown if no tenant with the specified id can be found.
+        /// </exception>
+        Task<ITenant> GetTenantAsync(string tenantId, string? eTag = null);
 
         /// <summary>
         /// Gets the child tenants for a given tenant.

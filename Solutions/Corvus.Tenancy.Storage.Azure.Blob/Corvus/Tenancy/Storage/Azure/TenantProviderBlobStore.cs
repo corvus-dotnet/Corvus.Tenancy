@@ -61,7 +61,7 @@ namespace Corvus.Tenancy
         public ITenant Root { get; }
 
         /// <inheritdoc/>
-        public async Task<ITenant> GetTenantAsync(string tenantId, string etag = null)
+        public async Task<ITenant> GetTenantAsync(string tenantId, string? etag = null)
         {
             if (tenantId is null)
             {
@@ -75,7 +75,7 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
                 return await this.GetTenantFromContainerAsync(tenantId, container, etag).ConfigureAwait(false);
             }
             catch (FormatException fex)
@@ -89,7 +89,7 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public async Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string continuationToken = null)
+        public async Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string? continuationToken = null)
         {
             if (tenantId is null)
             {
@@ -100,7 +100,7 @@ namespace Corvus.Tenancy
             {
                 (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId).ConfigureAwait(false);
 
-                BlobContinuationToken blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
+                BlobContinuationToken? blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
 
                 BlobResultSegment segment = await container.ListBlobsSegmentedAsync(LiveTenantsPrefix, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
                 return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(segment.ContinuationToken));
@@ -130,7 +130,7 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenant.GetParentId()).ConfigureAwait(false);
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenant.GetRequiredParentId()).ConfigureAwait(false);
 
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenant.Id, container);
                 string text = JsonConvert.SerializeObject(tenant, this.serializerSettings);
@@ -209,7 +209,7 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId.GetParentId()).ConfigureAwait(false);
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
                 string blobText = await blob.DownloadTextAsync().ConfigureAwait(false);
                 CloudBlockBlob deletedBlob = container.GetBlockBlobReference(DeletedTenantsPrefix + tenantId);
@@ -231,7 +231,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="continuationToken">The continuation token.</param>
         /// <returns>A <see cref="BlobContinuationToken"/> built from the continuation token.</returns>
-        private static async Task<BlobContinuationToken> GetBlobContinuationTokenAsync(string continuationToken)
+        private static async Task<BlobContinuationToken?> GetBlobContinuationTokenAsync(string? continuationToken)
         {
             if (continuationToken == null)
             {
@@ -251,8 +251,8 @@ namespace Corvus.Tenancy
         /// Generates a URL-friendly continuation token from a BlobContinuationToken.
         /// </summary>
         /// <param name="continuationToken">The blob continuation token.</param>
-        /// <returns>A URL-friendly string.</returns>
-        private static string GenerateContinuationToken(BlobContinuationToken continuationToken)
+        /// <returns>A URL-friendly string, or null if there are no further results.</returns>
+        private static string? GenerateContinuationToken(BlobContinuationToken? continuationToken)
         {
             if (continuationToken == null)
             {
@@ -319,7 +319,7 @@ namespace Corvus.Tenancy
             return this.tenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(parentTenant, this.ContainerDefinition);
         }
 
-        private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string etag)
+        private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string? etag)
         {
             CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
             try
