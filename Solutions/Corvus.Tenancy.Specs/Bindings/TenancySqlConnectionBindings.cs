@@ -29,7 +29,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             // You have to get the factory out before you can configure it, or there is no default configuration...
             ITenantSqlConnectionFactory _ = serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
-            SqlConfiguration config = tenantProvider.Root.GetDefaultSqlConfiguration();
+            SqlConfiguration config = tenantProvider.Root.GetDefaultSqlConfiguration()!;
 
             /// Fall back on a local database
             if (string.IsNullOrEmpty(config.ConnectionString) &&
