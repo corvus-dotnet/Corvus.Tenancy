@@ -26,7 +26,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         public const string TenancySpecsContainer = "TenancySpecsContainer";
 
         /// <summary>
-        /// Set up a tenanted Cloud Blob Container for the feature.
+        /// Set up a tenanted Gremlin Client for the feature.
         /// </summary>
         /// <param name="featureContext">The feature context.</param>
         /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
@@ -52,7 +52,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         }
 
         /// <summary>
-        /// Tear down the tenanted Cloud Blob Container for the feature.
+        /// Tear down the tenanted Gremlin Client for the feature.
         /// </summary>
         /// <param name="featureContext">The feature context.</param>
         /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
