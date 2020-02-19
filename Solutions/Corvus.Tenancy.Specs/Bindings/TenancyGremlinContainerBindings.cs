@@ -21,9 +21,9 @@ namespace Corvus.Tenancy.Specs.Bindings
     public static class TenancyGremlinContainerBindings
     {
         /// <summary>
-        /// The key for the claims permissions container in the feature context
+        /// The key for the client in the feature context
         /// </summary>
-        public const string TenancySpecsContainer = "TenancySpecsContainer";
+        public const string TenancyGremlinClient = "TenancyGremlinClient";
 
         /// <summary>
         /// Set up a tenanted Gremlin Client for the feature.
@@ -48,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 tenantProvider.Root,
                 new GremlinContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs")).ConfigureAwait(false);
 
-            featureContext.Set(tenancySpecsClient, TenancySpecsContainer);
+            featureContext.Set(tenancySpecsClient, TenancyGremlinClient);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 {
                     // Note: the gremlin container factory doesn't currently create the container, so
                     // we don't currently have anything to delete.
-                    featureContext.Get<GremlinClient>(TenancySpecsContainer).Dispose();
+                    featureContext.Get<GremlinClient>(TenancyGremlinClient).Dispose();
                     return Task.CompletedTask;
                 });
         }

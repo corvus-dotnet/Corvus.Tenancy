@@ -18,7 +18,7 @@
         [Then("I should be able to get the tenanted gremlin client")]
         public void ThenIShouldBeAbleToGetTheTenantedContainer()
         {
-            GremlinClient cosmosClient = this.featureContext.Get<GremlinClient>(TenancyGremlinContainerBindings.TenancySpecsContainer);
+            GremlinClient cosmosClient = this.featureContext.Get<GremlinClient>(TenancyGremlinContainerBindings.TenancyGremlinClient);
             Assert.IsNotNull(cosmosClient);
         }
     }
