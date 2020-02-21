@@ -216,7 +216,7 @@ namespace Corvus.Sql.Tenancy.Internal
                     else
                     {
                         // Append the database name as initial catalog if available
-                        DbConnectionStringBuilder.AppendKeyValuePair(connectionStringBuilder, "InitialCatalog", configuration.Database);
+                        DbConnectionStringBuilder.AppendKeyValuePair(connectionStringBuilder, "Initial Catalog", configuration.Database);
                     }
                 }
 
