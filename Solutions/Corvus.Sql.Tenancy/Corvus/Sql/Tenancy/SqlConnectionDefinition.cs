@@ -39,7 +39,7 @@ namespace Corvus.Sql.Tenancy
         /// </summary>
         /// <remarks>
         /// <para>Note that this would typically be the database name. In test scenarios, you may choose to provide an entire connection string for the database in this property.</para>
-        /// <para>Otherwise, it is used to append the <c>InitialCatalog</c> property of the connection string supplied through the <see cref="SqlConfiguration"/>.</para>
+        /// <para>Otherwise, it is used to append the <c>Initial Catalog</c> property of the connection string supplied through the <see cref="SqlConfiguration"/>.</para>
         /// </remarks>
         public string Database
         {

@@ -31,7 +31,7 @@ namespace Corvus.Sql.Tenancy
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This should be a connection to a given server, and will <em>not</em> include the <c>InitialCatalog=blah</c> value, as this will be set by the <see cref="SqlConnectionDefinition.Database"/> property.
+        /// This should be a connection to a given server, and will <em>not</em> include the <c>Initial Catalog=blah</c> value, as this will be set by the <see cref="SqlConnectionDefinition.Database"/> property.
         /// </para>
         /// <para>If this property is set, then the KeyVaultName should also be set.</para>
         /// </remarks>
@@ -60,7 +60,7 @@ namespace Corvus.Sql.Tenancy
         /// specified in <see cref="SqlConnectionDefinition.Database"/>.
         /// </summary>
         /// <remarks>
-        /// This is used to append the <c>InitialCatalog</c> or <c>Database</c> property of the server connection string supplied.
+        /// This is used to append the <c>Initial Catalog</c> or <c>Database</c> property of the server connection string supplied.
         /// </remarks>
         public string? Database { get; set; }
 
