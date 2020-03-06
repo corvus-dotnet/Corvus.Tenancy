@@ -1,5 +1,5 @@
-﻿// <copyright file="ClaimsSqlConnectionBindings.cs" company="Endjin">
-// Copyright (c) Endjin. All rights reserved.
+﻿// <copyright file="TenancySqlConnectionBindings.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
 namespace Corvus.Tenancy.Specs.Bindings
@@ -27,11 +27,12 @@ namespace Corvus.Tenancy.Specs.Bindings
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            // You have to get the factory out before you can configure it, or there is no default configuration...
-            ITenantSqlConnectionFactory _ = serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
-            SqlConfiguration config = tenantProvider.Root.GetDefaultSqlConfiguration()!;
 
-            /// Fall back on a local database
+            // You have to get the factory out before you can configure it, or there is no default configuration...
+            serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
+            SqlConfiguration config = tenantProvider.Root.GetDefaultSqlConfiguration() !;
+
+            // Fall back on a local database
             if (string.IsNullOrEmpty(config.ConnectionString) &&
                 string.IsNullOrEmpty(config.ConnectionStringSecretName))
             {
@@ -39,6 +40,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 config.ConnectionString = "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true";
                 config.DisableTenantIdPrefix = true;
             }
+
             tenantProvider.Root.SetDefaultSqlConfiguration(config);
         }
     }

@@ -137,6 +137,7 @@
                         throw new InvalidOperationException($"Unknown data type '{type}'");
                 }
             }
+
             provider.UpdateTenantAsync(tenant);
         }
 
