@@ -17,8 +17,8 @@
     Id: bb49fb94-6ab5-40c3-a6da-dfd2e9bc4b00
     Measures:
         -
-            Score: 0
-            Description: None
+            Score: 1
+            Description: 'Specs which cover golden path / APIs have full OpenAPI Definition'
 -
     Name: 'Code Coverage'
     Id: 0449cadc-0078-4094-b019-520d75cc6cbb
