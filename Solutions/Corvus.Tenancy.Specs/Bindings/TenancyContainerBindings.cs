@@ -1,5 +1,5 @@
-﻿// <copyright file="ClaimsContainerBindings.cs" company="Endjin">
-// Copyright (c) Endjin. All rights reserved.
+﻿// <copyright file="TenancyContainerBindings.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
 namespace Corvus.Tenancy.Specs.Bindings
@@ -20,7 +20,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     ///     Container related bindings to configure the service provider for features.
     /// </summary>
     [Binding]
-    public static class ClaimsContainerBindings
+    public static class TenancyContainerBindings
     {
         /// <summary>
         /// Initializes the container before each feature's tests are run.
@@ -57,7 +57,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     var blobOptions = new TenantCloudBlobContainerFactoryOptions
                     {
-                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
                     config.Bind("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS", blobOptions.RootTenantBlobStorageConfiguration);
@@ -66,7 +66,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     var cosmosOptions = new TenantCosmosContainerFactoryOptions
                     {
-                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
                     config.Bind("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS", cosmosOptions.RootTenantCosmosConfiguration);
@@ -75,7 +75,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     var gremlinOptions = new TenantGremlinContainerFactoryOptions
                     {
-                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
                     config.Bind("ROOTTENANTGREMLINCONFIGURATIONOPTIONS", gremlinOptions.RootTenantGremlinConfiguration);
@@ -84,7 +84,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     var sqlOptions = new TenantSqlConnectionFactoryOptions
                     {
-                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"]
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
                     config.Bind("ROOTTENANTSQLCONFIGURATIONOPTIONS", sqlOptions.RootTenantSqlConfiguration);

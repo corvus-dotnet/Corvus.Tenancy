@@ -1,5 +1,5 @@
-﻿// <copyright file="ClaimsCosmosDbBindings.cs" company="Endjin">
-// Copyright (c) Endjin. All rights reserved.
+﻿// <copyright file="TenancyCosmosContainerBindings.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
 namespace Corvus.Tenancy.Specs.Bindings
@@ -20,7 +20,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     public static class TenancyCosmosContainerBindings
     {
         /// <summary>
-        /// The key for the claims permissions container in the feature context
+        /// The key for the tenancy container in the feature context.
         /// </summary>
         public const string TenancySpecsContainer = "TenancySpecsContainer";
 
@@ -28,6 +28,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         /// Set up a tenanted Cloud Blob Container for the feature.
         /// </summary>
         /// <param name="featureContext">The feature context.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
         [BeforeFeature("@setupTenantedCosmosContainer", Order = ContainerBeforeFeatureOrder.ServiceProviderAvailable)]
         public static async Task SetupCosmosContainerForRootTenant(FeatureContext featureContext)
@@ -38,7 +39,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
             string containerBase = Guid.NewGuid().ToString();
 
-            CosmosConfiguration config = tenantProvider.Root.GetDefaultCosmosConfiguration()!;
+            CosmosConfiguration config = tenantProvider.Root.GetDefaultCosmosConfiguration() !;
             config.DatabaseName = "endjinspecssharedthroughput";
             config.DisableTenantIdPrefix = true;
             tenantProvider.Root.SetDefaultCosmosConfiguration(config);
