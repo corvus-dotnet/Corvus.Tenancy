@@ -34,6 +34,11 @@ namespace Corvus.Tenancy
         string Id { get; }
 
         /// <summary>
+        /// Gets the name of the tenant.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// Gets the collection of properties for this tenant.
         /// </summary>
         PropertyBag Properties { get; }

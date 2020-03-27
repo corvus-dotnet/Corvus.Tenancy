@@ -14,7 +14,7 @@
 
         public ITenant Root { get; }
 
-        public Task<ITenant> CreateChildTenantAsync(string parentTenantId)
+        public Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
         {
 #pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();

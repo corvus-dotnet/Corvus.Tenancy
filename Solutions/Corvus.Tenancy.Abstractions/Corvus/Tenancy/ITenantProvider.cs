@@ -46,8 +46,9 @@ namespace Corvus.Tenancy
         /// Creates a child tenant for a parent.
         /// </summary>
         /// <param name="parentTenantId">The id of the tenant in which to create the child tenant.</param>
+        /// <param name="name">The name of the child tenant.</param>
         /// <returns>The tenant that was created.</returns>
-        Task<ITenant> CreateChildTenantAsync(string parentTenantId);
+        Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name);
 
         /// <summary>
         /// Updates a tenant.

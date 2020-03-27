@@ -153,7 +153,7 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public async Task<ITenant> CreateChildTenantAsync(string parentTenantId)
+        public async Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
         {
             if (parentTenantId is null)
             {
@@ -165,6 +165,7 @@ namespace Corvus.Tenancy
                 (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
                 Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
                 child.Id = parentTenantId.CreateChildId();
+                child.Name = name;
 
                 // At the least, we need to copy the default blob storage settings from its parent
                 // to support the tenant blob store provider. We would expect this to be overridden
