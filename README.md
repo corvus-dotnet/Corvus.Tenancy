@@ -3,20 +3,48 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Tenancy/master/LICENSE)
 [![IMM](https://endimmfuncdev.azurewebsites.net/api/imm/github/corvus-dotnet/Corvus.Tenancy/total?cache=false)](https://endimmfuncdev.azurewebsites.net/api/imm/github/corvus-dotnet/Corvus.Tenancy/total?cache=false)
 
-This provides Tenancy support
+This project provides storage isolation for multi-tenanted applications and services. It also defines a set of interfaces defining a simple model for multi-tenancy, and a means of retrieving tenant information.
 
-It is built for netstandard2.0.
+These libraries are built for netstandard2.0.
+
+## Purpose
+
+These libraries provide are designed for use in multi-tenanted services and applications. They provide two main features:
+
+- isolation of each tenant's storage
+- an abstraction for storing per-tenant configuration
+
+The fundamental requirement behind these features is when services use shared infrastructure for reasons of operational efficiency, there must be strict separation of each tenant's data. Data owned by one tenant must not become visible to, or be modifiable by another tenant.
+
+A secondary requirement is that some organizations might wish to impose additional boundaries for defense in depth. For example, when storing data in Cosmos DB, a client might demand that a separate Cosmos DB instance be used for each tenant. This incurs additional expense, through both direct Azure billing costs, and the ongoing maintenance overheads of having extra Azure resources to configure and monitor, but for some businesses, this may be a reasonable price to pay for the strict separation of data it offers. Or it might be that they wish to group tenants in such a way that each group gets its own instance, but each tenant within that group gets its own collection. (This might make sense if you are building a multi-tenanted SaaS offering where your customer build their own multi-tenanted systems on top.) And in some cases, there might be no need for any such separation, in which case it may be appropriate to use a single Cosmos DB instance with one collection per tenant. We support all of these variations.
+
+Isolated storage is provided by various storage-technology-specific libraries described in the next section.
 
 ## Features
 
-### Tenant
-Basic Tenant features, including storage and retrieval of tenants, support for tenants-of-tenants, individal tenant configuration and properties.
+This project provides several libraries, which break down into three areas: abstractions defining the model by which tenants are represented, various storage-technology-specific tenanted storage providers, and an implementation of a store that keeps track of which tenants exist, and holds their configuration.
 
-### Blob Storage
-The ability to configure, acquire, and create Blob Containers.
+### Tenant model
+The [`Corvus.Tenancy.Abstractions`](https://www.nuget.org/packages/Corvus.Tenancy.Abstractions/) library provides basic Tenant features:
 
-### Cosmos
-The ability to configure, acquire, and create Cosmos SDK V3 Containers. 
+- The `ITenant` interface, for working with tenants—configuration and properties are accessed via `ITenant`
+- The `ITenantProvider` interface, an abstraction for storage and retrieval of tenants, and navigation of the hierarchy of tenants-of-tenants
+
+### Tenanted storage providers
+Each supported storage technology has a corresponding library:
+
+- [`Corvus.Azure.Cosmos.Tenancy`](https://www.nuget.org/packages/Corvus.Azure.Cosmos.Tenancy/): Cosmos SDK V3 Containers
+- [`Corvus.Azure.Gremlin.Tenancy`](https://www.nuget.org/packages/Corvus.Azure.Gremlin.Tenancy/): Cosmos Container accessed through the Gremlin API
+- [`Corvus.Azure.Storage.Tenancy`](https://www.nuget.org/packages/Corvus.Azure.Storage.Tenancy/): Azure Storage Blob Containers
+- [`Corvus.Sql.Tenancy`](https://www.nuget.org/packages/Corvus.Sql.Tenancy/): Azure SQL and SQL Server databases
+
+### Tenant store implementation
+
+The [`Corvus.Tenancy.Storage.Azure.Blob`](https://www.nuget.org/packages/Corvus.Tenancy.Storage.Azure.Blob/) library provides an implementation of the `ITenantProvider` abstraction on top of Azure Blob Storage. Whereas `Corvus.Azure.Storage.Tenancy` provides tenanted storage, and depends upon some `ITenantProvider` to discover the configuration it requires, `Corvus.Tenancy.Storage.Azure.Blob` is not intended for use as part of the main implementation of multi-tenanted services; it provides a single (non-tenanted) store of the configuration that the various tenanted storage providers require.
+
+In short, this is tenant storage, not tenanted storage. This stores the tenant details. Conversely, the providers listed above use the tenant details to provide a tenanted storage service. The tenanted storage providers are clients of the tenant store.
+
+The intended usage model is that the tenant storage should be a distinct service. Our https://github.com/marain-dotnet/Marain.Tenancy service uses `Corvus.Tenancy.Storage.Azure.Blob` internally, and presents a web API to make the tenant details available. It also provides an implementation of `ITenantProvider` that sits on top of a client for that web API. This is how endjin uses tenancy—that's service exclusively owns the underlying storage holding tenant details, and all other services talk to `Marain.Tenancy` to obtain the details they require.
 
 ## Licenses
 
