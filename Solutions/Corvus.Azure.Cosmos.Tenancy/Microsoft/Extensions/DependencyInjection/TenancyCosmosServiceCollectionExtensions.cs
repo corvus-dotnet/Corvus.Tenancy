@@ -60,19 +60,29 @@ namespace Microsoft.Extensions.DependencyInjection
                         throw new ArgumentNullException(nameof(options));
                     }
 
-                    if (options.RootTenantCosmosConfiguration is null)
-                    {
-                        throw new ArgumentNullException(nameof(options.RootTenantCosmosConfiguration));
-                    }
+                    ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
 
-                    if (string.IsNullOrWhiteSpace(options.RootTenantCosmosConfiguration.AccountUri))
+                    if (options.RootTenantCosmosConfiguration != null)
                     {
-                        ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
-                        string message = $"No configuration has been provided for {nameof(options.RootTenantCosmosConfiguration.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                        logger?.LogWarning(message);
-                    }
+                        if (string.IsNullOrWhiteSpace(options.RootTenantCosmosConfiguration.AccountUri))
+                        {
+                            string message = $"{nameof(options.RootTenantCosmosConfiguration)} has been supplied, but no configuration has been provided for {nameof(options.RootTenantCosmosConfiguration.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                            logger?.LogWarning(message);
+                        }
+                        else
+                        {
+                            logger?.LogInformation(
+                                "RootTenantCosmosConfiguration has beens supplied, with AccountUri {accountUri] and KeyVaultName {keyVaultName}",
+                                options.RootTenantCosmosConfiguration.AccountUri,
+                                options.RootTenantCosmosConfiguration.KeyVaultName);
+                        }
 
-                    rootTenant.SetDefaultCosmosConfiguration(options.RootTenantCosmosConfiguration);
+                        rootTenant.SetDefaultCosmosConfiguration(options.RootTenantCosmosConfiguration);
+                    }
+                    else
+                    {
+                        logger?.LogInformation($"No {nameof(options.RootTenantCosmosConfiguration)} has been provided. No default Cosmos configuration will be added to the Root tenant.");
+                    }
                 },
                 getOptions);
 

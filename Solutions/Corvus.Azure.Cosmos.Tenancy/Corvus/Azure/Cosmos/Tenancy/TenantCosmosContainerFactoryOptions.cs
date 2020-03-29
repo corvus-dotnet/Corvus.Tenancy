@@ -51,6 +51,6 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <summary>
         /// Gets or sets the Cosmos configuration for the root tenant.
         /// </summary>
-        public CosmosConfiguration RootTenantCosmosConfiguration { get; set; } = new CosmosConfiguration();
+        public CosmosConfiguration? RootTenantCosmosConfiguration { get; set; } = new CosmosConfiguration();
     }
 }

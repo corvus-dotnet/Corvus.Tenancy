@@ -51,6 +51,6 @@ namespace Corvus.Sql.Tenancy
         /// <summary>
         /// Gets or sets the SqlConfiguration configuration for the root tenant.
         /// </summary>
-        public SqlConfiguration RootTenantSqlConfiguration { get; set; } = new SqlConfiguration();
+        public SqlConfiguration? RootTenantSqlConfiguration { get; set; } = new SqlConfiguration();
     }
 }

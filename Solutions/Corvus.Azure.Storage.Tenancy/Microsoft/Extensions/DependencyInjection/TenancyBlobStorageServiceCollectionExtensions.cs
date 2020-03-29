@@ -57,20 +57,29 @@ namespace Microsoft.Extensions.DependencyInjection
                     throw new ArgumentNullException(nameof(options));
                 }
 
-                if (options.RootTenantBlobStorageConfiguration is null)
+                ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
+
+                if (options.RootTenantBlobStorageConfiguration != null)
                 {
-                    throw new ArgumentNullException(nameof(options.RootTenantBlobStorageConfiguration));
-                }
+                    if (string.IsNullOrWhiteSpace(options.RootTenantBlobStorageConfiguration.AccountName))
+                    {
+                        string message = $"{nameof(options.RootTenantBlobStorageConfiguration)} has been supplied, but no configuration has been provided for {nameof(options.RootTenantBlobStorageConfiguration.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                        logger?.LogWarning(message);
+                    }
+                    else
+                    {
+                        logger?.LogInformation(
+                            "RootTenantBlobStorageConfiguration has beens supplied, with AccountName {accountName] and KeyVaultName {keyVaultName}",
+                            options.RootTenantBlobStorageConfiguration.AccountName,
+                            options.RootTenantBlobStorageConfiguration.KeyVaultName);
+                    }
 
-                if (string.IsNullOrWhiteSpace(options.RootTenantBlobStorageConfiguration.AccountName))
+                    rootTenant.SetDefaultBlobStorageConfiguration(options.RootTenantBlobStorageConfiguration);
+                }
+                else
                 {
-                    ILogger<BlobStorageConfiguration> logger = sp.GetService<ILogger<BlobStorageConfiguration>>();
-
-                    string message = $"No configuration has been provided for {nameof(options.RootTenantBlobStorageConfiguration.AccountName)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                    logger?.LogWarning(message);
+                    logger?.LogInformation($"No {nameof(options.RootTenantBlobStorageConfiguration)} has been provided. No default Blob Storage configuration will be added to the Root tenant.");
                 }
-
-                rootTenant.SetDefaultBlobStorageConfiguration(options.RootTenantBlobStorageConfiguration);
             }, getOptions);
 
             return services;

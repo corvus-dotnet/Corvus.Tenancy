@@ -58,19 +58,29 @@ namespace Microsoft.Extensions.DependencyInjection
                     throw new ArgumentNullException(nameof(options));
                 }
 
-                if (options.RootTenantSqlConfiguration is null)
-                {
-                    throw new ArgumentNullException(nameof(options.RootTenantSqlConfiguration));
-                }
+                ILogger<SqlConfiguration> logger = sp.GetService<ILogger<SqlConfiguration>>();
 
-                if (string.IsNullOrWhiteSpace(options.RootTenantSqlConfiguration.Database))
+                if (options.RootTenantSqlConfiguration != null)
                 {
-                    ILogger<SqlConfiguration> logger = sp.GetService<ILogger<SqlConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.RootTenantSqlConfiguration.Database)}; local database storage will be used. Please ensure the SQL local database service is configured correctly.";
-                    logger?.LogWarning(message);
-                }
+                    if (string.IsNullOrWhiteSpace(options.RootTenantSqlConfiguration.Database))
+                    {
+                        string message = $"{nameof(options.RootTenantSqlConfiguration)} has been supplied, but no configuration has been provided for {nameof(options.RootTenantSqlConfiguration.Database)}; local database storage will be used. Please ensure the SQL local database service is configured correctly.";
+                        logger?.LogWarning(message);
+                    }
+                    else
+                    {
+                        logger?.LogInformation(
+                            "RootTenantSqlConfiguration has beens supplied, with Database {database] and KeyVaultName {keyVaultName}",
+                            options.RootTenantSqlConfiguration.Database,
+                            options.RootTenantSqlConfiguration.KeyVaultName);
+                    }
 
-                rootTenant.SetDefaultSqlConfiguration(options.RootTenantSqlConfiguration);
+                    rootTenant.SetDefaultSqlConfiguration(options.RootTenantSqlConfiguration);
+                }
+                else
+                {
+                    logger?.LogInformation($"No {nameof(options.RootTenantSqlConfiguration)} has been provided. No default Sql configuration will be added to the Root tenant.");
+                }
             }, getOptions);
 
             return services;

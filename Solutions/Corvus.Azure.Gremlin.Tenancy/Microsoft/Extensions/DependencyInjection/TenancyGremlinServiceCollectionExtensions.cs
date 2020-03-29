@@ -58,19 +58,29 @@ namespace Microsoft.Extensions.DependencyInjection
                     throw new ArgumentNullException(nameof(options));
                 }
 
-                if (options.RootTenantGremlinConfiguration is null)
-                {
-                    throw new ArgumentNullException(nameof(options.RootTenantGremlinConfiguration));
-                }
+                ILogger<GremlinConfiguration> logger = sp.GetService<ILogger<GremlinConfiguration>>();
 
-                if (string.IsNullOrWhiteSpace(options.RootTenantGremlinConfiguration.HostName))
+                if (options.RootTenantGremlinConfiguration != null)
                 {
-                    ILogger<GremlinConfiguration> logger = sp.GetService<ILogger<GremlinConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.RootTenantGremlinConfiguration.HostName)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                    logger?.LogWarning(message);
-                }
+                    if (string.IsNullOrWhiteSpace(options.RootTenantGremlinConfiguration.HostName))
+                    {
+                        string message = $"{nameof(options.RootTenantGremlinConfiguration)} has been supplied, but no configuration has been provided for {nameof(options.RootTenantGremlinConfiguration.HostName)}; development storage will be used. Please ensure the Storage Emulator is running.";
+                        logger?.LogWarning(message);
+                    }
+                    else
+                    {
+                        logger?.LogInformation(
+                            "RootTenantGremlinConfiguration has beens supplied, with HostName {hostName] and KeyVaultName {keyVaultName}",
+                            options.RootTenantGremlinConfiguration.HostName,
+                            options.RootTenantGremlinConfiguration.KeyVaultName);
+                    }
 
-                rootTenant.SetDefaultGremlinConfiguration(options.RootTenantGremlinConfiguration);
+                    rootTenant.SetDefaultGremlinConfiguration(options.RootTenantGremlinConfiguration);
+                }
+                else
+                {
+                    logger?.LogInformation($"No {nameof(options.RootTenantGremlinConfiguration)} has been provided. No default Gremlin configuration will be added to the Root tenant.");
+                }
             }, getOptions);
 
             return services;
