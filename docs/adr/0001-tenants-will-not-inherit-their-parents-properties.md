@@ -12,7 +12,7 @@ Firstly, we can control on a per-tenant basis where the children of that tenant 
 
 Secondly, it can be used to enable better organisation of tenants by using parent tenants to group related tenants together.
 
-One of of the functions of tenants is to hold client-specific configuration for the applications that a client is using. An example would be for a client using the Workflow service, their tenant will contain two pieces of storage information, one for Workflows and one for Workflow instances. This configuration is stored in a collection of key-value pairs attached to the tenant.
+One of of the functions of tenants is to hold client-specific configuration for the applications that a client is using. An example would be for a client using the Workflow service. Their tenant will contain two pieces of storage information, one for Workflows and one for Workflow instances. This configuration is stored in a collection of key-value pairs attached to the tenant.
 
 It is possible for tenants to have child tenants in the hierarchy. If a tenant that uses the Workflow service has children, they may also need to use the Workflow service. In this case we have a choice: we can decide that we will allow the workflow storage configuration from a tenant to be inherited by its children, or we can require each tenant to contain all of it's own configuration.
 
