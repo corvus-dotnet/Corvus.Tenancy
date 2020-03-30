@@ -8,7 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Sql.Tenancy;
     using Corvus.Sql.Tenancy.Internal;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -43,6 +42,11 @@ namespace Microsoft.Extensions.DependencyInjection
             if (services is null)
             {
                 throw new ArgumentNullException(nameof(services));
+            }
+
+            if (services.Any(s => typeof(ITenantSqlConnectionFactory).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
             }
 
             services.AddRootTenant();

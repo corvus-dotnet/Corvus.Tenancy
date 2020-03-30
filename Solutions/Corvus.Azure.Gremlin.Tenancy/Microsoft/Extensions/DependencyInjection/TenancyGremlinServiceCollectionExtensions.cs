@@ -8,7 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy.Internal;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted

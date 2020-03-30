@@ -5,6 +5,7 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
+    using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
 
     /// <summary>
@@ -40,6 +41,11 @@ namespace Microsoft.Extensions.DependencyInjection
             if (services is null)
             {
                 throw new ArgumentNullException(nameof(services));
+            }
+
+            if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
+            {
+                return services;
             }
 
             services.AddRootTenant();

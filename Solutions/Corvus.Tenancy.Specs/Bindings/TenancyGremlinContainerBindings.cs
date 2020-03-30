@@ -10,7 +10,6 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
     using Gremlin.Net.Driver;
-    using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
