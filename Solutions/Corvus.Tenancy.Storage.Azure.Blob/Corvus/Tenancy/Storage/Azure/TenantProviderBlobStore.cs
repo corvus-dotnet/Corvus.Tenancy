@@ -55,7 +55,7 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Gets or sets the container definition for the tenant store.
         /// </summary>
-        public BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("corvustenancy");
+        public static BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("corvustenancy");
 
         /// <inheritdoc/>
         public ITenant Root { get; }
@@ -166,14 +166,14 @@ namespace Corvus.Tenancy
                 Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
                 child.Id = parentTenantId.CreateChildId();
 
-                // At the least, we need to copy the default blob storage settings from its parent
+                // At the least, we need to copy the tenant blob storage settings from its parent
                 // to support the tenant blob store provider. We would expect this to be overridden
                 // by clients that wanted to establish their own settings.
-                BlobStorageConfiguration? defaultStorageConfiguration = parentTenant.GetDefaultBlobStorageConfiguration();
-                child.SetDefaultBlobStorageConfiguration(defaultStorageConfiguration!);
-                if (parentTenant.HasStorageBlobConfiguration(this.ContainerDefinition))
+                BlobStorageConfiguration? defaultStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
+                child.SetBlobStorageConfiguration(ContainerDefinition, defaultStorageConfiguration!);
+                if (parentTenant.HasStorageBlobConfiguration(ContainerDefinition))
                 {
-                    child.SetBlobStorageConfiguration(this.ContainerDefinition, parentTenant.GetBlobStorageConfiguration(this.ContainerDefinition) !);
+                    child.SetBlobStorageConfiguration(ContainerDefinition, parentTenant.GetBlobStorageConfiguration(ContainerDefinition) !);
                 }
 
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
@@ -316,7 +316,7 @@ namespace Corvus.Tenancy
         /// <returns>A <see cref="Task"/> which completes with the document repository for children of the specified tenant.</returns>
         private Task<CloudBlobContainer> GetCloudBlobContainer(ITenant parentTenant)
         {
-            return this.tenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(parentTenant, this.ContainerDefinition);
+            return this.tenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(parentTenant, ContainerDefinition);
         }
 
         private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string? etag)

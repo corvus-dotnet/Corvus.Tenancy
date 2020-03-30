@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.Cosmos.Tenancy.Internal;
-    using Microsoft.Extensions.Logging;
+    using Corvus.Extensions.Cosmos;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -31,61 +31,33 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds services required by tenancy Cosmos based stores, and configures the default
-        /// tenant's default Cosmos account settings based on configuration settings.
+        /// Add components for constructing tenant-specific Cosmos containers.
         /// </summary>
-        /// <param name="services">The service collection.</param>
+        /// <param name="services">The target service collection.</param>
         /// <param name="getOptions">Function to get the configuration options.</param>
-        /// <returns>The modified service collection.</returns>
+        /// <returns>The service collection.</returns>
         public static IServiceCollection AddTenantCosmosContainerFactory(
-        this IServiceCollection services,
-        Func<IServiceProvider, TenantCosmosContainerFactoryOptions> getOptions)
+            this IServiceCollection services,
+            Func<IServiceProvider, TenantCosmosContainerFactoryOptions> getOptions)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             if (services.Any(s => typeof(ITenantCosmosContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
             }
 
             services.AddRootTenant();
-
             services.AddCosmosClientExtensions();
 
-            services.AddTenantCosmosContainerFactory(
-                (sp, rootTenant) =>
-                {
-                    TenantCosmosContainerFactoryOptions options = getOptions(sp);
-
-                    if (options is null)
-                    {
-                        throw new ArgumentNullException(nameof(options));
-                    }
-
-                    ILogger<CosmosConfiguration> logger = sp.GetService<ILogger<CosmosConfiguration>>();
-
-                    if (options.RootTenantCosmosConfiguration != null)
-                    {
-                        if (string.IsNullOrWhiteSpace(options.RootTenantCosmosConfiguration.AccountUri))
-                        {
-                            string message = $"{nameof(options.RootTenantCosmosConfiguration)} has been supplied, but no configuration has been provided for {nameof(options.RootTenantCosmosConfiguration.AccountUri)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                            logger?.LogWarning(message);
-                        }
-                        else
-                        {
-                            logger?.LogInformation(
-                                "RootTenantCosmosConfiguration has beens supplied, with AccountUri {accountUri] and KeyVaultName {keyVaultName}",
-                                options.RootTenantCosmosConfiguration.AccountUri,
-                                options.RootTenantCosmosConfiguration.KeyVaultName);
-                        }
-
-                        rootTenant.SetDefaultCosmosConfiguration(options.RootTenantCosmosConfiguration);
-                    }
-                    else
-                    {
-                        logger?.LogInformation($"No {nameof(options.RootTenantCosmosConfiguration)} has been provided. No default Cosmos configuration will be added to the Root tenant.");
-                    }
-                },
-                getOptions);
-
+            services.AddSingleton<ITenantCosmosContainerFactory>(s =>
+            {
+                TenantCosmosContainerFactoryOptions options = getOptions(s);
+                return new TenantCosmosContainerFactory(s.GetRequiredService<ICosmosClientBuilderFactory>(), options);
+            });
             return services;
         }
     }

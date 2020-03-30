@@ -48,7 +48,12 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     if (featureContext.FeatureInfo.Tags.Any(t => t == "withBlobStorageTenantProvider"))
                     {
-                        serviceCollection.AddTenantProviderBlobStore();
+                        serviceCollection.AddTenantProviderBlobStore(() =>
+                        {
+                            var blobStorageConfiguration = new BlobStorageConfiguration();
+                            config.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
+                            return blobStorageConfiguration;
+                        });
                     }
                     else
                     {
@@ -58,40 +63,28 @@ namespace Corvus.Tenancy.Specs.Bindings
                     var blobOptions = new TenantCloudBlobContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
-                        RootTenantBlobStorageConfiguration = new BlobStorageConfiguration(),
                     };
-
-                    config.Bind("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS", blobOptions.RootTenantBlobStorageConfiguration);
 
                     serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
 
                     var cosmosOptions = new TenantCosmosContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
-                        RootTenantCosmosConfiguration = new CosmosConfiguration(),
                     };
-
-                    config.Bind("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS", cosmosOptions.RootTenantCosmosConfiguration);
 
                     serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
 
                     var gremlinOptions = new TenantGremlinContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
-                        RootTenantGremlinConfiguration = new GremlinConfiguration(),
                     };
-
-                    config.Bind("ROOTTENANTGREMLINCONFIGURATIONOPTIONS", gremlinOptions.RootTenantGremlinConfiguration);
 
                     serviceCollection.AddTenantGremlinContainerFactory(gremlinOptions);
 
                     var sqlOptions = new TenantSqlConnectionFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
-                        RootTenantSqlConfiguration = new SqlConfiguration(),
                     };
-
-                    config.Bind("ROOTTENANTSQLCONFIGURATIONOPTIONS", sqlOptions.RootTenantSqlConfiguration);
 
                     serviceCollection.AddTenantSqlConnectionFactory(sqlOptions);
                 });

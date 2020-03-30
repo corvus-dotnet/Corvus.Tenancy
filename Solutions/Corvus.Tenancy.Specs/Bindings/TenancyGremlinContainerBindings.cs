@@ -11,6 +11,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.Tenancy;
     using Gremlin.Net.Driver;
     using Microsoft.Azure.Cosmos;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
 
@@ -37,17 +38,23 @@ namespace Corvus.Tenancy.Specs.Bindings
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
             ITenantGremlinContainerFactory factory = serviceProvider.GetRequiredService<ITenantGremlinContainerFactory>();
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
             string containerBase = Guid.NewGuid().ToString();
 
-            GremlinConfiguration config = tenantProvider.Root.GetDefaultGremlinConfiguration() !;
-            config.DatabaseName = "endjinspecssharedthroughput";
-            config.DisableTenantIdPrefix = true;
-            tenantProvider.Root.SetDefaultGremlinConfiguration(config);
+            var gremlinContainerDefinition = new GremlinContainerDefinition(
+                "endjinspecssharedthroughput",
+                $"{containerBase}tenancyspecs");
+
+            var gremlinConfiguration = new GremlinConfiguration();
+            config.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
+            gremlinConfiguration.DatabaseName = "endjinspecssharedthroughput";
+            gremlinConfiguration.DisableTenantIdPrefix = true;
+            tenantProvider.Root.SetGremlinConfiguration(gremlinContainerDefinition, gremlinConfiguration);
 
             GremlinClient tenancySpecsClient = await factory.GetClientForTenantAsync(
                 tenantProvider.Root,
-                new GremlinContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs")).ConfigureAwait(false);
+                gremlinContainerDefinition).ConfigureAwait(false);
 
             featureContext.Set(tenancySpecsClient, TenancyGremlinClient);
         }

@@ -47,10 +47,5 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </p>
         /// </remarks>
         public string? AzureServicesAuthConnectionString { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Cosmos configuration for the root tenant.
-        /// </summary>
-        public CosmosConfiguration? RootTenantCosmosConfiguration { get; set; }
     }
 }
