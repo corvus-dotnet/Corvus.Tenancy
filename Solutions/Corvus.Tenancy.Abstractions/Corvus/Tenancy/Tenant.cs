@@ -18,6 +18,7 @@ namespace Corvus.Tenancy
         public const string RegisteredContentType = "application/vnd.corvus.tenancy.tenant";
 
         private string? id;
+        private string? name;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Tenant"/> class.
@@ -40,6 +41,13 @@ namespace Corvus.Tenancy
         {
             get => this.id ?? throw new InvalidOperationException("This tenant has not been supplied with an " + nameof(this.Id));
             set => this.id = value ?? throw new ArgumentNullException();
+        }
+
+        /// <inheritdoc/>
+        public string Name
+        {
+            get => this.name ?? throw new InvalidOperationException("This tenant has not been supplied with a " + nameof(this.Name));
+            set => this.name = value ?? throw new ArgumentNullException();
         }
 
         /// <inheritdoc/>
