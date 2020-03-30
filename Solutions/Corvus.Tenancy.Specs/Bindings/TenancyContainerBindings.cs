@@ -58,6 +58,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                     var blobOptions = new TenantCloudBlobContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
+                        RootTenantBlobStorageConfiguration = new BlobStorageConfiguration(),
                     };
 
                     config.Bind("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS", blobOptions.RootTenantBlobStorageConfiguration);
@@ -67,6 +68,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                     var cosmosOptions = new TenantCosmosContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
+                        RootTenantCosmosConfiguration = new CosmosConfiguration(),
                     };
 
                     config.Bind("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS", cosmosOptions.RootTenantCosmosConfiguration);
@@ -76,6 +78,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                     var gremlinOptions = new TenantGremlinContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
+                        RootTenantGremlinConfiguration = new GremlinConfiguration(),
                     };
 
                     config.Bind("ROOTTENANTGREMLINCONFIGURATIONOPTIONS", gremlinOptions.RootTenantGremlinConfiguration);
@@ -85,6 +88,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                     var sqlOptions = new TenantSqlConnectionFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
+                        RootTenantSqlConfiguration = new SqlConfiguration(),
                     };
 
                     config.Bind("ROOTTENANTSQLCONFIGURATIONOPTIONS", sqlOptions.RootTenantSqlConfiguration);
