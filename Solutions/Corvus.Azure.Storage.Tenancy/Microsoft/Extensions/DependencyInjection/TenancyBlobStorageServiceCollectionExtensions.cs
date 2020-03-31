@@ -15,8 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TenancyBlobStorageServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds services required by tenancy Azure storage based stores, and configures the default
-        /// tenant's default storage account settings based on configuration settings.
+        /// Adds services required by tenancy Azure storage based stores.
         /// </summary>
         /// <param name="services">The service collection.</param>
         /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
@@ -35,8 +34,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="getOptions">Function to get the configuration options.</param>
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddTenantCloudBlobContainerFactory(
-            this IServiceCollection services, Func<IServiceProvider,
-            TenantCloudBlobContainerFactoryOptions> getOptions)
+            this IServiceCollection services,
+            Func<IServiceProvider, TenantCloudBlobContainerFactoryOptions> getOptions)
         {
             if (services is null)
             {
@@ -49,7 +48,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddRootTenant();
-            services.AddTransient<BlobStorageConfiguration>();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
                 TenantCloudBlobContainerFactoryOptions options = getOptions(s);

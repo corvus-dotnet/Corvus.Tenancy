@@ -17,8 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TenancyCosmosServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds services required by tenancy Cosmos based stores, and configures the default
-        /// tenant's default Cosmos account settings based on configuration settings.
+        /// Adds services required by tenancy Cosmos based stores.
         /// </summary>
         /// <param name="services">The service collection.</param>
         /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>

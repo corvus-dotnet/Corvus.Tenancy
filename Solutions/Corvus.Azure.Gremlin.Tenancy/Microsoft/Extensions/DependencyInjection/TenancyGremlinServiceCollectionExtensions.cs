@@ -16,8 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TenancyGremlinServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds services required by tenancy Gremlin based stores, and configures the default
-        /// tenant's default Gremlin account settings based on configuration settings.
+        /// Adds services required by tenancy Gremlin based stores.
         /// </summary>
         /// <param name="services">The service collection.</param>
         /// <param name="options">Configuration for the TenantGremlinContainerFactory.</param>
@@ -50,7 +49,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddRootTenant();
-            services.AddTransient<GremlinConfiguration, GremlinConfiguration>();
             services.AddSingleton<ITenantGremlinContainerFactory>(s =>
             {
                 TenantGremlinContainerFactoryOptions options = getOptions(s);
