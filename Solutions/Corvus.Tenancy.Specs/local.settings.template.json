@@ -1,22 +1,26 @@
 {
-  "RootTenantBlobStorageConfigurationOptions": {
+  "TenancyBlobStorageConfigurationOptions": {
     "AccountName": "{ADD YOUR ACCOUNT NAME HERE, OR REMOVE ENTIRELY TO USE THE STORAGE EMULATOR}"
     // [OR CONFIGURE A COMPLETE BLOB STORAGE CONFIGURATION INSTANCE]
   },
-  "RootTenantCosmosConfigurationOptions": {
+  "TestBlobStorageConfigurationOptions": {
+    "AccountName": "{ADD YOUR ACCOUNT NAME HERE, OR REMOVE ENTIRELY TO USE THE STORAGE EMULATOR}"
+    // [OR CONFIGURE A COMPLETE BLOB STORAGE CONFIGURATION INSTANCE]
+  },
+  "TestCosmosConfigurationOptions": {
     // [REMOVE THESE SETTINGS ENTIRELY TO USE THE COSMOS EMULATOR]
     "AccountUri": "https://{ADD YOUR COSMOSDB ACCOUNT NAME HERE}.documents.azure.com/",
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
     "AccountKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}"
   },
-  "RootTenantGremlinConfigurationOptions": {
+  "TestGremlinConfigurationOptions": {
     // [REMOVE THESE SETTINGS ENTIRELY TO USE THE COSMOS EMULATOR]
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
     "AuthKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}",
     "HostName": "{ADD YOUR COSMOSDB ACCOUNT NAME HERE.gremlin.cosmosdb.azure.com",
     "Port": 443
   },
-  "RootTenantSqlConfigurationOptions": {
+  "TestSqlConfigurationOptions": {
     // [REMOVE THESE SETTINGS ENTIRELY TO USE A STANDARD LOCALDB]
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
     "ConnectionStringSecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR SQL SERVER CONNECTION STRING (WITHOUT DEFAULTCATALOG) HERE/}"

@@ -1,11 +1,11 @@
 ﻿namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
-    using System.Data;
     using System.Data.SqlClient;
     using System.Threading.Tasks;
     using Corvus.SpecFlow.Extensions;
     using Corvus.Sql.Tenancy;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using TechTalk.SpecFlow;
@@ -26,12 +26,30 @@
         public async Task ThenIShouldBeAbleToGetTheTenantedSqlConnection()
         {
             string databaseName = Guid.NewGuid().ToString();
-            ITenantSqlConnectionFactory factory = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantSqlConnectionFactory>();
-            ITenantProvider tenantProvider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
+            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
+            ITenantSqlConnectionFactory factory = serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
+            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
+
+            var sqlConnectionDefinition = new SqlConnectionDefinition($"{databaseName}tenancyspecs");
+
+            var sqlConfiguration = new SqlConfiguration();
+            config.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
+
+            // Fall back on a local database
+            if (string.IsNullOrEmpty(sqlConfiguration.ConnectionString) &&
+                string.IsNullOrEmpty(sqlConfiguration.ConnectionStringSecretName))
+            {
+                sqlConfiguration.IsLocalDatabase = true;
+                sqlConfiguration.ConnectionString = "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true";
+                sqlConfiguration.DisableTenantIdPrefix = true;
+            }
+
+            tenantProvider.Root.SetSqlConfiguration(sqlConnectionDefinition, sqlConfiguration);
 
             using SqlConnection sqlConnection = await factory.GetSqlConnectionForTenantAsync(
                 tenantProvider.Root,
-                new SqlConnectionDefinition($"{databaseName}tenancyspecs")).ConfigureAwait(false);
+                sqlConnectionDefinition).ConfigureAwait(false);
 
             Assert.IsNotNull(sqlConnection);
         }

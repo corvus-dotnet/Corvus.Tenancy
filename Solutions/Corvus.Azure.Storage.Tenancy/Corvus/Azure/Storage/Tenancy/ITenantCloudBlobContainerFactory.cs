@@ -15,12 +15,11 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="CloudBlobContainer"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via the <see cref="BlobStorageTenantExtensions.SetDefaultBlobStorageConfiguration(ITenant, BlobStorageConfiguration)"/>
-    /// and <see cref="BlobStorageTenantExtensions.SetBlobStorageConfiguration(ITenant, BlobStorageContainerDefinition, BlobStorageConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="BlobStorageTenantExtensions.SetBlobStorageConfiguration(ITenant, BlobStorageContainerDefinition, BlobStorageConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
-    /// provider and a default configuration for your repositories.
+    /// provider and configuration for your repositories.
     /// </para>
     /// <para>
     /// First, add the blob container factory and the configuration account key provider in your container configuration (assuming you have added a standard ConfigurationRoot to your solution).
@@ -29,13 +28,6 @@ namespace Corvus.Azure.Storage.Tenancy
     /// serviceCollection.AddTenantCloudBlobContainerFactory();
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
-    /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenantBlobStorageServiceCollectionExtensions.AddTenantCloudBlobContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{System.IServiceProvider, ITenant}, System.Func{System.IServiceProvider, TenantCloudBlobContainerFactoryOptions})"/>.
-    /// </para>
-    /// <para>
-    /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="ITenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(ITenant, BlobStorageContainerDefinition)"/>, passing
-    /// it the tenant and the container definition you want to use.
-    /// </para>
     /// <para>
     /// <code>
     /// TenantCloudBlobContainerFactory factory;

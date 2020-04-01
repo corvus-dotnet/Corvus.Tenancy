@@ -48,7 +48,12 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     if (featureContext.FeatureInfo.Tags.Any(t => t == "withBlobStorageTenantProvider"))
                     {
-                        serviceCollection.AddTenantProviderBlobStore();
+                        serviceCollection.AddTenantProviderBlobStore(() =>
+                        {
+                            var blobStorageConfiguration = new BlobStorageConfiguration();
+                            config.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
+                            return blobStorageConfiguration;
+                        });
                     }
                     else
                     {
@@ -60,16 +65,12 @@ namespace Corvus.Tenancy.Specs.Bindings
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
-                    config.Bind("ROOTTENANTBLOBSTORAGECONFIGURATIONOPTIONS", blobOptions.RootTenantBlobStorageConfiguration);
-
                     serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
 
                     var cosmosOptions = new TenantCosmosContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
-
-                    config.Bind("ROOTTENANTCOSMOSCONFIGURATIONOPTIONS", cosmosOptions.RootTenantCosmosConfiguration);
 
                     serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
 
@@ -78,16 +79,12 @@ namespace Corvus.Tenancy.Specs.Bindings
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
-                    config.Bind("ROOTTENANTGREMLINCONFIGURATIONOPTIONS", gremlinOptions.RootTenantGremlinConfiguration);
-
                     serviceCollection.AddTenantGremlinContainerFactory(gremlinOptions);
 
                     var sqlOptions = new TenantSqlConnectionFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
-
-                    config.Bind("ROOTTENANTSQLCONFIGURATIONOPTIONS", sqlOptions.RootTenantSqlConfiguration);
 
                     serviceCollection.AddTenantSqlConnectionFactory(sqlOptions);
                 });

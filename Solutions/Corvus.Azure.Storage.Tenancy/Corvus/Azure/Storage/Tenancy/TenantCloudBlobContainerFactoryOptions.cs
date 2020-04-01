@@ -45,10 +45,5 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </p>
         /// </remarks>
         public string? AzureServicesAuthConnectionString { get; set; }
-
-        /// <summary>
-        /// Gets or sets the BlobStorageConfiguration configuration for the root tenant.
-        /// </summary>
-        public BlobStorageConfiguration RootTenantBlobStorageConfiguration { get; set; } = new BlobStorageConfiguration();
     }
 }

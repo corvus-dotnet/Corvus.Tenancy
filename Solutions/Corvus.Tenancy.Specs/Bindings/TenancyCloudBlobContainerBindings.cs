@@ -10,6 +10,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
     using Microsoft.Azure.Storage.Blob;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
 
@@ -36,12 +37,18 @@ namespace Corvus.Tenancy.Specs.Bindings
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
             ITenantCloudBlobContainerFactory factory = serviceProvider.GetRequiredService<ITenantCloudBlobContainerFactory>();
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
             string containerBase = Guid.NewGuid().ToString();
 
+            var blobStorageContainerDefinition = new BlobStorageContainerDefinition($"{containerBase}tenancyspecs");
+            var blobStorageConfiguration = new BlobStorageConfiguration();
+            config.Bind("TESTBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
+            tenantProvider.Root.SetBlobStorageConfiguration(blobStorageContainerDefinition, blobStorageConfiguration);
+
             CloudBlobContainer tenancySpecsContainer = await factory.GetBlobContainerForTenantAsync(
                 tenantProvider.Root,
-                new BlobStorageContainerDefinition($"{containerBase}tenancyspecs")).ConfigureAwait(false);
+                blobStorageContainerDefinition).ConfigureAwait(false);
 
             featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
         }

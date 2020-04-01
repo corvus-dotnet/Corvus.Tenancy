@@ -47,10 +47,5 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// </p>
         /// </remarks>
         public string? AzureServicesAuthConnectionString { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Gremlin configuration for the root tenant.
-        /// </summary>
-        public GremlinConfiguration RootTenantGremlinConfiguration { get; set; } = new GremlinConfiguration();
     }
 }

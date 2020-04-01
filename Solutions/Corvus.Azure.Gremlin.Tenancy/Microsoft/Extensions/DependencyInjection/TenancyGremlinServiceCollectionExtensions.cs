@@ -8,7 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy.Internal;
-    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -17,8 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class TenancyGremlinServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds services required by tenancy Gremlin based stores, and configures the default
-        /// tenant's default Gremlin account settings based on configuration settings.
+        /// Adds services required by tenancy Gremlin based stores.
         /// </summary>
         /// <param name="services">The service collection.</param>
         /// <param name="options">Configuration for the TenantGremlinContainerFactory.</param>
@@ -31,48 +29,31 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Adds services required by tenancy Gremlin based stores, and configures the default
-        /// tenant's default Gremlin account settings based on configuration settings.
+        /// Add components for constructing tenant-specific Gremlin containers.
         /// </summary>
-        /// <param name="services">The service collection.</param>
+        /// <param name="services">The target service collection.</param>
         /// <param name="getOptions">Function to get the configuration options.</param>
-        /// <returns>The modified service collection.</returns>
+        /// <returns>The service collection.</returns>
         public static IServiceCollection AddTenantGremlinContainerFactory(
-        this IServiceCollection services,
-        Func<IServiceProvider, TenantGremlinContainerFactoryOptions> getOptions)
+            this IServiceCollection services,
+            Func<IServiceProvider, TenantGremlinContainerFactoryOptions> getOptions)
         {
+            if (services is null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             if (services.Any(s => typeof(ITenantGremlinContainerFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
             }
 
             services.AddRootTenant();
-
-            services.AddTenantGremlinContainerFactory(
-                (sp, rootTenant) =>
+            services.AddSingleton<ITenantGremlinContainerFactory>(s =>
             {
-                TenantGremlinContainerFactoryOptions options = getOptions(sp);
-
-                if (options is null)
-                {
-                    throw new ArgumentNullException(nameof(options));
-                }
-
-                if (options.RootTenantGremlinConfiguration is null)
-                {
-                    throw new ArgumentNullException(nameof(options.RootTenantGremlinConfiguration));
-                }
-
-                if (string.IsNullOrWhiteSpace(options.RootTenantGremlinConfiguration.HostName))
-                {
-                    ILogger<GremlinConfiguration> logger = sp.GetService<ILogger<GremlinConfiguration>>();
-                    string message = $"No configuration has been provided for {nameof(options.RootTenantGremlinConfiguration.HostName)}; development storage will be used. Please ensure the Storage Emulator is running.";
-                    logger?.LogWarning(message);
-                }
-
-                rootTenant.SetDefaultGremlinConfiguration(options.RootTenantGremlinConfiguration);
-            }, getOptions);
-
+                TenantGremlinContainerFactoryOptions options = getOptions(s);
+                return new TenantGremlinContainerFactory(options);
+            });
             return services;
         }
     }

@@ -24,14 +24,15 @@ jobs:
     postCustomEnvironmentVariables:
       - powershell: |
           Write-Host "##vso[task.setvariable variable=AzureServicesAuthConnectionString]$Env:ENDJIN_AZURESERVICESAUTHCONNECTIONSTRING"
-          Write-Host "##vso[task.setvariable variable=RootTenantBlobStorageConfigurationOptions__AccountName]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
-          Write-Host "##vso[task.setvariable variable=RootTenantCosmosConfigurationOptions__AccountUri]$Env:ENDJIN_COSMOSDBACCOUNTURI"
-          Write-Host "##vso[task.setvariable variable=RootTenantCosmosConfigurationOptions__AccountKeySecretName]$Env:ENDJIN_COSMOSACCOUNTKEYSECRETNAME"
-          Write-Host "##vso[task.setvariable variable=RootTenantCosmosConfigurationOptions__KeyVaultName]$Env:ENDJIN_KEYVAULTNAME"
-          Write-Host "##vso[task.setvariable variable=RootTenantGremlinConfigurationOptions__HostName]$Env:ENDJIN_COSMOSDBGREMLINHOSTNAME"
-          Write-Host "##vso[task.setvariable variable=RootTenantGremlinConfigurationOptions__Port]$Env:ENDJIN_COSMOSDBGREMLINPORT"
-          Write-Host "##vso[task.setvariable variable=RootTenantGremlinConfigurationOptions__AuthKeySecretName]$Env:ENDJIN_COSMOSDBGREMLINACCOUNTKEYSECRETNAME"
-          Write-Host "##vso[task.setvariable variable=RootTenantGremlinConfigurationOptions__KeyVaultName]$Env:ENDJIN_KEYVAULTNAME"
+          Write-Host "##vso[task.setvariable variable=TenancyBlobStorageConfigurationOptions__AccountName]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
+          Write-Host "##vso[task.setvariable variable=TestBlobStorageConfigurationOptions__AccountName]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
+          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__AccountUri]$Env:ENDJIN_COSMOSDBACCOUNTURI"
+          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__AccountKeySecretName]$Env:ENDJIN_COSMOSACCOUNTKEYSECRETNAME"
+          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__KeyVaultName]$Env:ENDJIN_KEYVAULTNAME"
+          Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__HostName]$Env:ENDJIN_COSMOSDBGREMLINHOSTNAME"
+          Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__Port]$Env:ENDJIN_COSMOSDBGREMLINPORT"
+          Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__AuthKeySecretName]$Env:ENDJIN_COSMOSDBGREMLINACCOUNTKEYSECRETNAME"
+          Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__KeyVaultName]$Env:ENDJIN_KEYVAULTNAME"
         displayName: 'Set Custom Environment Variables'
         env:
           ENDJIN_AZURESERVICESAUTHCONNECTIONSTRING: $(Endjin_AzureServicesAuthConnectionString)

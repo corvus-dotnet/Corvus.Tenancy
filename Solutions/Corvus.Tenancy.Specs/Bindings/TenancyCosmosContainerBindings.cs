@@ -10,6 +10,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
     using Microsoft.Azure.Cosmos;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
 
@@ -36,17 +37,25 @@ namespace Corvus.Tenancy.Specs.Bindings
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
             ITenantCosmosContainerFactory factory = serviceProvider.GetRequiredService<ITenantCosmosContainerFactory>();
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
             string containerBase = Guid.NewGuid().ToString();
 
-            CosmosConfiguration config = tenantProvider.Root.GetDefaultCosmosConfiguration() !;
-            config.DatabaseName = "endjinspecssharedthroughput";
-            config.DisableTenantIdPrefix = true;
-            tenantProvider.Root.SetDefaultCosmosConfiguration(config);
+            var cosmosContainerDefinition = new CosmosContainerDefinition(
+                "endjinspecssharedthroughput",
+                $"{containerBase}tenancyspecs",
+                "/partitionKey",
+                databaseThroughput: 400);
+
+            var cosmosConfiguration = new CosmosConfiguration();
+            config.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
+            cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
+            cosmosConfiguration.DisableTenantIdPrefix = true;
+            tenantProvider.Root.SetCosmosConfiguration(cosmosContainerDefinition, cosmosConfiguration);
 
             Container tenancySpecsContainer = await factory.GetContainerForTenantAsync(
                 tenantProvider.Root,
-                new CosmosContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs", "/partitionKey", databaseThroughput: 400)).ConfigureAwait(false);
+                cosmosContainerDefinition).ConfigureAwait(false);
 
             featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
         }
