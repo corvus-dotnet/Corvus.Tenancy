@@ -48,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     if (featureContext.FeatureInfo.Tags.Any(t => t == "withBlobStorageTenantProvider"))
                     {
-                        serviceCollection.AddTenantProviderBlobStore(() =>
+                        serviceCollection.AddTenantProviderBlobStore(_ =>
                         {
                             var blobStorageConfiguration = new BlobStorageConfiguration();
                             config.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);

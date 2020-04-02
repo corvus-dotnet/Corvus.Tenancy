@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantProviderBlobStore(
             this IServiceCollection services,
-            Func<BlobStorageConfiguration> getRootTenantStorageConfiguration)
+            Func<IServiceProvider, BlobStorageConfiguration> getRootTenantStorageConfiguration)
         {
             if (services.Any(s => typeof(ITenantProvider).IsAssignableFrom(s.ServiceType)))
             {
@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddRootTenant();
             services.AddSingleton<ITenantProvider>(sp =>
             {
-                BlobStorageConfiguration rootTenantStorageConfig = getRootTenantStorageConfiguration();
+                BlobStorageConfiguration rootTenantStorageConfig = getRootTenantStorageConfiguration(sp);
                 RootTenant rootTenant = sp.GetRequiredService<RootTenant>();
 
                 rootTenant.SetBlobStorageConfiguration(TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig);
