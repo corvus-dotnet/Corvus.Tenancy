@@ -26,7 +26,7 @@
     </PackageReference>
     <PackageReference Include="SpecFlow" Version="3.1.86" />
     <PackageReference Include="SpecFlow.NUnit" Version="3.1.86" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.86" />
+    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.95" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.2" />
