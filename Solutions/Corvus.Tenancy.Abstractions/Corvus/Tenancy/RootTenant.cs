@@ -13,6 +13,14 @@ namespace Corvus.Tenancy
     public class RootTenant : Tenant
     {
         /// <summary>
+        /// The name of the root tenant.
+        /// </summary>
+        /// <remarks>
+        /// This should not be used to check if an <see cref="ITenant"/> is the Root tenant - compare using <see cref="RootTenantId"/>.
+        /// </remarks>
+        public const string RootTenantName = "Root";
+
+        /// <summary>
         /// The root tenant ID.
         /// </summary>
         /// <remarks>
@@ -28,6 +36,7 @@ namespace Corvus.Tenancy
             : base(serializerSettingsProvider)
         {
             this.Id = RootTenantId;
+            this.Name = RootTenantName;
         }
     }
 }
