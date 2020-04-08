@@ -4,6 +4,7 @@
 
 namespace Corvus.Tenancy
 {
+    using System;
     using System.Threading.Tasks;
     using Corvus.Tenancy.Exceptions;
 
@@ -49,6 +50,15 @@ namespace Corvus.Tenancy
         /// <param name="name">The name of the child tenant.</param>
         /// <returns>The tenant that was created.</returns>
         Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name);
+
+        /// <summary>
+        /// Creates a child tenant for a parent using a well known identifier as the basis of the new tenant's Id.
+        /// </summary>
+        /// <param name="parentTenantId">The id of the tenant in which to create the child tenant.</param>
+        /// <param name="wellKnownChildTenantGuid">The well known identifier to use when constructing the new tenant's Id.</param>
+        /// <param name="name">The name of the child tenant.</param>
+        /// <returns>The tenant that was created.</returns>
+        Task<ITenant> CreateWellKnownChildTenantAsync(string parentTenantId, Guid wellKnownChildTenantGuid, string name);
 
         /// <summary>
         /// Updates a tenant.

@@ -153,7 +153,14 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public async Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
+        public Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
+            => this.CreateWellKnownChildTenantAsync(parentTenantId, Guid.NewGuid(), name);
+
+        /// <inheritdoc/>
+        public async Task<ITenant> CreateWellKnownChildTenantAsync(
+            string parentTenantId,
+            Guid wellKnownChildTenantGuid,
+            string name)
         {
             if (parentTenantId is null)
             {
@@ -164,8 +171,17 @@ namespace Corvus.Tenancy
             {
                 (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
                 Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
-                child.Id = parentTenantId.CreateChildId();
+                child.Id = parentTenantId.CreateChildId(wellKnownChildTenantGuid);
                 child.Name = name;
+
+                // Before we continue, we should ensure that there isn't already a tenant with the specified Id.
+                CloudBlockBlob existingTenantBlob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
+                if (await existingTenantBlob.ExistsAsync().ConfigureAwait(false))
+                {
+                    throw new ArgumentException(
+                        $"A child tenant of '{parentTenant}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
+                        nameof(wellKnownChildTenantGuid));
+                }
 
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
