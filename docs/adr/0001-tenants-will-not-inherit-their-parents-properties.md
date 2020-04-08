@@ -18,7 +18,7 @@ It is possible for tenants to have child tenants in the hierarchy. If a tenant t
 
 ## Decision
 
-We have determined that we will not allow properties of tenants to be inherited by their children.
+We have determined that we will not make properties of tenants available to their children by default. Applications which consume this library can implement that functionality for themselves if required - for example, by manually copying properties from parent to children when new tenants are created.
 
 Whilst property inheritance seems desirable from a development perspective - for example, creating temporary tenants for testing purposes, or setting up tenants for developers - it is likely to be less useful in envisaged production scenarios.
 
