@@ -14,7 +14,7 @@ Secondly, it can be used to enable better organisation of tenants by using paren
 
 One of of the functions of tenants is to hold client-specific configuration for the applications that a client is using. An example would be for a client using the Workflow service. Their tenant will contain two pieces of storage information, one for Workflows and one for Workflow instances. This configuration is stored in a collection of key-value pairs attached to the tenant.
 
-It is possible for tenants to have child tenants in the hierarchy. If a tenant that uses the Workflow service has children, they may also need to use the Workflow service. In this case we have a choice: we can decide that we will allow the workflow storage configuration from a tenant to be inherited by its children, or we can require each tenant to contain all of it's own configuration.
+It is possible for tenants to have child tenants in the hierarchy. If a tenant that uses the Workflow service has children, they may also need to use the Workflow service. In this case we have a choice: we can decide that we will allow the workflow storage configuration from a tenant to be inherited by its children, or we can require each tenant to contain all of its own configuration.
 
 ## Decision
 
@@ -22,7 +22,7 @@ We have determined that we will not make properties of tenants available to thei
 
 Whilst property inheritance seems desirable from a development perspective - for example, creating temporary tenants for testing purposes, or setting up tenants for developers - it is likely to be less useful in envisaged production scenarios.
 
-In the case when hierarchy is used for organisational purposes, inheritance is not relevant; parent tenants are there solely to group their children and configuration for the parent tenant is irrelevant, as it does not exist to be used as a tenant in it's own right.
+In the case when hierarchy is used for organisational purposes, inheritance is not relevant; parent tenants are there solely to group their children and configuration for the parent tenant is irrelevant, as it does not exist to be used as a tenant in its own right.
 
 In the case where hierarchy represents a genuine parent-child relationship there are many potential reasons for this, and the goal of the project is not to dictate specific use cases. However, in making the decision not to implement property inheritance it is only necessary to find a use case where it is not desirable.
 
