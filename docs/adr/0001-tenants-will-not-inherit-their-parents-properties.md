@@ -28,7 +28,7 @@ In the case where hierarchy represents a genuine parent-child relationship there
 
 Our use case here is a PaaS product providing multiple services - endjin's Marain platform. This platform contains several base services - Tenancy, Workflow, Operations and Claims, which can be licenced by clients.
 
-A client may choose to use these services to build their own platform, and use Marain's tenancy service to provide their own platform services to their own customers. In this case, the client's customers will be represented by child tenants of it's own tenant.
+A client may choose to use these services to build their own platform, and use Marain's tenancy service to provide their own platform services to their own customers. In this case, the client's customers will be represented by child tenants of its own tenant.
 
 Whilst the client tenant may make use of Marain services such as workflow to provide services to its customers, it would not want to leak private information, such as configuration for those Marain services, to customers.
 
