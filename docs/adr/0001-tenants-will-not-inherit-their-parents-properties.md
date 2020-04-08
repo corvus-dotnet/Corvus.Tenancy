@@ -8,7 +8,7 @@ Proposed
 
 Corvus.Tenancy supports a hierarchy of tenants. There are two things that this can be used for:
 
-Firstly, we can control on a per-tenant basis where the children of that tenant are stored. For example, with two sibling tenants A and B (i.e. tenants that are children of the same parent tenant), the children of A can be stored in a completely different location to the children of B. By default, this will be a separate container in the same storage account, but it could be a completely separate storage account.
+Firstly, we can control on a per-tenant basis where the child tenant data for that tenant are stored. For example, with two sibling tenants A and B (i.e. tenants that are children of the same parent tenant), the data for the child tenants of A can be stored in a completely different location to that of B. By default, this will be a separate container in the same storage account, but it could be a completely separate storage account.
 
 Secondly, it can be used to enable better organisation of tenants by using parent tenants to group related tenants together.
 
