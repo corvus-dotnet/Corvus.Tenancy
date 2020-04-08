@@ -26,11 +26,13 @@ In the case when hierarchy is used for organisational purposes, inheritance is n
 
 In the case where hierarchy represents a genuine parent-child relationship there are many potential reasons for this, and the goal of the project is not to dictate specific use cases. However, in making the decision not to implement property inheritance it is only necessary to find a use case where it is not desirable.
 
-Our use case here is a PaaS product providing multiple services - endjin's Marain platform. This platform contains several base services - Tenancy, Workflow, Operations and Claims, which can be licenced by clients.
+Our use case here is a PaaS product providing multiple services - endjin's Marain platform. This platform contains several base services - Tenancy, Workflow, Operations and Claims - which can be licensed by clients.
 
-A client may choose to use these services to build their own platform, and use Marain's tenancy service to provide their own platform services to their own customers. In this case, the client's customers will be represented by child tenants of its own tenant.
+A client may choose to use these services to build their own platform, and use Marain's tenancy service to provide their own platform services to their own customers. In this case, the client's customers will be represented by child tenants of its own tenant. 
 
-Whilst the client tenant may make use of Marain services such as workflow to provide services to its customers, it would not want to leak private information, such as configuration for those Marain services, to customers.
+In this situation there are two negative outcomes from allowing configuration to inherit from parent to child tenants.
+1. The client may make use of Marain services (e.g. Workflow) to provide services to its customers. Configuration for these services is stored as configuration on the client tenant. Automatic property inheritance would mean that by default, child tenants of the client would also have the ability to access these services, which should not be the case. 
+1. The configuration attached to a client's tenant contains various pieces of sensitive information. For example, it may contain storage account details for storage that is not directly owned by the client. For this reason, Marain does not allow clients to view their own configuration data, or that of their parents. However, clients do need to be able to view and modify the configuration of child tenants. If we automatically allowed properties to be inherited by child tenants, it would be possible for a client to create a child tenant and examine those inherited properties to access what is effectively the client's own configuration data.
 
 ## Consequences
 
