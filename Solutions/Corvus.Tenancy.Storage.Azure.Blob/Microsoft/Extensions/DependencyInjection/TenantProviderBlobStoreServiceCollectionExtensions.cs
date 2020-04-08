@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddRootTenant();
-            services.AddSingleton<ITenantProvider>(sp =>
+            services.AddSingleton(sp =>
             {
                 BlobStorageConfiguration rootTenantStorageConfig = getRootTenantStorageConfiguration(sp);
                 RootTenant rootTenant = sp.GetRequiredService<RootTenant>();
@@ -47,6 +47,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 return new TenantProviderBlobStore(sp, rootTenant, tenantCloudBlobContainerFactory, serializerSettingsProvider);
             });
+
+            services.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<TenantProviderBlobStore>());
             return services;
         }
     }
