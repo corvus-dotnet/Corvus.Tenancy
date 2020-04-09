@@ -38,4 +38,4 @@ In this situation there are two negative outcomes from allowing configuration to
 
 Whilst not providing inheritance as standard reduces the risk of leaking configuration between parent and child tenants, it is possible to envisage scenarios where inheritance would be desirable. In these scenarios it will instead be necessary to manually copy configuration from parents to children, and potentially to maintain multiple copies of it.
 
-In this situations, client applications can simulate inheritance by automating the duplication of properties and by maintaining additional properties that indicate when values are effectively "inherited" vs when they have been explicitly set on the child tenants.
+In these situations, client applications can simulate inheritance by automating the duplication of properties and by maintaining additional properties that indicate when values are effectively "inherited" vs when they have been explicitly set on the child tenants.
