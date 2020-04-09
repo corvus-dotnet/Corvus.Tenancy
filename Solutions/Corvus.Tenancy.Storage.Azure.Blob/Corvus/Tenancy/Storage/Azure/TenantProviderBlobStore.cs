@@ -174,22 +174,20 @@ namespace Corvus.Tenancy
                 child.Id = parentTenantId.CreateChildId(wellKnownChildTenantGuid);
                 child.Name = name;
 
-                // Before we continue, we should ensure that there isn't already a tenant with the specified Id.
-                CloudBlockBlob existingTenantBlob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
-                if (await existingTenantBlob.ExistsAsync().ConfigureAwait(false))
-                {
-                    throw new ArgumentException(
-                        $"A child tenant of '{parentTenant}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
-                        nameof(wellKnownChildTenantGuid));
-                }
-
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
                 // establish their own settings.
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
                 child.SetBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration!);
 
+                // Before we continue, we should ensure that there isn't already a tenant with the specified Id.
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
+                if (await blob.ExistsAsync().ConfigureAwait(false))
+                {
+                    throw new ArgumentException(
+                        $"A child tenant of '{parentTenant}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
+                        nameof(wellKnownChildTenantGuid));
+                }
 
                 string text = JsonConvert.SerializeObject(child, this.serializerSettings);
                 await blob.UploadTextAsync(text).ConfigureAwait(false);
