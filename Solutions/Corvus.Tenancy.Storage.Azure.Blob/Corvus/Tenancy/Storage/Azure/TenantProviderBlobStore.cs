@@ -180,7 +180,8 @@ namespace Corvus.Tenancy
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
                 child.SetBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration!);
 
-                // Before we continue, we should ensure that there isn't already a tenant with the specified Id.
+                // Before we continue, we should ensure that there isn't already a tenant with the specified Id. To avoid
+                // concurrency issues, we need to take out a shared lease whilst doing this.
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
                 if (await blob.ExistsAsync().ConfigureAwait(false))
                 {
