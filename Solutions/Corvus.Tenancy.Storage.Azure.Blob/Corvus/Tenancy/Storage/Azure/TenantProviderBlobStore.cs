@@ -180,7 +180,7 @@ namespace Corvus.Tenancy
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
                 child.SetBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration!);
 
-                // As we ceate the new blob, we need to ensure there isn't already a tenant with the same Id. We do this by
+                // As we create the new blob, we need to ensure there isn't already a tenant with the same Id. We do this by
                 // providing an If-None-Match header passing a "*", which will cause a storage exception with a 409 status
                 // code if a blob with the same Id already exists.
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
@@ -205,8 +205,8 @@ namespace Corvus.Tenancy
             }
             catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict)
             {
-                // This exception is thrown because there's already a tenant with the same Id. This should never happen; when
-                // this method has been called from CreateChildTenantAsync, then the Guid will have been generated and the
+                // This exception is thrown because there's already a tenant with the same Id. This should never happen when
+                // this method has been called from CreateChildTenantAsync as the Guid will have been generated and the
                 // chances of it matching one previously generated are miniscule. However, it could happen when calling this
                 // method directly with a wellKnownChildTenantGuid that's already in use. In this case, the fault is with
                 // the client code - creating tenants with well known Ids is something one would expect to happen under
