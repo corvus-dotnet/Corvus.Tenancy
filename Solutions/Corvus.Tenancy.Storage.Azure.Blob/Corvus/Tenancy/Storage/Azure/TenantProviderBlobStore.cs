@@ -180,18 +180,17 @@ namespace Corvus.Tenancy
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
                 child.SetBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration!);
 
-                // Before we continue, we should ensure that there isn't already a tenant with the specified Id. To avoid
-                // concurrency issues, we need to take out a shared lease whilst doing this.
+                // As we ceate the new blob, we need to ensure there isn't already a tenant with the same Id. We do this by
+                // providing an If-None-Match header passing a "*", which will cause a storage exception with a 409 status
+                // code if a blob with the same Id already exists.
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
-                if (await blob.ExistsAsync().ConfigureAwait(false))
-                {
-                    throw new ArgumentException(
-                        $"A child tenant of '{parentTenant}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
-                        nameof(wellKnownChildTenantGuid));
-                }
-
                 string text = JsonConvert.SerializeObject(child, this.serializerSettings);
-                await blob.UploadTextAsync(text).ConfigureAwait(false);
+                await blob.UploadTextAsync(
+                    text,
+                    null,
+                    AccessCondition.GenerateIfNoneMatchCondition("*"),
+                    null,
+                    null).ConfigureAwait(false);
                 child.ETag = blob.Properties.ETag;
 
                 return child;
@@ -203,6 +202,19 @@ namespace Corvus.Tenancy
             catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
             {
                 throw new TenantNotFoundException();
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            {
+                // This exception is thrown because there's already a tenant with the same Id. This should never happen; when
+                // this method has been called from CreateChildTenantAsync, then the Guid will have been generated and the
+                // chances of it matching one previously generated are miniscule. However, it could happen when calling this
+                // method directly with a wellKnownChildTenantGuid that's already in use. In this case, the fault is with
+                // the client code - creating tenants with well known Ids is something one would expect to happen under
+                // controlled conditions, so it's only likely that a conflict will occur when either the client code has made
+                // a mistake or someone is actively trying to cause problems.
+                throw new ArgumentException(
+                    $"A child tenant of '{parentTenantId}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
+                    nameof(wellKnownChildTenantGuid));
             }
         }
 
