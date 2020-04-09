@@ -31,6 +31,31 @@ Scenario: Create a child tenant
 	And I get the tenant with the id called "ChildTenantId" and call it "Result"
 	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
 
+Scenario: Create a child of the root tenant with a well known Id
+	Given I create a well known child tenant called "ChildTenant1" with a Guid of "F446F305-993B-49A4-B5FA-010EE2AF0FA2" for the root tenant
+	Then The tenant called "ChildTenant1" has tenant Id "05f346f43b99a449b5fa010ee2af0fa2"
+
+Scenario: Create a child of a child with well known Ids
+	Given I create a well known child tenant called "ChildTenant1" with a Guid of "EE17B20B-B372-4493-8145-9DD95516B9AF" for the root tenant
+	And I create a well known child tenant called "ChildTenant2" with a Guid of "DD045C05-E7FB-4214-8878-F9E7CA9B0F5F" for tenant called "ChildTenant1"
+	Then The tenant called "ChildTenant1" has tenant Id "0bb217ee72b3934481459dd95516b9af"
+	And The tenant called "ChildTenant2" has tenant Id "0bb217ee72b3934481459dd95516b9af055c04ddfbe714428878f9e7ca9b0f5f"
+
+Scenario: Creating a child of a child with a well known Id that is already in use by a child of the same parent throws an ArgumentException
+	Given I create a well known child tenant called "ChildTenant1" with a Guid of "ABE7C6C9-8494-4797-B52E-5C7B3EF1CE56" for the root tenant
+	And I create a well known child tenant called "ChildTenant2" with a Guid of "DD045C05-E7FB-4214-8878-F9E7CA9B0F5F" for tenant called "ChildTenant1"
+	And I create a well known child tenant called "ChildTenant3" with a Guid of "DD045C05-E7FB-4214-8878-F9E7CA9B0F5F" for tenant called "ChildTenant1"
+	Then an "ArgumentException" is thrown
+
+Scenario: Creating children that have the same well known Ids under different parents succeeds
+	Given I create a well known child tenant called "ChildTenant1" with a Guid of "2A182D6E-FF13-4A73-87AF-0B58D8243603" for the root tenant
+	And I create a well known child tenant called "ChildTenant2" with a Guid of "086D75A1-DA07-4C90-BEA7-857A6C126280" for the root tenant
+	And I create a well known child tenant called "ChildTenant3" with a Guid of "2A182D6E-FF13-4A73-87AF-0B58D8243603" for tenant called "ChildTenant1"
+	And I create a well known child tenant called "ChildTenant4" with a Guid of "2A182D6E-FF13-4A73-87AF-0B58D8243603" for tenant called "ChildTenant2"
+	Then no exception is thrown
+	And The tenant called "ChildTenant3" has tenant Id "6e2d182a13ff734a87af0b58d82436036e2d182a13ff734a87af0b58d8243603"
+	And The tenant called "ChildTenant4" has tenant Id "a1756d0807da904cbea7857a6c1262806e2d182a13ff734a87af0b58d8243603"
+
 Scenario: Update a child tenant
 	Given I create a child tenant called "ChildTenant1" for the root tenant
 	When I update the properties of the tenant called "ChildTenant1"

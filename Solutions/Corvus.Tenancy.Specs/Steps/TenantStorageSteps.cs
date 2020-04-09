@@ -46,6 +46,13 @@
             Assert.AreEqual(firstTenant.Id, secondTenant.Id);
         }
 
+        [Then("The tenant called \"(.*)\" has tenant Id \"(.*)\"")]
+        public void ThenTheTenantCalledHasTenantId(string tenantName, string expectedTenantId)
+        {
+            ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
+            Assert.AreEqual(expectedTenantId, tenant.Id);
+        }
+
         [Then("the tenant called \"(.*)\" should have the properties")]
         public void ThenTheTenantCalledShouldHaveTheProperties(string tenantName, Table table)
         {
@@ -93,6 +100,19 @@
             this.scenarioContext.Set(tenant, tenantName);
         }
 
+        [Given("I create a well known child tenant called \"(.*)\" with a Guid of \"(.*)\" for the root tenant")]
+        public async Task GivenICreateAWellKnownChildTenantCalledWithAGuidOfForTheRootTenant(
+            string tenantName,
+            Guid wellKnownChildTenantGuid)
+        {
+            ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
+            ITenant tenant = await provider.CreateWellKnownChildTenantAsync(
+                RootTenant.RootTenantId,
+                wellKnownChildTenantGuid,
+                tenantName).ConfigureAwait(false);
+            this.scenarioContext.Set(tenant, tenantName);
+        }
+
         [Given("I create a child tenant called \"(.*)\" for the tenant called \"(.*)\"")]
         public async Task GivenICreateAChildTenantCalledForTheTenantCalled(string childName, string parentName)
         {
@@ -100,6 +120,29 @@
             ITenant parentTenant = this.scenarioContext.Get<ITenant>(parentName);
             ITenant tenant = await provider.CreateChildTenantAsync(parentTenant.Id, childName).ConfigureAwait(false);
             this.scenarioContext.Set(tenant, childName);
+        }
+
+        [Given("I create a well known child tenant called \"(.*)\" with a Guid of \"(.*)\" for tenant called \"(.*)\"")]
+        public async Task GivenICreateAWellKnownChildTenantCalledWithAGuidOfForTenantCalled(
+            string childName,
+            Guid wellKnownChildTenantGuid,
+            string parentName)
+        {
+            ITenantProvider provider = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantProvider>();
+            ITenant parentTenant = this.scenarioContext.Get<ITenant>(parentName);
+
+            try
+            {
+                ITenant tenant = await provider.CreateWellKnownChildTenantAsync(
+                    parentTenant.Id,
+                    wellKnownChildTenantGuid,
+                    childName).ConfigureAwait(false);
+                this.scenarioContext.Set(tenant, childName);
+            }
+            catch (Exception ex)
+            {
+                this.scenarioContext.Set(ex);
+            }
         }
 
         [When("I update the properties of the tenant called \"(.*)\"")]
@@ -240,6 +283,20 @@
         public void ThenItShouldThrowATenantNotModifiedException()
         {
             Assert.IsInstanceOf<TenantNotModifiedException>(this.scenarioContext.Get<Exception>());
+        }
+
+        [Then("an \"(.*)\" is thrown")]
+        public void ThenAnIsThrown(string expectedExceptionType)
+        {
+            this.scenarioContext.TryGetValue(out Exception ex);
+            Assert.IsNotNull(ex, $"Expected an exception of type '{expectedExceptionType}' but no exception was thrown");
+            Assert.AreEqual(expectedExceptionType, ex.GetType().Name);
+        }
+
+        [Then("no exception is thrown")]
+        public void ThenNoExceptionIsThrown()
+        {
+            Assert.IsFalse(this.scenarioContext.TryGetValue(out Exception _));
         }
     }
 }

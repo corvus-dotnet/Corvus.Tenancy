@@ -4,14 +4,17 @@
 
 namespace Corvus.Tenancy.Specs.Bindings
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.SpecFlow.Extensions;
     using Corvus.Sql.Tenancy;
     using Corvus.Tenancy;
+    using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
@@ -54,6 +57,13 @@ namespace Corvus.Tenancy.Specs.Bindings
                             config.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
                             return blobStorageConfiguration;
                         });
+
+                        // Now replace the service for ITenantProvider with a decorated TenantProviderBlobStore.
+                        serviceCollection.AddSingleton(sp => new TenantTrackingTenantProviderDecorator(
+                                sp.GetRequiredService<TenantProviderBlobStore>()));
+                        serviceCollection.Remove(serviceCollection.First(x => x.ServiceType == typeof(ITenantProvider)));
+                        serviceCollection.AddSingleton<ITenantProvider>(
+                            sp => sp.GetRequiredService<TenantTrackingTenantProviderDecorator>());
                     }
                     else
                     {
@@ -88,6 +98,34 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     serviceCollection.AddTenantSqlConnectionFactory(sqlOptions);
                 });
+        }
+
+        /// <summary>
+        /// Cleans up the tenant provider blob store by removing all the tenants created during the test run.
+        /// </summary>
+        /// <param name="featureContext">The SpecFlow test context.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        [AfterFeature("@withBlobStorageTenantProvider")]
+        public static Task CleanUpTenantStore(FeatureContext featureContext)
+        {
+            return featureContext.RunAndStoreExceptionsAsync(async () =>
+            {
+                IServiceProvider sp = ContainerBindings.GetServiceProvider(featureContext);
+                TenantTrackingTenantProviderDecorator tenantTrackingProvider = sp.GetRequiredService<TenantTrackingTenantProviderDecorator>();
+                List<ITenant> tenants = tenantTrackingProvider.CreatedTenants;
+                tenants.Add(tenantTrackingProvider.Root);
+                ITenantCloudBlobContainerFactory blobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
+
+                CloudBlobContainer[] blobContainers = await Task.WhenAll(
+                    tenants.Select(tenant => blobContainerFactory.GetBlobContainerForTenantAsync(
+                        tenant,
+                        TenantProviderBlobStore.ContainerDefinition))).ConfigureAwait(false);
+
+                foreach (CloudBlobContainer container in blobContainers.Distinct(x => x.Name))
+                {
+                    await container.DeleteIfExistsAsync().ConfigureAwait(false);
+                }
+            });
         }
     }
 }

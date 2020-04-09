@@ -21,6 +21,16 @@
 #pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
+        public Task<ITenant> CreateWellKnownChildTenantAsync(
+            string parentTenantId,
+            Guid wellKnownChildTenantGuid,
+            string name)
+        {
+#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
+            throw new NotImplementedException();
+#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
+        }
+
         public Task DeleteTenantAsync(string tenantId)
         {
 #pragma warning disable RCS1079 // Throwing of new NotImplementedException.

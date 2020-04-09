@@ -7,6 +7,7 @@ namespace Corvus.Tenancy
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     /// <summary>
     /// Extensions for the <see cref="ITenant"/>.
@@ -55,16 +56,23 @@ namespace Corvus.Tenancy
         /// Creates an ID for a child from the parent Id and a unique ID.
         /// </summary>
         /// <param name="parentId">The full parent ID.</param>
+        /// <param name="childTenantGuid">The Guid to use to generate the new child tenant Id.</param>
         /// <returns>The combined ID for the child.</returns>
-        public static string CreateChildId(this string parentId)
+        public static string CreateChildId(this string parentId, Guid? childTenantGuid)
         {
+            childTenantGuid ??= Guid.NewGuid();
+
             if (parentId == RootTenant.RootTenantId)
             {
-                return EncodeGuids(true, new Guid[0]);
+                return EncodeGuids(childTenantGuid.Value);
             }
 
             Guid[] guids = DecodeGuids(parentId);
-            return EncodeGuids(true, guids);
+            var guidsWithChildTenantId = new Guid[guids.Length + 1];
+            guids.CopyTo(guidsWithChildTenantId, 0);
+            guidsWithChildTenantId[guidsWithChildTenantId.Length - 1] = childTenantGuid.Value;
+
+            return EncodeGuids(guidsWithChildTenantId);
         }
 
         /// <summary>
@@ -136,21 +144,11 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Encodes a path of guids as a tenant ID.
         /// </summary>
-        /// <param name="guids">The guids to encode.</param>
-        /// <returns>A string representing the combined and encoded tenant ID.</returns>
-        public static string EncodeGuids(params Guid[] guids)
-        {
-            return EncodeGuids(false, guids);
-        }
-
-        /// <summary>
-        /// Encodes a path of guids as a tenant ID.
-        /// </summary>
         /// <param name="guid">The guid to encode.</param>
         /// <returns>A string representing the combined and encoded tenant ID.</returns>
         public static string EncodeGuid(this Guid guid)
         {
-            return EncodeGuids(false, guid);
+            return EncodeGuids(guid);
         }
 
 #pragma warning disable RCS1224 // Make method an extension method.
@@ -204,12 +202,11 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Encodes a path of guids as a tenant ID.
         /// </summary>
-        /// <param name="appendAdditionalGuid">Whether to append an additional guid.</param>
         /// <param name="guids">The guids to encode.</param>
         /// <returns>A string representing the combined and encoded tenant ID.</returns>
-        private static string EncodeGuids(bool appendAdditionalGuid, params Guid[] guids)
+        private static string EncodeGuids(params Guid[] guids)
         {
-            int length = guids.Length + (appendAdditionalGuid ? 1 : 0);
+            int length = guids.Length;
             byte[] guidBytes = new byte[length * 16];
             int index = 0;
 
@@ -217,11 +214,6 @@ namespace Corvus.Tenancy
             {
                 guid.ToByteArray().CopyTo(guidBytes, index);
                 index += 16;
-            }
-
-            if (appendAdditionalGuid)
-            {
-                Guid.NewGuid().ToByteArray().CopyTo(guidBytes, index);
             }
 
             return EncodeGuidBytes(guidBytes);

@@ -153,7 +153,14 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public async Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
+        public Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
+            => this.CreateWellKnownChildTenantAsync(parentTenantId, Guid.NewGuid(), name);
+
+        /// <inheritdoc/>
+        public async Task<ITenant> CreateWellKnownChildTenantAsync(
+            string parentTenantId,
+            Guid wellKnownChildTenantGuid,
+            string name)
         {
             if (parentTenantId is null)
             {
@@ -164,7 +171,7 @@ namespace Corvus.Tenancy
             {
                 (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
                 Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
-                child.Id = parentTenantId.CreateChildId();
+                child.Id = parentTenantId.CreateChildId(wellKnownChildTenantGuid);
                 child.Name = name;
 
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
@@ -173,10 +180,17 @@ namespace Corvus.Tenancy
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
                 child.SetBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration!);
 
+                // As we create the new blob, we need to ensure there isn't already a tenant with the same Id. We do this by
+                // providing an If-None-Match header passing a "*", which will cause a storage exception with a 409 status
+                // code if a blob with the same Id already exists.
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
-
                 string text = JsonConvert.SerializeObject(child, this.serializerSettings);
-                await blob.UploadTextAsync(text).ConfigureAwait(false);
+                await blob.UploadTextAsync(
+                    text,
+                    null,
+                    AccessCondition.GenerateIfNoneMatchCondition("*"),
+                    null,
+                    null).ConfigureAwait(false);
                 child.ETag = blob.Properties.ETag;
 
                 return child;
@@ -188,6 +202,19 @@ namespace Corvus.Tenancy
             catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
             {
                 throw new TenantNotFoundException();
+            }
+            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            {
+                // This exception is thrown because there's already a tenant with the same Id. This should never happen when
+                // this method has been called from CreateChildTenantAsync as the Guid will have been generated and the
+                // chances of it matching one previously generated are miniscule. However, it could happen when calling this
+                // method directly with a wellKnownChildTenantGuid that's already in use. In this case, the fault is with
+                // the client code - creating tenants with well known Ids is something one would expect to happen under
+                // controlled conditions, so it's only likely that a conflict will occur when either the client code has made
+                // a mistake or someone is actively trying to cause problems.
+                throw new ArgumentException(
+                    $"A child tenant of '{parentTenantId}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
+                    nameof(wellKnownChildTenantGuid));
             }
         }
 
