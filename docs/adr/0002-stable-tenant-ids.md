@@ -22,4 +22,4 @@ In order to prevent two tenants being created with the same Id, it is necessary 
 
 ## Consequences
 
-No specific consequences identified at this time.
+Allowing clients to control tenant Ids means that we can no longer guarantee they are globally unique - i.e. unique across different tenant providers. Should there ever be a need to migrate tenants between stores, this change will make the process more complex.
