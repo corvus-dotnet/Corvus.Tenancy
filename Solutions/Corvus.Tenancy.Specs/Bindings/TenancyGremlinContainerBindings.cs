@@ -49,7 +49,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             config.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
             gremlinConfiguration.DatabaseName = "endjinspecssharedthroughput";
             gremlinConfiguration.DisableTenantIdPrefix = true;
-            tenantProvider.Root.SetGremlinConfiguration(gremlinContainerDefinition, gremlinConfiguration);
+            tenantProvider.Root.UpdateProperties(values => values.AddGremlinConfiguration(gremlinContainerDefinition, gremlinConfiguration));
 
             GremlinClient tenancySpecsClient = await factory.GetClientForTenantAsync(
                 tenantProvider.Root,

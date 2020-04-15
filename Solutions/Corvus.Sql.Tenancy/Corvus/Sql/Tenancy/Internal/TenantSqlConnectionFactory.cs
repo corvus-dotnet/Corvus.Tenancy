@@ -23,7 +23,7 @@ namespace Corvus.Sql.Tenancy.Internal
     /// <para>
     /// You use this type to get an instance of a <see cref="SqlConnection"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the connection string for the tenant, and the
-    /// configuration comes from the tenant via <see cref="SqlStorageTenantExtensions.SetSqlConfiguration(ITenant, SqlConnectionDefinition, SqlConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="SqlStorageTenantExtensions.AddSqlConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, SqlConnectionDefinition, SqlConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
@@ -59,7 +59,7 @@ namespace Corvus.Sql.Tenancy.Internal
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public class TenantSqlConnectionFactory : ITenantSqlConnectionFactory
+    internal class TenantSqlConnectionFactory : ITenantSqlConnectionFactory
     {
         private const string DevelopmentStorageConnectionString = "Server=(localdb)\\mssqllocaldb;Database=testtenant;Trusted_Connection=True;MultipleActiveResultSets=true";
 

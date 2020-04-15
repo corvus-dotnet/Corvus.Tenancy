@@ -41,7 +41,7 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Gets the collection of properties for this tenant.
         /// </summary>
-        PropertyBag Properties { get; }
+        IPropertyBag Properties { get; }
 
         /// <summary>
         /// Gets or sets the ETag of the tenant.

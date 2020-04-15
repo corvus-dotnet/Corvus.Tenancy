@@ -5,6 +5,7 @@
     using Corvus.Tenancy;
     using Corvus.Tenancy.Exceptions;
 
+#pragma warning disable IDE0060 // Unused arguments
     internal class FakeTenantProvider : ITenantProvider
     {
         public FakeTenantProvider(RootTenant rootTenant)

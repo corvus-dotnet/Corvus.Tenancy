@@ -17,39 +17,46 @@ namespace Corvus.Tenancy
     using Corvus.Tenancy.Exceptions;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
-    using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
 
     /// <summary>
     /// A store for tenant data.
     /// </summary>
     public class TenantProviderBlobStore
-        : ITenantProvider
+        : ITenantStore
     {
         private const string LiveTenantsPrefix = "live/";
         private const string DeletedTenantsPrefix = "deleted/";
-        private readonly IServiceProvider serviceProvider;
         private readonly ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory;
         private readonly JsonSerializerSettings serializerSettings;
+        private readonly IPropertyBagFactory propertyBagFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantProviderBlobStore"/> class.
         /// </summary>
-        /// <param name="serviceProvider">The service provider from which to get a tenant.</param>
         /// <param name="tenant">The root tenant (registered as a singleton in the container).</param>
+        /// <param name="propertyBagFactory">
+        /// Enables creation of <see cref="IPropertyBag"/> instances when no existing serialized
+        /// representation exists (i.e., when creating a new tenant), and building of modified property
+        /// bags.
+        /// </param>
         /// <param name="tenantCloudBlobContainerFactory">The tenanted cloud blob container factory.</param>
         /// <param name="serializerSettingsProvider">The serializer settings provider for tenant serialization.</param>
-        public TenantProviderBlobStore(IServiceProvider serviceProvider, RootTenant tenant, ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory, IJsonSerializerSettingsProvider serializerSettingsProvider)
+        public TenantProviderBlobStore(
+            RootTenant tenant,
+            IPropertyBagFactory propertyBagFactory,
+            ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory,
+            IJsonSerializerSettingsProvider serializerSettingsProvider)
         {
             if (serializerSettingsProvider is null)
             {
                 throw new ArgumentNullException(nameof(serializerSettingsProvider));
             }
 
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             this.Root = tenant ?? throw new ArgumentNullException(nameof(tenant));
             this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory ?? throw new ArgumentNullException(nameof(tenantCloudBlobContainerFactory));
             this.serializerSettings = serializerSettingsProvider.Instance;
+            this.propertyBagFactory = propertyBagFactory;
         }
 
         /// <summary>
@@ -58,7 +65,7 @@ namespace Corvus.Tenancy
         public static BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("corvustenancy");
 
         /// <inheritdoc/>
-        public ITenant Root { get; }
+        public RootTenant Root { get; }
 
         /// <inheritdoc/>
         public async Task<ITenant> GetTenantAsync(string tenantId, string? etag = null)
@@ -116,24 +123,37 @@ namespace Corvus.Tenancy
         }
 
         /// <inheritdoc/>
-        public async Task<ITenant> UpdateTenantAsync(ITenant tenant)
+        public async Task<ITenant> UpdateTenantAsync(
+            string tenantId,
+            IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd,
+            IEnumerable<string>? propertiesToRemove)
         {
-            if (tenant is null)
+            if (propertiesToSetOrAdd is null && propertiesToRemove is null)
             {
-                throw new ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(propertiesToSetOrAdd), $"{nameof(propertiesToSetOrAdd)} and {nameof(propertiesToRemove)} cannot both be null");
             }
 
-            if (tenant.Id == this.Root.Id)
+            if (tenantId == this.Root.Id)
             {
+                ((RootTenant)this.Root).UpdateProperties(propertiesToSetOrAdd, propertiesToRemove);
                 return this.Root;
             }
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenant.GetRequiredParentId()).ConfigureAwait(false);
+                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
 
-                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenant.Id, container);
-                string text = JsonConvert.SerializeObject(tenant, this.serializerSettings);
+                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
+
+                Tenant tenant = await this.GetTenantFromContainerAsync(tenantId, container, null).ConfigureAwait(false);
+
+                IPropertyBag updatedProperties = this.propertyBagFactory.CreateModified(
+                    tenant.Properties,
+                    propertiesToSetOrAdd.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value)),
+                    propertiesToRemove);
+
+                var updatedTenant = new Tenant(tenant.Id, tenant.Name, updatedProperties);
+                string text = JsonConvert.SerializeObject(updatedTenant, this.serializerSettings);
                 await blob.UploadTextAsync(text).ConfigureAwait(false);
                 tenant.ETag = blob.Properties.ETag;
                 return tenant;
@@ -170,15 +190,17 @@ namespace Corvus.Tenancy
             try
             {
                 (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
-                Tenant child = this.serviceProvider.GetRequiredService<Tenant>();
-                child.Id = parentTenantId.CreateChildId(wellKnownChildTenantGuid);
-                child.Name = name;
 
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
                 // establish their own settings.
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
-                child.SetBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration!);
+                IPropertyBag childProperties = this.propertyBagFactory.CreateWithNonNullValues(values =>
+                    values.AddBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration));
+                var child = new Tenant(
+                    parentTenantId.CreateChildId(wellKnownChildTenantGuid),
+                    name,
+                    childProperties);
 
                 // As we create the new blob, we need to ensure there isn't already a tenant with the same Id. We do this by
                 // providing an If-None-Match header passing a "*", which will cause a storage exception with a 409 status
@@ -343,13 +365,13 @@ namespace Corvus.Tenancy
             return this.tenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(parentTenant, ContainerDefinition);
         }
 
-        private async Task<ITenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string? etag)
+        private async Task<Tenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string? etag)
         {
             CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
             try
             {
                 string text = await blob.DownloadTextAsync(Encoding.UTF8, string.IsNullOrEmpty(etag) ? null : AccessCondition.GenerateIfNoneMatchCondition(etag), null, null).ConfigureAwait(false);
-                ITenant tenant = JsonConvert.DeserializeObject<ITenant>(text, this.serializerSettings);
+                Tenant tenant = JsonConvert.DeserializeObject<Tenant>(text, this.serializerSettings);
                 tenant.ETag = blob.Properties.ETag;
                 return tenant;
             }

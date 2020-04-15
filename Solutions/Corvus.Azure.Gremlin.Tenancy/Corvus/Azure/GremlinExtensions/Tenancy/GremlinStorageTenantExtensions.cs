@@ -5,6 +5,9 @@
 namespace Corvus.Azure.GremlinExtensions.Tenancy
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -31,7 +34,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out GremlinConfiguration configuration))
+            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out GremlinConfiguration? configuration))
             {
                 return configuration;
             }
@@ -40,16 +43,24 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         }
 
         /// <summary>
-        /// Sets the Gremlin configuration for the specified container for the tenant.
+        /// Creates Gremlin configuration for the specified container suitable for passing to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="tenant">The tenant for which to set the configuration.</param>
+        /// <param name="values">Existing configuration values to which to append these.</param>
         /// <param name="definition">The definition of the Gremlin container for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
-        public static void SetGremlinConfiguration(this ITenant tenant, GremlinContainerDefinition definition, GremlinConfiguration configuration)
+        /// <returns>
+        /// Properties to pass to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// </returns>
+        public static IEnumerable<KeyValuePair<string, object>> AddGremlinConfiguration(
+            this IEnumerable<KeyValuePair<string, object>> values,
+            GremlinContainerDefinition definition,
+            GremlinConfiguration configuration)
         {
-            if (tenant is null)
+            if (values is null)
             {
-                throw new ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(values));
             }
 
             if (definition is null)
@@ -57,7 +68,12 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            tenant.Properties.Set(GetConfigurationKey(definition), configuration);
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
 
         private static string GetConfigurationKey(GremlinContainerDefinition definition)
