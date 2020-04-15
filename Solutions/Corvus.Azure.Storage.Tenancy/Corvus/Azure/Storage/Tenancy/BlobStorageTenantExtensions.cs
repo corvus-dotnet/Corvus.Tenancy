@@ -5,6 +5,9 @@
 namespace Corvus.Azure.Storage.Tenancy
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
     using Newtonsoft.Json.Linq;
 
@@ -53,7 +56,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out BlobStorageConfiguration configuration))
+            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out BlobStorageConfiguration? configuration))
             {
                 return configuration;
             }
@@ -62,16 +65,24 @@ namespace Corvus.Azure.Storage.Tenancy
         }
 
         /// <summary>
-        /// Sets the repository configuration or the specified repository for the tenant.
+        /// Creates repository configuration properties suitable for passing to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="tenant">The tenant for which to set the configuration.</param>
+        /// <param name="values">Existing configuration values to which to append these.</param>
         /// <param name="definition">The definition of the repository for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
-        public static void SetBlobStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition, BlobStorageConfiguration configuration)
+        /// <returns>
+        /// Properties to pass to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// </returns>
+        public static IEnumerable<KeyValuePair<string, object>> AddBlobStorageConfiguration(
+            this IEnumerable<KeyValuePair<string, object>> values,
+            BlobStorageContainerDefinition definition,
+            BlobStorageConfiguration configuration)
         {
-            if (tenant is null)
+            if (values is null)
             {
-                throw new ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(values));
             }
 
             if (definition is null)
@@ -84,7 +95,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            tenant.Properties.Set(GetConfigurationKey(definition), configuration);
+            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
 
         private static string GetConfigurationKey(BlobStorageContainerDefinition definition)

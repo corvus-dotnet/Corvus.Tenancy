@@ -7,19 +7,20 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Corvus.Tenancy;
 
-    public class TenantTrackingTenantProviderDecorator : ITenantProvider
+    public class TenantTrackingTenantProviderDecorator : ITenantStore
     {
-        private readonly ITenantProvider decoratedProvider;
+        private readonly ITenantStore decoratedProvider;
 
-        public TenantTrackingTenantProviderDecorator(ITenantProvider decoratedProvider)
+        public TenantTrackingTenantProviderDecorator(ITenantStore decoratedProvider)
         {
             this.decoratedProvider = decoratedProvider ?? throw new ArgumentNullException(nameof(decoratedProvider));
         }
 
         public List<ITenant> CreatedTenants { get; } = new List<ITenant>();
 
-        public ITenant Root => this.decoratedProvider.Root;
+        public RootTenant Root => this.decoratedProvider.Root;
 
         public async Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
         {
@@ -47,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         public Task<ITenant> GetTenantAsync(string tenantId, string? eTag = null)
             => this.decoratedProvider.GetTenantAsync(tenantId, eTag);
 
-        public Task<ITenant> UpdateTenantAsync(ITenant tenant)
-            => this.decoratedProvider.UpdateTenantAsync(tenant);
+        public Task<ITenant> UpdateTenantAsync(string tenantId, IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd = null, IEnumerable<string>? propertiesToRemove = null)
+            => this.decoratedProvider.UpdateTenantAsync(tenantId, propertiesToSetOrAdd, propertiesToRemove);
     }
 }

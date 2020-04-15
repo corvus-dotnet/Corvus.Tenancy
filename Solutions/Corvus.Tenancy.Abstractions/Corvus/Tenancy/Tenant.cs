@@ -4,7 +4,6 @@
 
 namespace Corvus.Tenancy
 {
-    using System;
     using Corvus.Extensions.Json;
 
     /// <summary>
@@ -17,52 +16,47 @@ namespace Corvus.Tenancy
         /// </summary>
         public const string RegisteredContentType = "application/vnd.corvus.tenancy.tenant";
 
-        private string? id;
-        private string? name;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Tenant"/> class.
         /// </summary>
-        /// <param name="settingsProvider">The json serializer settings provider.</param>
-        public Tenant(IJsonSerializerSettingsProvider settingsProvider)
+        /// <param name="id">The <see cref="Id"/>.</param>
+        /// <param name="name">The <see cref="Name"/>.</param>
+        /// <param name="properties">The <see cref="Properties"/>.</param>
+        public Tenant(string id, string name, IPropertyBag properties)
         {
-            if (settingsProvider is null)
+            if (id is null)
             {
-                throw new System.ArgumentNullException(nameof(settingsProvider));
+                throw new System.ArgumentNullException(nameof(id));
             }
 
-            this.Properties = new PropertyBag(settingsProvider.Instance);
+            if (name is null)
+            {
+                throw new System.ArgumentNullException(nameof(id));
+            }
 
-            this.Id = string.Empty;
+            if (properties is null)
+            {
+                throw new System.ArgumentNullException(nameof(id));
+            }
+
+            this.Id = id;
+            this.Name = name;
+            this.Properties = properties;
         }
 
         /// <inheritdoc/>
-        public string Id
-        {
-            get => this.id ?? throw new InvalidOperationException("This tenant has not been supplied with an " + nameof(this.Id));
-            set => this.id = value ?? throw new ArgumentNullException();
-        }
+        public string Id { get; }
 
         /// <inheritdoc/>
-        public string Name
-        {
-            get => this.name ?? throw new InvalidOperationException("This tenant has not been supplied with a " + nameof(this.Name));
-            set => this.name = value ?? throw new ArgumentNullException();
-        }
+        public string Name { get; }
 
         /// <inheritdoc/>
-        public PropertyBag Properties
-        {
-            get; set;
-        }
+        public IPropertyBag Properties { get; protected set; }
 
         /// <inheritdoc/>
         public string? ETag { get; set; }
 
         /// <inheritdoc/>
-        public string ContentType
-        {
-            get { return RegisteredContentType; }
-        }
+        public string ContentType => RegisteredContentType;
     }
 }

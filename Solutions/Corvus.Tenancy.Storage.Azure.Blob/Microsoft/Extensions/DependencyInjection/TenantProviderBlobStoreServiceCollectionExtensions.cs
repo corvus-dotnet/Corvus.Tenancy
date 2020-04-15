@@ -40,14 +40,18 @@ namespace Microsoft.Extensions.DependencyInjection
                 BlobStorageConfiguration rootTenantStorageConfig = getRootTenantStorageConfiguration(sp);
                 RootTenant rootTenant = sp.GetRequiredService<RootTenant>();
 
-                rootTenant.SetBlobStorageConfiguration(TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig);
+                rootTenant.UpdateProperties(
+                    values => values.AddBlobStorageConfiguration(
+                        TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig));
 
                 ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
                 IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();
+                IPropertyBagFactory propertyBagFactory = sp.GetRequiredService<IPropertyBagFactory>();
 
-                return new TenantProviderBlobStore(sp, rootTenant, tenantCloudBlobContainerFactory, serializerSettingsProvider);
+                return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantCloudBlobContainerFactory, serializerSettingsProvider);
             });
 
+            services.AddSingleton<ITenantStore>(sp => sp.GetRequiredService<TenantProviderBlobStore>());
             services.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<TenantProviderBlobStore>());
             return services;
         }

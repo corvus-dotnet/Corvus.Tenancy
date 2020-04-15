@@ -45,7 +45,7 @@
                 sqlConfiguration.DisableTenantIdPrefix = true;
             }
 
-            tenantProvider.Root.SetSqlConfiguration(sqlConnectionDefinition, sqlConfiguration);
+            tenantProvider.Root.UpdateProperties(values => values.AddSqlConfiguration(sqlConnectionDefinition, sqlConfiguration));
 
             using SqlConnection sqlConnection = await factory.GetSqlConnectionForTenantAsync(
                 tenantProvider.Root,

@@ -44,7 +44,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             var blobStorageContainerDefinition = new BlobStorageContainerDefinition($"{containerBase}tenancyspecs");
             var blobStorageConfiguration = new BlobStorageConfiguration();
             config.Bind("TESTBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
-            tenantProvider.Root.SetBlobStorageConfiguration(blobStorageContainerDefinition, blobStorageConfiguration);
+            tenantProvider.Root.UpdateProperties(values => values.AddBlobStorageConfiguration(blobStorageContainerDefinition, blobStorageConfiguration));
 
             CloudBlobContainer tenancySpecsContainer = await factory.GetBlobContainerForTenantAsync(
                 tenantProvider.Root,
