@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="$(EndjinProjectPropsPath)" />
+  <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
   
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -19,7 +19,7 @@
     <PackageReference Include="Corvus.Extensions" Version="0.8.0" />
     <!-- TODO: we should remove this ref once we're done because it should come from Corvus.ContentHandling.Json -->
     <PackageReference Include="Corvus.Extensions.Newtonsoft.Json" Version="0.10.0-PullRequest0087.18" />
-    <PackageReference Include="Endjin.RecommendedPractices" Version="0.2.1">
+    <PackageReference Include="Endjin.RecommendedPractices" Version="0.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
