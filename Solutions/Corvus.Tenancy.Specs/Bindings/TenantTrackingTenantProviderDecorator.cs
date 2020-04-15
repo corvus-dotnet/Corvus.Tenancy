@@ -20,7 +20,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 
         public List<ITenant> CreatedTenants { get; } = new List<ITenant>();
 
-        public ITenant Root => this.decoratedProvider.Root;
+        public RootTenant Root => this.decoratedProvider.Root;
 
         public async Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
         {
