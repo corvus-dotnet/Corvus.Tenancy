@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
+  
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -13,13 +15,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Corvus.ContentHandling.Json" Version="0.12.0" />
+    <PackageReference Include="Corvus.ContentHandling.Json" Version="0.13.0-PullRequest0097.9" />
     <PackageReference Include="Corvus.Extensions" Version="0.8.0" />
-    <PackageReference Include="Endjin.RecommendedPractices" Version="0.1.0">
+    <!-- TODO: we should remove this ref once we're done because it should come from Corvus.ContentHandling.Json -->
+    <PackageReference Include="Corvus.Extensions.Newtonsoft.Json" Version="0.10.0-PullRequest0087.20" />
+    <PackageReference Include="Endjin.RecommendedPractices" Version="0.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
+    <PackageReference Include="Nullable" Version="1.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

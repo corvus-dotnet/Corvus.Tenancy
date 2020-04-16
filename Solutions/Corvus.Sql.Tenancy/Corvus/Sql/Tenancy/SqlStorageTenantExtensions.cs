@@ -5,6 +5,9 @@
 namespace Corvus.Sql.Tenancy
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -31,7 +34,7 @@ namespace Corvus.Sql.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out SqlConfiguration configuration))
+            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out SqlConfiguration? configuration))
             {
                 return configuration;
             }
@@ -40,16 +43,24 @@ namespace Corvus.Sql.Tenancy
         }
 
         /// <summary>
-        /// Sets the Sql configuration for the specified container for the tenant.
+        /// Creates Sql configuration properties for the specified container suitable for passing to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="tenant">The tenant for which to set the configuration.</param>
+        /// <param name="values">Existing configuration values to which to append these.</param>
         /// <param name="definition">The definition of the Sql container for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
-        public static void SetSqlConfiguration(this ITenant tenant, SqlConnectionDefinition definition, SqlConfiguration configuration)
+        /// <returns>
+        /// Properties to pass to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// </returns>
+        public static IEnumerable<KeyValuePair<string, object>> AddSqlConfiguration(
+            this IEnumerable<KeyValuePair<string, object>> values,
+            SqlConnectionDefinition definition,
+            SqlConfiguration configuration)
         {
-            if (tenant is null)
+            if (values is null)
             {
-                throw new ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(values));
             }
 
             if (definition is null)
@@ -57,7 +68,12 @@ namespace Corvus.Sql.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            tenant.Properties.Set(GetConfigurationKey(definition), configuration);
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
+            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
 
         private static string GetConfigurationKey(SqlConnectionDefinition definition)

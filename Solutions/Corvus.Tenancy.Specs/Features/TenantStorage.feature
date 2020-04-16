@@ -56,7 +56,7 @@ Scenario: Creating children that have the same well known Ids under different pa
 	And The tenant called "ChildTenant3" has tenant Id "6e2d182a13ff734a87af0b58d82436036e2d182a13ff734a87af0b58d8243603"
 	And The tenant called "ChildTenant4" has tenant Id "a1756d0807da904cbea7857a6c1262806e2d182a13ff734a87af0b58d8243603"
 
-Scenario: Update a child tenant
+Scenario: Add properties to a child tenant that has no properties
 	Given I create a child tenant called "ChildTenant1" for the root tenant
 	When I update the properties of the tenant called "ChildTenant1"
 	| Key       | Value            | Type           |
@@ -71,6 +71,116 @@ Scenario: Update a child tenant
 	| FirstKey  | 1                | integer        |
 	| SecondKey | This is a string | string         |
 	| ThirdKey  | 1999-01-17       | datetimeoffset |
+
+Scenario: Modify properties of a child tenant
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	And I update the properties of the tenant called "ChildTenant1"
+	| Key       | Value            | Type           |
+	| FirstKey  | 1                | integer        |
+	| SecondKey | This is a string | string         |
+	| ThirdKey  | 1999-01-17       | datetimeoffset |
+	When I update the properties of the tenant called "ChildTenant1" and call the returned tenant "UpdateResult"
+	| Key       | Value                      | Type    |
+	| FirstKey  | 2                          | integer |
+	| SecondKey | This is a different string | string  |
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the tenant with the id called "ChildTenantId" and call it "Result"
+	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
+	And the tenant called "UpdateResult" should have the properties
+	| Key       | Value                      | Type           |
+	| FirstKey  | 2                          | integer        |
+	| SecondKey | This is a different string | string         |
+	| ThirdKey  | 1999-01-17                 | datetimeoffset |
+	And the tenant called "Result" should have the properties
+	| Key       | Value                      | Type           |
+	| FirstKey  | 2                          | integer        |
+	| SecondKey | This is a different string | string         |
+	| ThirdKey  | 1999-01-17                 | datetimeoffset |
+
+Scenario: Add properties to a child tenant that already has properties
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	And I update the properties of the tenant called "ChildTenant1"
+	| Key       | Value            | Type           |
+	| FirstKey  | 1                | integer        |
+	| SecondKey | This is a string | string         |
+	| ThirdKey  | 1999-01-17       | datetimeoffset |
+	When I update the properties of the tenant called "ChildTenant1" and call the returned tenant "UpdateResult"
+	| Key       | Value                      | Type    |
+	| FourthKey | 2                          | integer |
+	| FifthKey  | This is a different string | string  |
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the tenant with the id called "ChildTenantId" and call it "Result"
+	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
+	And the tenant called "UpdateResult" should have the properties
+	| Key       | Value                      | Type           |
+	| FirstKey  | 1                          | integer        |
+	| SecondKey | This is a string           | string         |
+	| ThirdKey  | 1999-01-17                 | datetimeoffset |
+	| FourthKey | 2                          | integer        |
+	| FifthKey  | This is a different string | string         |
+	And the tenant called "Result" should have the properties
+	| Key       | Value                      | Type           |
+	| FirstKey  | 1                          | integer        |
+	| SecondKey | This is a string           | string         |
+	| ThirdKey  | 1999-01-17                 | datetimeoffset |
+	| FourthKey | 2                          | integer        |
+	| FifthKey  | This is a different string | string         |
+
+Scenario: Remove properties from a child tenant
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	And I update the properties of the tenant called "ChildTenant1"
+	| Key       | Value            | Type           |
+	| FirstKey  | 1                | integer        |
+	| SecondKey | This is a string | string         |
+	| ThirdKey  | 1999-01-17       | datetimeoffset |
+	When I remove the "SecondKey" property of the tenant called "ChildTenant1" and call the returned tenant "UpdateResult"
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the tenant with the id called "ChildTenantId" and call it "Result"
+	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
+	And the tenant called "Result" should have the properties
+	| Key       | Value            | Type           |
+	| FirstKey  | 1                | integer        |
+	| ThirdKey  | 1999-01-17       | datetimeoffset |
+	And the tenant called "UpdateResult" should have the properties
+	| Key       | Value            | Type           |
+	| FirstKey  | 1                | integer        |
+	| ThirdKey  | 1999-01-17       | datetimeoffset |
+
+Scenario: Add, modify, and remove properties of a child tenant that already has properties
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	And I update the properties of the tenant called "ChildTenant1"
+	| Key       | Value            | Type           |
+	| FirstKey  | 1                | integer        |
+	| SecondKey | This is a string | string         |
+	| ThirdKey  | 1999-01-17       | datetimeoffset |
+	When I update the properties of the tenant called "ChildTenant1" and remove the "ThirdKey" property and call the returned tenant "UpdateResult"
+	| Key       | Value                      | Type    |
+	| SecondKey | This is a different string | string  |
+	| FourthKey | 2                          | integer |
+	| FifthKey  | This is a new string       | string  |
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the tenant with the id called "ChildTenantId" and call it "Result"
+	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
+	And the tenant called "UpdateResult" should have the properties
+	| Key       | Value                      | Type           |
+	| FirstKey  | 1                          | integer        |
+	| SecondKey | This is a different string | string         |
+	| FourthKey | 2                          | integer        |
+	| FifthKey  | This is a new string       | string         |
+	And the tenant called "Result" should have the properties
+	| Key       | Value                      | Type           |
+	| FirstKey  | 1                          | integer        |
+	| SecondKey | This is a different string | string         |
+	| FourthKey | 2                          | integer        |
+	| FifthKey  | This is a new string       | string         |
+
+Scenario: Rename a child tenant
+	Given I create a child tenant called "ChildTenant1" for the root tenant
+	When I change the name of the tenant called "ChildTenant1" to "NewName" and call the returned tenant "UpdateResult"
+	And I get the tenant id of the tenant called "ChildTenant1" and call it "ChildTenantId"
+	And I get the tenant with the id called "ChildTenantId" and call it "Result"
+	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
+	Then the tenant called "ChildTenant1" should have the same ID as the tenant called "Result"
 
 Scenario: Create a child of a child
 	Given I create a child tenant called "ChildTenant1" for the root tenant

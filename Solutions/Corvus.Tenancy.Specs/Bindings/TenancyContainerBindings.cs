@@ -58,11 +58,13 @@ namespace Corvus.Tenancy.Specs.Bindings
                             return blobStorageConfiguration;
                         });
 
-                        // Now replace the service for ITenantProvider with a decorated TenantProviderBlobStore.
+                        // Now replace the service for ITenantStore and ITenantProvider with a decorated TenantProviderBlobStore.
                         serviceCollection.AddSingleton(sp => new TenantTrackingTenantProviderDecorator(
                                 sp.GetRequiredService<TenantProviderBlobStore>()));
                         serviceCollection.Remove(serviceCollection.First(x => x.ServiceType == typeof(ITenantProvider)));
                         serviceCollection.AddSingleton<ITenantProvider>(
+                            sp => sp.GetRequiredService<TenantTrackingTenantProviderDecorator>());
+                        serviceCollection.AddSingleton<ITenantStore>(
                             sp => sp.GetRequiredService<TenantTrackingTenantProviderDecorator>());
                     }
                     else

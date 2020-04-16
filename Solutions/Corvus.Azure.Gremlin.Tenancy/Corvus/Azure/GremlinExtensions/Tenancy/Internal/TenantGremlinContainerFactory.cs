@@ -20,7 +20,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
     /// <para>
     /// You use this type to get an instance of an <see cref="GremlinClient"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via <see cref="GremlinStorageTenantExtensions.SetGremlinConfiguration(ITenant, GremlinContainerDefinition, GremlinConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="GremlinStorageTenantExtensions.AddGremlinConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, GremlinContainerDefinition, GremlinConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
@@ -61,10 +61,10 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public class TenantGremlinContainerFactory : ITenantGremlinContainerFactory
+    internal class TenantGremlinContainerFactory : ITenantGremlinContainerFactory
     {
-        private const string DevelopmentHostName = "https://localhost";
-        private const int DevelopmentPort = 8081;
+        private const string DevelopmentHostName = "localhost";
+        private const int DevelopmentPort = 8901;
         private const string DevelopmentAuthKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
         private readonly ConcurrentDictionary<object, Task<GremlinServer>> servers = new ConcurrentDictionary<object, Task<GremlinServer>>();
@@ -219,7 +219,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
             string username = BuildTenantSpecificUserName(databaseName, containerName);
             if (string.IsNullOrEmpty(configuration.HostName) || configuration.HostName == DevelopmentHostName)
             {
-                return new GremlinServer(DevelopmentHostName, DevelopmentPort, true, username, DevelopmentAuthKey);
+                return new GremlinServer(DevelopmentHostName, DevelopmentPort, false, username, DevelopmentAuthKey);
             }
             else
             {
