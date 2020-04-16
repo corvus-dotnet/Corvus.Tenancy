@@ -125,12 +125,13 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task<ITenant> UpdateTenantAsync(
             string tenantId,
+            string? name,
             IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd,
             IEnumerable<string>? propertiesToRemove)
         {
-            if (propertiesToSetOrAdd is null && propertiesToRemove is null)
+            if (name is null && propertiesToSetOrAdd is null && propertiesToRemove is null)
             {
-                throw new ArgumentNullException(nameof(propertiesToSetOrAdd), $"{nameof(propertiesToSetOrAdd)} and {nameof(propertiesToRemove)} cannot both be null");
+                throw new ArgumentNullException(nameof(propertiesToSetOrAdd), $"{nameof(name)}, {nameof(propertiesToSetOrAdd)}, and {nameof(propertiesToRemove)} cannot all be null");
             }
 
             if (tenantId == this.Root.Id)
@@ -149,14 +150,17 @@ namespace Corvus.Tenancy
 
                 IPropertyBag updatedProperties = this.propertyBagFactory.CreateModified(
                     tenant.Properties,
-                    propertiesToSetOrAdd.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value)),
+                    propertiesToSetOrAdd?.NonNullToNullable(),
                     propertiesToRemove);
 
-                var updatedTenant = new Tenant(tenant.Id, tenant.Name, updatedProperties);
+                var updatedTenant = new Tenant(
+                    tenant.Id,
+                    name ?? tenant.Name,
+                    updatedProperties);
                 string text = JsonConvert.SerializeObject(updatedTenant, this.serializerSettings);
                 await blob.UploadTextAsync(text).ConfigureAwait(false);
                 tenant.ETag = blob.Properties.ETag;
-                return tenant;
+                return updatedTenant;
             }
             catch (FormatException fex)
             {

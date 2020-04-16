@@ -44,14 +44,14 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
 
         /// <summary>
         /// Creates Gremlin configuration for the specified container suitable for passing to
-        /// <see cref="ITenantStore.UpdateTenantAsync(string, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
         /// <param name="values">Existing configuration values to which to append these.</param>
         /// <param name="definition">The definition of the Gremlin container for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
         /// <returns>
         /// Properties to pass to
-        /// <see cref="ITenantStore.UpdateTenantAsync(string, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </returns>
         public static IEnumerable<KeyValuePair<string, object>> AddGremlinConfiguration(
             this IEnumerable<KeyValuePair<string, object>> values,

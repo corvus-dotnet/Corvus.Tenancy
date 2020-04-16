@@ -48,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         public Task<ITenant> GetTenantAsync(string tenantId, string? eTag = null)
             => this.decoratedProvider.GetTenantAsync(tenantId, eTag);
 
-        public Task<ITenant> UpdateTenantAsync(string tenantId, IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd = null, IEnumerable<string>? propertiesToRemove = null)
-            => this.decoratedProvider.UpdateTenantAsync(tenantId, propertiesToSetOrAdd, propertiesToRemove);
+        public Task<ITenant> UpdateTenantAsync(string tenantId, string? name, IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd = null, IEnumerable<string>? propertiesToRemove = null)
+            => this.decoratedProvider.UpdateTenantAsync(tenantId, name, propertiesToSetOrAdd, propertiesToRemove);
     }
 }

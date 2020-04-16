@@ -143,8 +143,19 @@
             }
         }
 
-        [When("I update the properties of the tenant called \"(.*)\"")]
-        public async Task WhenIUpdateThePropertiesOfTheTenantCalled(string tenantName, Table table)
+        [Given(@"I update the properties of the tenant called ""([^""]*)""")]
+        [When(@"I update the properties of the tenant called ""([^""]*)""")]
+        public async Task GivenIUpdateThePropertiesOfTheTenantCalled(string tenantName, Table table)
+        {
+            await this.WhenIUpdateThePropertiesOfTheTenantCalled(tenantName, null, table).ConfigureAwait(false);
+        }
+
+        [Given("I update the properties of the tenant called \"(.*)\" and call the returned tenant \"(.*)\"")]
+        [When("I update the properties of the tenant called \"(.*)\" and call the returned tenant \"(.*)\"")]
+        public async Task WhenIUpdateThePropertiesOfTheTenantCalled(
+            string tenantName,
+            string? returnedTenantName,
+            Table table)
         {
             ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
 
@@ -179,7 +190,53 @@
                 }
             }
 
-            await this.store.UpdateTenantAsync(tenant.Id, properties).ConfigureAwait(false);
+            ITenant updatedTenant = await this.store.UpdateTenantAsync(
+                tenant.Id,
+                propertiesToSetOrAdd: properties).ConfigureAwait(false);
+
+            if (returnedTenantName is string)
+            {
+                this.scenarioContext.Set(updatedTenant, returnedTenantName);
+            }
+        }
+
+        [When(@"I remove the ""(.*)"" property of the tenant called ""(.*)"" and call the returned tenant ""(.*)""")]
+        public async Task WhenIRemoveThePropertyOfTheTenantCalledAsync(
+            string propertyName,
+            string tenantName,
+            string returnedTenantName)
+        {
+            ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
+            ITenant updatedTenant = await this.store.UpdateTenantAsync(
+                tenant.Id,
+                propertiesToRemove: new[] { propertyName })
+                .ConfigureAwait(false);
+            this.scenarioContext.Set(updatedTenant, returnedTenantName);
+        }
+
+        [When(@"I update the properties of the tenant called ""(.*)"" and remove the ""(.*)"" property and call the returned tenant ""(.*)""")]
+        public async Task WhenIUpdateThePropertiesOfTheTenantCalledAndRemoveThePropertyAndCallTheReturnedTenant(
+            string tenantName,
+            string propertyToRemove,
+            string returnedTenantName,
+            Table table)
+        {
+            await this.WhenIUpdateThePropertiesOfTheTenantCalled(tenantName, null, table).ConfigureAwait(false);
+            await this.WhenIRemoveThePropertyOfTheTenantCalledAsync(propertyToRemove, tenantName, returnedTenantName).ConfigureAwait(false);
+        }
+
+        [When(@"I change the name of the tenant called ""(.*)"" to ""(.*)"" and call the returned tenant ""(.*)""")]
+        public async Task WhenIChangeTheNameOfTheTenantCalledToAndCallTheReturnedTenantAsync(
+            string tenantName,
+            string newName,
+            string returnedTenantName)
+        {
+            ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
+            ITenant updatedTenant = await this.store.UpdateTenantAsync(
+                tenant.Id,
+                name: newName).ConfigureAwait(false);
+
+            this.scenarioContext.Set(updatedTenant, returnedTenantName);
         }
 
         [When("I get the children of the tenant with the id called \"(.*)\" with maxItems (.*) and call them \"(.*)\"")]

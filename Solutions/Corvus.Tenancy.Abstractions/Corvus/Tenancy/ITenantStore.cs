@@ -43,22 +43,28 @@ namespace Corvus.Tenancy
         /// Updates a tenant.
         /// </summary>
         /// <param name="tenantId">The ID of the tenant to update.</param>
+        /// <param name="name">
+        /// The name to set for this tenant, or null if the caller wants only to add, modify, or
+        /// remove properties.
+        /// </param>
         /// <param name="propertiesToSetOrAdd">
         /// Key and value pairs to update in or add to the tenant's <see cref="ITenant.Properties"/>,
-        /// or null if the caller wants only to remove properties.
+        /// or null if the caller wants only to set the name or remove properties.
         /// </param>
         /// <param name="propertiesToRemove">
         /// The keys of the properties to remove from the tenant's <see cref="ITenant.Properties"/>,
-        /// or null if the caller only wants to add or modify properties.
+        /// or null if the caller only wants to set the name or add or modify properties.
         /// </param>
         /// <returns>The updated tenant.</returns>
         /// <exception cref="ArgumentNullException">
-        /// At least one of <c>propertiesToSetOrAdd</c> or <c>propertiesToRemove</c> must be non-null.
-        /// If both are null, the call would have no effect, so we throw this exception.
+        /// At least one of <c>name</c>, <c>propertiesToSetOrAdd</c>, or <c>propertiesToRemove</c>
+        /// must be non-null. If all are null, the call would have no effect, so we throw this
+        /// exception.
         /// </exception>
         /// <remarks>Note that this will update the ETag of the tenant.</remarks>
         Task<ITenant> UpdateTenantAsync(
             string tenantId,
+            string? name = null,
             IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd = null,
             IEnumerable<string>? propertiesToRemove = null);
 
