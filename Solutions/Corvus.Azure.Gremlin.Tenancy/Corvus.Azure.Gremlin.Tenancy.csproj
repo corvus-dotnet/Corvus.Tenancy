@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Corvus.ContentHandling.Json" Version="0.12.0" />
-    <PackageReference Include="Endjin.RecommendedPractices" Version="0.1.0">
+    <PackageReference Include="Endjin.RecommendedPractices" Version="0.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
