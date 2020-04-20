@@ -31,7 +31,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out GremlinConfiguration configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out GremlinConfiguration configuration) && configuration != null)
             {
                 return configuration;
             }
@@ -58,6 +58,26 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
             }
 
             tenant.Properties.Set(GetConfigurationKey(definition), configuration);
+        }
+
+        /// <summary>
+        /// Clears the Gremlin configuration for the specified container for the tenant.
+        /// </summary>
+        /// <param name="tenant">The tenant for which to clear the configuration.</param>
+        /// <param name="definition">The definition of the Gremlin container for which to clear the configuration.</param>
+        public static void ClearGremlinConfiguration(this ITenant tenant, GremlinContainerDefinition definition)
+        {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            if (definition is null)
+            {
+                throw new ArgumentNullException(nameof(definition));
+            }
+
+            tenant.Properties.Set<object?>(GetConfigurationKey(definition), null);
         }
 
         private static string GetConfigurationKey(GremlinContainerDefinition definition)

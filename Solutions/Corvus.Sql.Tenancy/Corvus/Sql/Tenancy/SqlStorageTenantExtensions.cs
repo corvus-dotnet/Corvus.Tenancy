@@ -31,7 +31,7 @@ namespace Corvus.Sql.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out SqlConfiguration configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out SqlConfiguration configuration) && configuration != null)
             {
                 return configuration;
             }
@@ -58,6 +58,26 @@ namespace Corvus.Sql.Tenancy
             }
 
             tenant.Properties.Set(GetConfigurationKey(definition), configuration);
+        }
+
+        /// <summary>
+        /// Clears the Sql configuration for the specified container for the tenant.
+        /// </summary>
+        /// <param name="tenant">The tenant for which to clear the configuration.</param>
+        /// <param name="definition">The definition of the Sql container for which to clear the configuration.</param>
+        public static void ClearSqlConfiguration(this ITenant tenant, SqlConnectionDefinition definition)
+        {
+            if (tenant is null)
+            {
+                throw new ArgumentNullException(nameof(tenant));
+            }
+
+            if (definition is null)
+            {
+                throw new ArgumentNullException(nameof(definition));
+            }
+
+            tenant.Properties.Set<object?>(GetConfigurationKey(definition), null);
         }
 
         private static string GetConfigurationKey(SqlConnectionDefinition definition)
