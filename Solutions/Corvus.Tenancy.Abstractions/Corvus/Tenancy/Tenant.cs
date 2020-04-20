@@ -5,11 +5,13 @@
 namespace Corvus.Tenancy
 {
     using System;
+    using System.Diagnostics;
     using Corvus.Extensions.Json;
 
     /// <summary>
     /// Describes a tenant in a multitenanted system.
     /// </summary>
+    [DebuggerDisplay("{name} ({id})")]
     public class Tenant : ITenant
     {
         /// <summary>
