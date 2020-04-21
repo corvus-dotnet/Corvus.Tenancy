@@ -7,7 +7,6 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -34,7 +33,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out GremlinConfiguration? configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out GremlinConfiguration? configuration))
             {
                 return configuration;
             }

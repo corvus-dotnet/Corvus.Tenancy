@@ -7,7 +7,6 @@ namespace Corvus.Azure.Storage.Tenancy
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
     using Newtonsoft.Json.Linq;
 
@@ -56,7 +55,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out BlobStorageConfiguration? configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out BlobStorageConfiguration? configuration))
             {
                 return configuration;
             }

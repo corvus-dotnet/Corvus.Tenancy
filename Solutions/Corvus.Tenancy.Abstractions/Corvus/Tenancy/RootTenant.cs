@@ -6,8 +6,7 @@ namespace Corvus.Tenancy
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Corvus.Extensions.Json;
+    using Corvus.Json;
 
     /// <summary>
     /// Describes a root tenant in a multitenanted system.
@@ -36,7 +35,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="propertyBagFactory">Enables property bag creation and update.</param>
         public RootTenant(IPropertyBagFactory propertyBagFactory)
-            : base(RootTenantId, RootTenantName, propertyBagFactory.Create(Enumerable.Empty<KeyValuePair<string, object?>>()))
+            : base(RootTenantId, RootTenantName, propertyBagFactory.Create(PropertyBagValues.Empty))
         {
             this.propertyBagFactory = propertyBagFactory;
         }
@@ -63,7 +62,7 @@ namespace Corvus.Tenancy
         {
             this.Properties = this.propertyBagFactory.CreateModified(
                 this.Properties,
-                propertiesToSetOrAdd?.NonNullToNullable(),
+                propertiesToSetOrAdd,
                 propertiesToRemove);
         }
     }

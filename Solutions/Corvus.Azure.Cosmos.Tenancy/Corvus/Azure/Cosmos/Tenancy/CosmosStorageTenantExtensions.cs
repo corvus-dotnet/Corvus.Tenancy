@@ -7,7 +7,6 @@ namespace Corvus.Azure.Cosmos.Tenancy
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -34,7 +33,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out CosmosConfiguration? configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out CosmosConfiguration? configuration))
             {
                 return configuration;
             }

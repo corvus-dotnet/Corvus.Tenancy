@@ -7,7 +7,7 @@ namespace Corvus.Tenancy
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using Corvus.Extensions.Json;
+    using Corvus.Json;
 
     /// <summary>
     /// Extensions for the <see cref="ITenant"/>.
@@ -186,7 +186,7 @@ namespace Corvus.Tenancy
             IEnumerable<string>? propertiesToRemove = null)
         {
             rootTenant.UpdateProperties(
-                builder(PropertyBagValues.EmptyNonNull),
+                builder(PropertyBagValues.Empty),
                 propertiesToRemove);
         }
 

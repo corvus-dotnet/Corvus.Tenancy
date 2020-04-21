@@ -7,7 +7,6 @@ namespace Corvus.Sql.Tenancy
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Corvus.Extensions.Json;
     using Corvus.Tenancy;
 
     /// <summary>
@@ -34,7 +33,7 @@ namespace Corvus.Sql.Tenancy
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGetNonNullValue(GetConfigurationKey(definition), out SqlConfiguration? configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out SqlConfiguration? configuration))
             {
                 return configuration;
             }

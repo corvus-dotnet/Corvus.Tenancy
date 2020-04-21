@@ -4,7 +4,7 @@
 
 namespace Corvus.Tenancy
 {
-    using Corvus.Extensions.Json;
+    using Corvus.Json;
 
     /// <summary>
     /// Describes a tenant in a multitenanted system.

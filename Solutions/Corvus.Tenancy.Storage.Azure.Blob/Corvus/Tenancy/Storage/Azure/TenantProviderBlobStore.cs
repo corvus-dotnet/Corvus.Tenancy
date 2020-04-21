@@ -14,6 +14,7 @@ namespace Corvus.Tenancy
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Extensions;
     using Corvus.Extensions.Json;
+    using Corvus.Json;
     using Corvus.Tenancy.Exceptions;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
@@ -150,7 +151,7 @@ namespace Corvus.Tenancy
 
                 IPropertyBag updatedProperties = this.propertyBagFactory.CreateModified(
                     tenant.Properties,
-                    propertiesToSetOrAdd?.NonNullToNullable(),
+                    propertiesToSetOrAdd,
                     propertiesToRemove);
 
                 var updatedTenant = new Tenant(
@@ -199,7 +200,7 @@ namespace Corvus.Tenancy
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
                 // establish their own settings.
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
-                IPropertyBag childProperties = this.propertyBagFactory.CreateWithNonNullValues(values =>
+                IPropertyBag childProperties = this.propertyBagFactory.Create(values =>
                     values.AddBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration));
                 var child = new Tenant(
                     parentTenantId.CreateChildId(wellKnownChildTenantGuid),
