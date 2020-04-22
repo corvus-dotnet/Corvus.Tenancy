@@ -52,8 +52,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             config.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
             cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
             cosmosConfiguration.DisableTenantIdPrefix = true;
-
-            tenantProvider.Root.SetCosmosConfiguration(cosmosContainerDefinition, cosmosConfiguration);
+            tenantProvider.Root.UpdateProperties(values => values.AddCosmosConfiguration(cosmosContainerDefinition, cosmosConfiguration));
 
             Container tenancySpecsContainer = await factory.GetContainerForTenantAsync(
                 tenantProvider.Root,

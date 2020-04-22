@@ -46,7 +46,7 @@
                 sqlConfiguration.DisableTenantIdPrefix = true;
             }
 
-            tenantProvider.Root.SetSqlConfiguration(sqlConnectionDefinition, sqlConfiguration);
+            tenantProvider.Root.UpdateProperties(values => values.AddSqlConfiguration(sqlConnectionDefinition, sqlConfiguration));
 
             using SqlConnection sqlConnection = await factory.GetSqlConnectionForTenantAsync(
                 tenantProvider.Root,
@@ -86,11 +86,12 @@
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
-            tenantProvider.Root.ClearSqlConfiguration(definition);
+            tenantProvider.Root.UpdateProperties(
+                propertiesToRemove: definition.RemoveSqlConfiguration());
         }
 
         [Then("attempting to get the Sql configuration from the tenant throws an ArgumentException")]
-        public void ThenTheSqlConfigurationOnTheTenantIsSetToNull()
+        public void ThenGettingTheSqlConfigurationOnTheTenantThrowsArgumentException()
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();

@@ -32,11 +32,12 @@
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             CosmosContainerDefinition definition = this.featureContext.Get<CosmosContainerDefinition>();
-            tenantProvider.Root.ClearCosmosConfiguration(definition);
+            tenantProvider.Root.UpdateProperties(
+                propertiesToRemove: definition.RemoveCosmosConfiguration());
         }
 
         [Then("attempting to get the Cosmos configuration from the tenant throws an ArgumentException")]
-        public void ThenTheCosmosConfigurationOnTheTenantIsSetToNull()
+        public void ThenGettingTheCosmosConfigurationOnTheTenantThrowsArgumentException()
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();

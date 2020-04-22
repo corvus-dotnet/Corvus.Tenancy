@@ -25,7 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddContentSerialization(contentFactory => contentFactory.RegisterTransientContent<Tenant>());
+            services.AddContentSerialization(contentFactory => contentFactory.RegisterContent<Tenant>());
 
             services.AddSingleton<RootTenant>();
             return services;

@@ -32,11 +32,12 @@
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             BlobStorageContainerDefinition definition = this.featureContext.Get<BlobStorageContainerDefinition>();
-            tenantProvider.Root.ClearBlobStorageConfiguration(definition);
+            tenantProvider.Root.UpdateProperties(
+                propertiesToRemove: definition.RemoveBlobStorageConfiguration());
         }
 
         [Then("attempting to get the blob storage configuration from the tenant throws an ArgumentException")]
-        public void ThenTheBlobStorageConfigurationOnTheTenantIsSetToNull()
+        public void ThenGettingTheBlobStorageConfigurationOnTheTenantThrowsArgumentException()
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();

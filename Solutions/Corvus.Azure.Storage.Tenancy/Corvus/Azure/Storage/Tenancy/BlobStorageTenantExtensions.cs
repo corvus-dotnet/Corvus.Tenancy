@@ -5,6 +5,8 @@
 namespace Corvus.Azure.Storage.Tenancy
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Corvus.Tenancy;
     using Newtonsoft.Json.Linq;
 
@@ -53,7 +55,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out BlobStorageConfiguration configuration) && configuration != null)
+            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out BlobStorageConfiguration? configuration))
             {
                 return configuration;
             }
@@ -62,16 +64,24 @@ namespace Corvus.Azure.Storage.Tenancy
         }
 
         /// <summary>
-        /// Sets the repository configuration or the specified repository for the tenant.
+        /// Creates repository configuration properties suitable for passing to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="tenant">The tenant for which to set the configuration.</param>
+        /// <param name="values">Existing configuration values to which to append these.</param>
         /// <param name="definition">The definition of the repository for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
-        public static void SetBlobStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition, BlobStorageConfiguration configuration)
+        /// <returns>
+        /// Properties to pass to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// </returns>
+        public static IEnumerable<KeyValuePair<string, object>> AddBlobStorageConfiguration(
+            this IEnumerable<KeyValuePair<string, object>> values,
+            BlobStorageContainerDefinition definition,
+            BlobStorageConfiguration configuration)
         {
-            if (tenant is null)
+            if (values is null)
             {
-                throw new ArgumentNullException(nameof(tenant));
+                throw new ArgumentNullException(nameof(values));
             }
 
             if (definition is null)
@@ -84,27 +94,28 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            tenant.Properties.Set(GetConfigurationKey(definition), configuration);
+            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
 
         /// <summary>
-        /// Clears the repository configuration or the specified repository for the tenant.
+        /// Describes how to clear the repository configuration or the specified repository from tenant
+        /// properties in form suitable for passing as the <c>propertiesToRemove</c> argument to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="tenant">The tenant for which to clear the configuration.</param>
-        /// <param name="definition">The definition of the repository for which to clear the configuration.</param>
-        public static void ClearBlobStorageConfiguration(this ITenant tenant, BlobStorageContainerDefinition definition)
+        /// <param name="definition">The definition of the repository for which to remove the configuration.</param>
+        /// <returns>
+        /// A single-entry list of properties that can be passed to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>
+        /// to remove the storage configuration.
+        /// </returns>
+        public static IEnumerable<string> RemoveBlobStorageConfiguration(this BlobStorageContainerDefinition definition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
             if (definition is null)
             {
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            tenant.Properties.Set<object?>(GetConfigurationKey(definition), null);
+            return new string[] { GetConfigurationKey(definition) };
         }
 
         private static string GetConfigurationKey(BlobStorageContainerDefinition definition)

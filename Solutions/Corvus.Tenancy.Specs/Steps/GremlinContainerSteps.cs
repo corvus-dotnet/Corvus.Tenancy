@@ -32,11 +32,12 @@
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             GremlinContainerDefinition definition = this.featureContext.Get<GremlinContainerDefinition>();
-            tenantProvider.Root.ClearGremlinConfiguration(definition);
+            tenantProvider.Root.UpdateProperties(
+                propertiesToRemove: definition.RemoveGremlinConfiguration());
         }
 
         [Then("attempting to get the Gremlin configuration from the tenant throws an ArgumentException")]
-        public void ThenTheGremlinConfigurationOnTheTenantIsSetToNull()
+        public void ThenGettingTheGremlinConfigurationOnTheTenantThrowsArgumentException()
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();

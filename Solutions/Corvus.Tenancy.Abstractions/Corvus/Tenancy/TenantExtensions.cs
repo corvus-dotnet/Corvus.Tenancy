@@ -7,7 +7,7 @@ namespace Corvus.Tenancy
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
+    using Corvus.Json;
 
     /// <summary>
     /// Extensions for the <see cref="ITenant"/>.
@@ -171,6 +171,24 @@ namespace Corvus.Tenancy
             return new string(result);
         }
 #pragma warning restore RCS1224 // Make method an extension method.
+
+        /// <summary>
+        /// Updates the root tenant's properties, using a callback that produces a collection of
+        /// key pair values where the values are all typed as non-null objects to describe the
+        /// properties to add or change.
+        /// </summary>
+        /// <param name="rootTenant">The root tenant to configure.</param>
+        /// <param name="builder">A function that builds the collection describing the properties to add.</param>
+        /// <param name="propertiesToRemove">Optional list of properties to remove.</param>
+        public static void UpdateProperties(
+            this RootTenant rootTenant,
+            Func<IEnumerable<KeyValuePair<string, object>>, IEnumerable<KeyValuePair<string, object>>> builder,
+            IEnumerable<string>? propertiesToRemove = null)
+        {
+            rootTenant.UpdateProperties(
+                builder(PropertyBagValues.Empty),
+                propertiesToRemove);
+        }
 
         private static uint[] CreateLookup32()
         {

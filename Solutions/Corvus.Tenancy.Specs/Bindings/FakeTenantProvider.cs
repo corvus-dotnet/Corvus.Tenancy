@@ -5,6 +5,7 @@
     using Corvus.Tenancy;
     using Corvus.Tenancy.Exceptions;
 
+#pragma warning disable IDE0060 // Unused arguments
     internal class FakeTenantProvider : ITenantProvider
     {
         public FakeTenantProvider(RootTenant rootTenant)
@@ -12,7 +13,7 @@
             this.Root = rootTenant;
         }
 
-        public ITenant Root { get; }
+        public RootTenant Root { get; }
 
         public Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
         {
@@ -52,7 +53,7 @@
                 throw new TenantNotFoundException();
             }
 
-            return Task.FromResult(this.Root);
+            return Task.FromResult<ITenant>(this.Root);
         }
 
         public Task<ITenant> UpdateTenantAsync(ITenant tenant)
