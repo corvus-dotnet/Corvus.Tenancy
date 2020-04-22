@@ -9,3 +9,7 @@ Feature: GremlinContainer
 
 Scenario: Create a gremlin client
 	Then I should be able to get the tenanted gremlin client
+
+Scenario: Remove configuration from tenant
+	When I remove the Gremlin configuration from the tenant
+	Then attempting to get the Gremlin configuration from the tenant throws an ArgumentException

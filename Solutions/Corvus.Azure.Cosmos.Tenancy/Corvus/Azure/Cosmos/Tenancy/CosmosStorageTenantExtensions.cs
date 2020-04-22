@@ -75,6 +75,27 @@ namespace Corvus.Azure.Cosmos.Tenancy
             return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
 
+        /// <summary>
+        /// Describes how to clear the Cosmos configuration for the specified container from tenant
+        /// properties in form suitable for passing as the <c>propertiesToRemove</c> argument to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
+        /// </summary>
+        /// <param name="definition">The definition of the Cosmos container for which to remove the configuration.</param>
+        /// <returns>
+        /// A single-entry list of properties that can be passed to
+        /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>
+        /// to remove the storage configuration.
+        /// </returns>
+        public static IEnumerable<string> RemoveCosmosConfiguration(this CosmosContainerDefinition definition)
+        {
+            if (definition is null)
+            {
+                throw new ArgumentNullException(nameof(definition));
+            }
+
+            return new string[] { GetConfigurationKey(definition) };
+        }
+
         private static string GetConfigurationKey(CosmosContainerDefinition definition)
         {
             return $"StorageConfiguration__{definition.DatabaseName}__{definition.ContainerName}";

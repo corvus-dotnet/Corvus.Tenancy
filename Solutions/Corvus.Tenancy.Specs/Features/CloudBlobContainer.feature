@@ -9,3 +9,7 @@ Feature: CloudBlobContainer
 
 Scenario: Create a container
 	Then I should be able to get the tenanted cloud blob container
+
+Scenario: Remove configuration from tenant
+	When I remove the blob storage configuration from the tenant
+	Then attempting to get the blob storage configuration from the tenant throws an ArgumentException

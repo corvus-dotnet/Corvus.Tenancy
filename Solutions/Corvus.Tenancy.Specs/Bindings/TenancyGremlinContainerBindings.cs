@@ -44,6 +44,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             var gremlinContainerDefinition = new GremlinContainerDefinition(
                 "endjinspecssharedthroughput",
                 $"{containerBase}tenancyspecs");
+            featureContext.Set(gremlinContainerDefinition);
 
             var gremlinConfiguration = new GremlinConfiguration();
             config.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);

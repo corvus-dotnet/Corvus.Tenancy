@@ -25,3 +25,7 @@ Scenario Outline: Validate a SqlConfiguration
 		|                  | Something    |                            | invalid |
 		|                  |              | Something                  | invalid |
 		|                  | Something    | Something                  | valid   |
+		
+Scenario: Remove configuration from tenant
+	When I remove the Sql configuration from the tenant
+	Then attempting to get the Sql configuration from the tenant throws an ArgumentException

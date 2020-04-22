@@ -32,6 +32,7 @@
             IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
             var sqlConnectionDefinition = new SqlConnectionDefinition($"{databaseName}tenancyspecs");
+            this.featureContext.Set(sqlConnectionDefinition);
 
             var sqlConfiguration = new SqlConfiguration();
             config.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
@@ -77,6 +78,35 @@
         public void ThenTheResultShouldBeInvalid()
         {
             Assert.IsFalse(this.scenarioContext.Get<bool>("Result"));
+        }
+
+        [When("I remove the Sql configuration from the tenant")]
+        public void WhenIRemoveTheSqlConfigurationFromTheTenant()
+        {
+            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
+            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
+            tenantProvider.Root.UpdateProperties(
+                propertiesToRemove: definition.RemoveSqlConfiguration());
+        }
+
+        [Then("attempting to get the Sql configuration from the tenant throws an ArgumentException")]
+        public void ThenGettingTheSqlConfigurationOnTheTenantThrowsArgumentException()
+        {
+            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
+            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
+
+            try
+            {
+                tenantProvider.Root.GetSqlConfiguration(definition);
+            }
+            catch (ArgumentException)
+            {
+                return;
+            }
+
+            Assert.Fail("The expected exception was not thrown.");
         }
     }
 }

@@ -4,11 +4,14 @@
 
 namespace Corvus.Tenancy
 {
+    using System;
+    using System.Diagnostics;
     using Corvus.Json;
 
     /// <summary>
     /// Describes a tenant in a multitenanted system.
     /// </summary>
+    [DebuggerDisplay("{name} ({id})")]
     public class Tenant : ITenant
     {
         /// <summary>
@@ -31,12 +34,12 @@ namespace Corvus.Tenancy
 
             if (name is null)
             {
-                throw new System.ArgumentNullException(nameof(id));
+                throw new System.ArgumentNullException(nameof(name));
             }
 
             if (properties is null)
             {
-                throw new System.ArgumentNullException(nameof(id));
+                throw new System.ArgumentNullException(nameof(properties));
             }
 
             this.Id = id;

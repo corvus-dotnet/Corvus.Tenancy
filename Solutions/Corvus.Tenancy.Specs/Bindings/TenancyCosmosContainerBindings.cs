@@ -46,6 +46,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 $"{containerBase}tenancyspecs",
                 "/partitionKey",
                 databaseThroughput: 400);
+            featureContext.Set(cosmosContainerDefinition);
 
             var cosmosConfiguration = new CosmosConfiguration();
             config.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
