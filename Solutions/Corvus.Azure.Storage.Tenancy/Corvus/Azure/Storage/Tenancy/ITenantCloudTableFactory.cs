@@ -32,7 +32,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <code>
     /// TenantCloudTableFactory factory;
     ///
-    /// var repository = await factory.GetTableForTenantAsync(tenantProvider.Root, new TableStorageContainerDefinition("sometable"));
+    /// var table = await factory.GetTableForTenantAsync(tenantProvider.Root, new TableStorageContainerDefinition("sometable"));
     /// </code>
     /// </para>
     /// <para>
