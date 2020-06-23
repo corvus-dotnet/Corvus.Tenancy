@@ -18,6 +18,22 @@ namespace Corvus.Azure.Storage.Tenancy
     /// configuration comes from the tenant via <see cref="TableStorageTenantExtensions.AddTableStorageConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, TableStorageTableDefinition, TableStorageConfiguration)"/>.
     /// </para>
     /// <para>
+    /// The <see cref="CloudTable"/> you receive will be specifically for the tenant you request it for; it will not
+    /// be shared with other tenants. It will have a name generated using the supplied name and tenant Id, depending on
+    /// on the settings provided in the <see cref="TableStorageConfiguration"/> and
+    /// <see cref="TableStorageTableDefinition"/> supplied. Whether or not the storage account is shared with other
+    /// tenants depends upon the storage configuration.
+    /// </para>
+    /// <para>
+    /// Note that it will be possible for code that obtains a CloudTable in this way to use the resulting object to access
+    /// the CloudTableClient and thus access other tables contained in the same account. As such these objects should only ever be
+    /// handed to trusted code.
+    /// </para>
+    /// <para>
+    /// Note also that because we have not wrapped the resulting CloudTable in a class of our own, we cannot automatically
+    /// implement key rotation.
+    /// </para>
+    /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
     /// provider and configuration for your repositories.
     /// </para>
@@ -38,15 +54,6 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <para>
     /// If you create tables in this way (rather than just newing them up) then your application can easily be multitented
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
-    /// </para>
-    /// <para>
-    /// Note that it will be possible for code that obtains a CloudTable in this way to use the resulting object to access
-    /// the CloudTableClient and thus access other tables contained in the same account. As such these objects should only ever be
-    /// handed to trusted code.
-    /// </para>
-    /// <para>
-    /// Note also that because we have not wrapped the resulting CloudTable in a class of our own, we cannot automatically
-    /// implement key rotation.
     /// </para>
     /// </remarks>
     public interface ITenantCloudTableFactory
