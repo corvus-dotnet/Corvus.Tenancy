@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// Add components for constructing tenant-specific blob storage containers.
+        /// Add components for constructing tenant-specific table storage containers.
         /// </summary>
         /// <param name="services">The target service collection.</param>
         /// <param name="getOptions">Function to get the configuration options.</param>

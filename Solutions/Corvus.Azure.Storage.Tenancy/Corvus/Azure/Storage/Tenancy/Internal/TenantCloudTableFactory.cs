@@ -23,7 +23,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="CloudTable"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant the <see cref="TableStorageTenantExtensions.AddTableStorageConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, TableStorageTableDefinition, TableStorageConfiguration)"/>.
+    /// configuration comes from the tenant via the <see cref="TableStorageTenantExtensions.AddTableStorageConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, TableStorageTableDefinition, TableStorageConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
@@ -82,7 +82,7 @@ namespace Corvus.Azure.Storage.Tenancy
         }
 
         /// <summary>
-        /// Creates a tenant-specific version of a storage container definition.
+        /// Creates a tenant-specific version of a storage table definition.
         /// </summary>
         /// <param name="tenant">The tenant for which to build the definition.</param>
         /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
@@ -99,7 +99,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(containerDefinition));
             }
 
-            return new TableStorageTableDefinition(BuildTenantSpecificContainerName(tenant, containerDefinition.TableName));
+            return new TableStorageTableDefinition(BuildTenantSpecificTableName(tenant, containerDefinition.TableName));
         }
 
         /// <summary>
@@ -135,40 +135,43 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <summary>
         /// Get a table for a tenant.
         /// </summary>
-        /// <param name="tenant">The tenant for which to retrieve the container.</param>
-        /// <param name="containerDefinition">The details of the container to create.</param>
+        /// <param name="tenant">The tenant for which to retrieve the table.</param>
+        /// <param name="tableDefinition">The details of the table to create.</param>
         /// <returns>The container instance for the tenant.</returns>
         /// <remarks>
-        /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
+        /// This caches table instances to ensure that a singleton is used for all request for the same tenant and table definition.
         /// </remarks>
-        public Task<CloudTable> GetTableForTenantAsync(ITenant tenant, TableStorageTableDefinition containerDefinition)
+        public Task<CloudTable> GetTableForTenantAsync(ITenant tenant, TableStorageTableDefinition tableDefinition)
         {
             if (tenant is null)
             {
                 throw new System.ArgumentNullException(nameof(tenant));
             }
 
-            if (containerDefinition is null)
+            if (tableDefinition is null)
             {
-                throw new System.ArgumentNullException(nameof(containerDefinition));
+                throw new System.ArgumentNullException(nameof(tableDefinition));
             }
 
-            TableStorageTableDefinition tenantedTableStorageTableDefinition = BuildTableStorageTableDefinitionForTenant(tenant, containerDefinition);
+            TableStorageTableDefinition tenantedTableStorageTableDefinition = BuildTableStorageTableDefinitionForTenant(tenant, tableDefinition);
             object key = GetKeyFor(tenantedTableStorageTableDefinition);
 
             return this.containers.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantCloudTable(tenant, containerDefinition, tenantedTableStorageTableDefinition).ConfigureAwait(false));
+                async _ => await this.CreateTenantCloudTable(tenant, tableDefinition, tenantedTableStorageTableDefinition).ConfigureAwait(false));
         }
 
         /// <summary>
-        /// Create the repository instance.
+        /// Create the table instance.
         /// </summary>
         /// <param name="tenant">The tenant.</param>
-        /// <param name="tenantedTableStorageTableDefinition">The repository definition, adapted for the tenant.</param>
-        /// <param name="configuration">The repository configuration.</param>
-        /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
-        protected async Task<CloudTable> CreateCloudTableInstanceAsync(ITenant tenant, TableStorageTableDefinition tenantedTableStorageTableDefinition, TableStorageConfiguration configuration)
+        /// <param name="tenantedTableStorageTableDefinition">The table definition, adapted for the tenant.</param>
+        /// <param name="configuration">The table configuration.</param>
+        /// <returns>A <see cref="Task"/> which completes with the instance of the table for the tenant.</returns>
+        protected async Task<CloudTable> CreateCloudTableInstanceAsync(
+            ITenant tenant,
+            TableStorageTableDefinition tenantedTableStorageTableDefinition,
+            TableStorageConfiguration configuration)
         {
             if (tenant is null)
             {
@@ -190,7 +193,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 ? tenantedTableStorageTableDefinition.TableName
                 : (configuration.DisableTenantIdPrefix
                     ? configuration.TableName!
-                    : BuildTenantSpecificContainerName(tenant, configuration.TableName!));
+                    : BuildTenantSpecificTableName(tenant, configuration.TableName!));
 
             // Get the cloud table client for the specified configuration.
             object accountCacheKey = GetKeyFor(configuration);
@@ -200,14 +203,14 @@ namespace Corvus.Azure.Storage.Tenancy
                 _ => this.CreateCloudTableClientAsync(configuration)).ConfigureAwait(false);
 
             // Now get the container and create it if it doesn't already exist.
-            CloudTable container = tableClient.GetTableReference(HashAndEncodeContainerName(tenantedTableStorageTableDefinition.TableName));
+            CloudTable container = tableClient.GetTableReference(HashAndEncodeTableName(tenantedTableStorageTableDefinition.TableName));
 
             await container.CreateIfNotExistsAsync().ConfigureAwait(false);
 
             return container;
         }
 
-        private static string HashAndEncodeContainerName(string containerName)
+        private static string HashAndEncodeTableName(string containerName)
         {
             byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
             using var hash = new SHA1CryptoServiceProvider();
@@ -218,19 +221,19 @@ namespace Corvus.Azure.Storage.Tenancy
             return "t" + hexString;
         }
 
-        private static string BuildTenantSpecificContainerName(ITenant tenant, string container)
+        private static string BuildTenantSpecificTableName(ITenant tenant, string tableName)
         {
             if (tenant is null)
             {
                 throw new System.ArgumentNullException(nameof(tenant));
             }
 
-            if (container is null)
+            if (tableName is null)
             {
-                throw new System.ArgumentNullException(nameof(container));
+                throw new System.ArgumentNullException(nameof(tableName));
             }
 
-            return $"{tenant.Id.ToLowerInvariant()}-{container}";
+            return $"{tenant.Id.ToLowerInvariant()}-{tableName}";
         }
 
         private async Task<CloudTableClient> CreateCloudTableClientAsync(TableStorageConfiguration configuration)
