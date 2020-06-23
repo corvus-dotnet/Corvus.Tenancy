@@ -7,7 +7,6 @@ namespace Corvus.Azure.Storage.Tenancy
     using System.Threading.Tasks;
     using Corvus.Tenancy;
     using Microsoft.Azure.Cosmos.Table;
-    using Microsoft.Azure.Storage.Blob;
 
     /// <summary>
     /// A factory for a <see cref="CloudTable"/>.

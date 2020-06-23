@@ -7,10 +7,8 @@ namespace Corvus.Azure.Storage.Tenancy
     using System.Collections.Concurrent;
     using System.Security.Cryptography;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Corvus.Tenancy;
-    using Microsoft.Azure.Cosmos;
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.Services.AppAuthentication;
