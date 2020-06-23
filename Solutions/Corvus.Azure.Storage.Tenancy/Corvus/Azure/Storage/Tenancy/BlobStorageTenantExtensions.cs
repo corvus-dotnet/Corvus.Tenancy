@@ -34,7 +34,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            return ((JObject)tenant.Properties)[GetConfigurationKey(definition)] != null;
+            return tenant.Properties.TryGet<BlobStorageConfiguration>(GetConfigurationKey(definition), out BlobStorageConfiguration _);
         }
 
         /// <summary>
