@@ -12,13 +12,6 @@ namespace Corvus.Azure.Storage.Tenancy
     public class BlobStorageConfiguration
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BlobStorageConfiguration"/> class.
-        /// </summary>
-        public BlobStorageConfiguration()
-        {
-        }
-
-        /// <summary>
         /// Gets or sets the account name.
         /// </summary>
         /// <remarks>If the account key secret name is empty, then this should contain a complete connection string.</remarks>
