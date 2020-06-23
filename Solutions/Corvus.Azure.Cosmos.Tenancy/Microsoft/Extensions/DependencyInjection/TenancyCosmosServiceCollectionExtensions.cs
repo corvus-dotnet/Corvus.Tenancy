@@ -52,11 +52,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddRootTenant();
             services.AddCosmosClientExtensions();
 
-            services.AddSingleton<ITenantCosmosContainerFactory>(s =>
+            services.AddSingleton<IRecreatableTenantCosmosContainerFactory>(s =>
             {
                 TenantCosmosContainerFactoryOptions options = getOptions(s);
                 return new TenantCosmosContainerFactory(s.GetRequiredService<ICosmosClientBuilderFactory>(), options);
             });
+
+            services.AddSingleton<ITenantCosmosContainerFactory>(s => s.GetService<IRecreatableTenantCosmosContainerFactory>());
             return services;
         }
     }

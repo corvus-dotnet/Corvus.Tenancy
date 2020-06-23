@@ -4,6 +4,7 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy.Internal
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Corvus.Extensions.Cosmos;
@@ -54,11 +55,11 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
-    /// Note also that because we have not wrapped the resulting Container in a class of our own, we cannot automatically
-    /// implement key rotation.
+    /// For scenarios such as key rotation, or settings updates, we implement <see cref="IRecreatableTenantCosmosContainerFactory"/> which returns a struct with a method that allows you to force
+    /// recreation of the instance.
     /// </para>
     /// </remarks>
-    internal class TenantCosmosContainerFactory : ITenantCosmosContainerFactory
+    internal class TenantCosmosContainerFactory : IRecreatableTenantCosmosContainerFactory
     {
         private const string DevelopmentStorageConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
@@ -84,8 +85,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <param name="tenant">The tenant for which to build the definition.</param>
         /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
         /// <returns>A Cosmos container definition unique to the tenant.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "RCS1047:Non-asynchronous method name should not end with 'Async'.", Justification = "Temporarily reverting for a proper fix in its own PR. See Issue #65")]
-        public static CosmosContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
+        public static CosmosContainerDefinition GetContainerDefinitionForTenant(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
             if (tenant is null)
             {
@@ -151,12 +151,29 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(containerDefinition));
             }
 
-            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
+            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenant(tenant, containerDefinition);
             object key = GetKeyFor(tenantedCosmosContainerDefinition);
 
             return this.containers.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition).ConfigureAwait(false));
+                async _ => await this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition, false).ConfigureAwait(false));
+        }
+
+        /// <inheritdoc/>
+        public async Task<RecreatableContainer> GetRecreatableContainerForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
+        {
+            if (tenant is null)
+            {
+                throw new System.ArgumentNullException(nameof(tenant));
+            }
+
+            if (containerDefinition is null)
+            {
+                throw new System.ArgumentNullException(nameof(containerDefinition));
+            }
+
+            Container container = await this.GetContainerForTenantAsync(tenant, containerDefinition).ConfigureAwait(false);
+            return new RecreatableContainer(() => this.RecacheContainer(tenant, containerDefinition), container);
         }
 
         /// <summary>
@@ -165,8 +182,9 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <param name="tenant">The tenant.</param>
         /// <param name="tenantedCosmosContainerDefinition">The container definition, adapted for the tenant.</param>
         /// <param name="configuration">The Cosmos configuration.</param>
+        /// <param name="recreateClient">Indicates whether to recreate the client or not.</param>
         /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
-        protected async Task<Container> CreateCosmosContainerInstanceAsync(ITenant tenant, CosmosContainerDefinition tenantedCosmosContainerDefinition, CosmosConfiguration configuration)
+        protected async Task<Container> CreateCosmosContainerInstanceAsync(ITenant tenant, CosmosContainerDefinition tenantedCosmosContainerDefinition, CosmosConfiguration configuration, bool recreateClient)
         {
             if (tenant is null)
             {
@@ -205,9 +223,17 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             // Get the Cosmos client for the specified configuration.
             object accountCacheKey = GetKeyFor(configuration);
 
+            // Here we try to remove the current key and dispose of it, if we are recreating the client.
+            if (recreateClient && this.clients.TryRemove(accountCacheKey, out Task<CosmosClient> oldValue))
+            {
+                IDisposable disposable = await oldValue.ConfigureAwait(false);
+                disposable.Dispose();
+            }
+
+            // Now, we don't care if someone got in first and recreated it already, we just get the client back.
             CosmosClient cosmosClient = await this.clients.GetOrAdd(
-                accountCacheKey,
-                _ => this.CreateCosmosClientAsync(configuration)).ConfigureAwait(false);
+                    accountCacheKey,
+                    _ => this.CreateCosmosClientAsync(configuration)).ConfigureAwait(false);
 
             DatabaseResponse databaseResponse =
                 await cosmosClient.CreateDatabaseIfNotExistsAsync(
@@ -259,14 +285,21 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             return accountKey.Value;
         }
 
-        private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedCosmosContainerDefinition)
+        private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedCosmosContainerDefinition, bool recreateClient)
         {
             CosmosConfiguration? configuration = tenant.GetCosmosConfiguration(repositoryDefinition);
 
             // Although GetCosmosConfiguration can return null, CreateCosmosContainerInstanceAsync
             // will detect that and throw, so it's OK to silence the compiler warning with the null
             // forgiving operator here.
-            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedCosmosContainerDefinition, configuration!).ConfigureAwait(false);
+            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedCosmosContainerDefinition, configuration!, recreateClient).ConfigureAwait(false);
+        }
+
+        private Task<Container> RecacheContainer(ITenant tenant, CosmosContainerDefinition containerDefinition)
+        {
+            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenant(tenant, containerDefinition);
+            object key = GetKeyFor(tenantedCosmosContainerDefinition);
+            return this.containers.AddOrUpdate(key, _ => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition, true), (_, __) => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition, true));
         }
     }
 }

@@ -62,6 +62,42 @@ namespace Corvus.Tenancy.Specs.Bindings
         }
 
         /// <summary>
+        /// Set up a tenanted Cloud Blob Container for the feature.
+        /// </summary>
+        /// <param name="featureContext">The feature context.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
+        [BeforeFeature("@setupRecreatableTenantedCosmosContainer", Order = ContainerBeforeFeatureOrder.ServiceProviderAvailable)]
+        public static async Task SetupRecreatableCosmosContainerForRootTenant(FeatureContext featureContext)
+        {
+            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
+            IRecreatableTenantCosmosContainerFactory factory = serviceProvider.GetRequiredService<IRecreatableTenantCosmosContainerFactory>();
+            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
+
+            string containerBase = Guid.NewGuid().ToString();
+
+            var cosmosContainerDefinition = new CosmosContainerDefinition(
+                "endjinspecssharedthroughput",
+                $"{containerBase}tenancyspecs",
+                "/partitionKey",
+                databaseThroughput: 400);
+            featureContext.Set(cosmosContainerDefinition);
+
+            var cosmosConfiguration = new CosmosConfiguration();
+            config.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
+            cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
+            cosmosConfiguration.DisableTenantIdPrefix = true;
+            tenantProvider.Root.UpdateProperties(values => values.AddCosmosConfiguration(cosmosContainerDefinition, cosmosConfiguration));
+
+            RecreatableContainer tenancySpecsContainer = await factory.GetRecreatableContainerForTenantAsync(
+                tenantProvider.Root,
+                cosmosContainerDefinition).ConfigureAwait(false);
+
+            featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
+        }
+
+        /// <summary>
         /// Tear down the tenanted Cloud Blob Container for the feature.
         /// </summary>
         /// <param name="featureContext">The feature context.</param>
