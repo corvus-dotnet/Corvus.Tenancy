@@ -79,6 +79,13 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
 
+                    var tableOptions = new TenantCloudTableFactoryOptions
+                    {
+                        AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
+                    };
+
+                    serviceCollection.AddTenantCloudTableFactory(tableOptions);
+
                     var cosmosOptions = new TenantCosmosContainerFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
