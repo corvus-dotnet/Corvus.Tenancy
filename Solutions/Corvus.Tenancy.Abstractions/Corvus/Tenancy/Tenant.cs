@@ -4,7 +4,6 @@
 
 namespace Corvus.Tenancy
 {
-    using System;
     using System.Diagnostics;
     using Corvus.Json;
 
