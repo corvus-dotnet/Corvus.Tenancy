@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Corvus.Azure.Storage.Tenancy;
 
     /// <summary>
-    /// Common configuration code for services with stores implemented on top of tenanted
+    /// Standard configuration code for services with stores implemented on top of tenanted
     /// storage.
     /// </summary>
     public static class TenancyTableStorageServiceCollectionExtensions
