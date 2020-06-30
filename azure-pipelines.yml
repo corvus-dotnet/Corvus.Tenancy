@@ -40,3 +40,4 @@ jobs:
           ENDJIN_COSMOSDBACCOUNTURI: $(Endjin_CosmosDbAccountUri)
           ENDJIN_COSMOSACCOUNTKEYSECRETNAME: $(Endjin_CosmosDbKeySecretName)
           ENDJIN_KEYVAULTNAME: $(Endjin_KeyVaultName)
+    netSdkVersion: '3.x'
