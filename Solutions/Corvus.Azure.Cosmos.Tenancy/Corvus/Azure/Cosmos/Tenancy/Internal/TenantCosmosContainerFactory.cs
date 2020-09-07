@@ -154,9 +154,25 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
             object key = GetKeyFor(tenantedCosmosContainerDefinition);
 
-            return this.containers.GetOrAdd(
+            Task<Container> result = this.containers.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition).ConfigureAwait(false));
+                _ => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition));
+
+            if (result.IsFaulted)
+            {
+                // If a task has been created in the previous statement, it won't have completed yet. Therefore if it's
+                // faulted, that means it was added as part of a previous request to this method, and subsequently
+                // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
+                // return. If removing the value fails, that's likely because it's been removed by a different thread,
+                // so we will ignore that and just attempt to create and return a new value anyway.
+                this.containers.TryRemove(key, out Task<Container> _);
+
+                result = this.containers.GetOrAdd(
+                    key,
+                    _ => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition));
+            }
+
+            return result;
         }
 
         /// <summary>
