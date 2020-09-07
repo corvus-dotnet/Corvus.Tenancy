@@ -4,7 +4,9 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy.Internal
 {
+    using System;
     using System.Collections.Concurrent;
+    using System.Threading;
     using System.Threading.Tasks;
     using Corvus.Extensions.Cosmos;
     using Corvus.Tenancy;
@@ -66,6 +68,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         private readonly ConcurrentDictionary<object, Task<Container>> containers = new ConcurrentDictionary<object, Task<Container>>();
         private readonly TenantCosmosContainerFactoryOptions? options;
         private readonly ICosmosClientBuilderFactory cosmosClientBuilderFactory;
+        private readonly Random random = new Random();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCosmosContainerFactory"/> class.
@@ -139,7 +142,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <remarks>
         /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
         /// </remarks>
-        public Task<Container> GetContainerForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
+        public async Task<Container> GetContainerForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
         {
             if (tenant is null)
             {
@@ -167,12 +170,16 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                 // so we will ignore that and just attempt to create and return a new value anyway.
                 this.containers.TryRemove(key, out Task<Container> _);
 
+                // Wait for a short and random time, to reduce the potential for large numbers of spurious container
+                // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
+                await Task.Delay(this.random.Next(150, 250)).ConfigureAwait(false);
+
                 result = this.containers.GetOrAdd(
                     key,
                     _ => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition));
             }
 
-            return result;
+            return await result.ConfigureAwait(false);
         }
 
         /// <summary>
