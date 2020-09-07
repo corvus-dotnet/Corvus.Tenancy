@@ -6,7 +6,6 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Threading;
     using System.Threading.Tasks;
     using Corvus.Extensions.Cosmos;
     using Corvus.Tenancy;
