@@ -10,7 +10,7 @@ namespace Corvus.Tenancy
     /// <summary>
     /// Describes a tenant in a multitenanted system.
     /// </summary>
-    [DebuggerDisplay("{name} ({id})")]
+    [DebuggerDisplay("{Name} ({Id})")]
     public class Tenant : ITenant
     {
         /// <summary>
