@@ -1,7 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
-
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
@@ -15,35 +14,20 @@
     -->
     <NoWarn>SA0001;SA1204;SA1600;SA1602;CS1591</NoWarn>
   </PropertyGroup>
-
   <ItemGroup>
     <SpecFlowObsoleteCodeBehindFiles Remove="Features\CloudBlobContainer - Copy.feature.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Corvus.SpecFlow.Extensions" Version="0.6.0" />
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="SpecFlow" Version="3.3.30" />
-    <PackageReference Include="SpecFlow.NUnit" Version="3.3.30" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.3.30" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-    <PackageReference Include="coverlet.msbuild" Version="2.9.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Corvus.Testing.SpecFlow.NUnit" Version="1.1.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Corvus.Azure.Cosmos.Tenancy\Corvus.Azure.Cosmos.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj" />
@@ -51,19 +35,16 @@
     <ProjectReference Include="..\Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Tenancy.Storage.Azure.Blob\Corvus.Tenancy.Storage.Azure.Blob.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="Features\CloudTable.feature.cs">
       <DependentUpon>CloudTable.feature</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <ItemGroup>
     <None Update="specflow.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <SpecFlowFeatureFiles Update="Features\CloudTable.feature">
       <Visible>$(UsingMicrosoftNETSdk)</Visible>
