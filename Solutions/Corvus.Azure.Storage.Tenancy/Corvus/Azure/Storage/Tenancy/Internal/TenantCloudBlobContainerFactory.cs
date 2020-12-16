@@ -8,6 +8,7 @@ namespace Corvus.Azure.Storage.Tenancy
     using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
+    using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy;
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.Services.AppAuthentication;
@@ -200,21 +201,13 @@ namespace Corvus.Azure.Storage.Tenancy
                 _ => this.CreateCloudBlobClientAsync(configuration)).ConfigureAwait(false);
 
             // Now get the container and create it if it doesn't already exist.
-            CloudBlobContainer container = blobClient.GetContainerReference(HashAndEncodeContainerName(tenantedBlobStorageContainerDefinition.ContainerName));
+            CloudBlobContainer container = blobClient.GetContainerReference(AzureStorageNameHelper.HashAndEncodeBlobContainerName(tenantedContainerName));
 
             BlobContainerPublicAccessType accessType = configuration.AccessType ?? tenantedBlobStorageContainerDefinition.AccessType;
 
             await container.CreateIfNotExistsAsync(accessType, null, null).ConfigureAwait(false);
 
             return container;
-        }
-
-        private static string HashAndEncodeContainerName(string containerName)
-        {
-            byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using var hash = new SHA1CryptoServiceProvider();
-            byte[] hashedBytes = hash.ComputeHash(byteContents);
-            return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
         }
 
         private static string BuildTenantSpecificContainerName(ITenant tenant, string container)
