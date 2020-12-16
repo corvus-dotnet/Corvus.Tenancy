@@ -26,35 +26,6 @@ namespace Corvus.Tenancy.Specs.Bindings
         public const string TenancySpecsContainer = "TenancySpecsContainer";
 
         /// <summary>
-        /// Set up a tenanted Cloud Table Container for the feature.
-        /// </summary>
-        /// <param name="featureContext">The feature context.</param>
-        /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        [BeforeFeature("@setupTenantedCloudTable", Order = ContainerBeforeFeatureOrder.ServiceProviderAvailable)]
-        public static async Task SetupCloudTableForRootTenant(FeatureContext featureContext)
-        {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
-            ITenantCloudTableFactory factory = serviceProvider.GetRequiredService<ITenantCloudTableFactory>();
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
-
-            string containerBase = Guid.NewGuid().ToString();
-
-            var tableStorageTableDefinition = new TableStorageTableDefinition($"{containerBase}tenancyspecs");
-            featureContext.Set(tableStorageTableDefinition);
-            var tableStorageConfiguration = new TableStorageConfiguration();
-            config.Bind("TESTTABLESTORAGECONFIGURATIONOPTIONS", tableStorageConfiguration);
-            tenantProvider.Root.UpdateProperties(values => values.AddTableStorageConfiguration(tableStorageTableDefinition, tableStorageConfiguration));
-
-            CloudTable tenancySpecsContainer = await factory.GetTableForTenantAsync(
-                tenantProvider.Root,
-                tableStorageTableDefinition).ConfigureAwait(false);
-
-            featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
-        }
-
-        /// <summary>
         /// Tear down the tenanted Cloud Table Container for the feature.
         /// </summary>
         /// <param name="featureContext">The feature context.</param>

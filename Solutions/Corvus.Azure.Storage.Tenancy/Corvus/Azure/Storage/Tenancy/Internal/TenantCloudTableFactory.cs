@@ -202,7 +202,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 _ => this.CreateCloudTableClientAsync(configuration)).ConfigureAwait(false);
 
             // Now get the container and create it if it doesn't already exist.
-            CloudTable container = tableClient.GetTableReference(AzureStorageNameHelper.HashAndEncodeTableName(tenantedTableStorageTableDefinition.TableName));
+            CloudTable container = tableClient.GetTableReference(AzureStorageNameHelper.HashAndEncodeTableName(tenantedTableName));
 
             await container.CreateIfNotExistsAsync().ConfigureAwait(false);
 

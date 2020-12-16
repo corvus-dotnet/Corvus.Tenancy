@@ -101,7 +101,7 @@
             BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
             BlobStorageConfiguration blobStorageConfiguration = tenantProvider.Root.GetBlobStorageConfiguration(blobStorageContainerDefinition);
 
-            string expectedNamePlain = string.Concat(blobStorageConfiguration.Container);
+            string expectedNamePlain = blobStorageConfiguration.Container!;
             string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
 
             CloudBlobContainer container = this.featureContext.Get<CloudBlobContainer>(TenancyCloudBlobContainerBindings.TenancySpecsContainer);
