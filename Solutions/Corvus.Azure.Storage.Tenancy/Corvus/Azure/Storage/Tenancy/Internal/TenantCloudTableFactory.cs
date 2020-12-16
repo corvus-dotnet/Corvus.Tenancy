@@ -8,6 +8,7 @@ namespace Corvus.Azure.Storage.Tenancy
     using System.Security.Cryptography;
     using System.Text;
     using System.Threading.Tasks;
+    using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy;
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Azure.KeyVault;
@@ -201,22 +202,11 @@ namespace Corvus.Azure.Storage.Tenancy
                 _ => this.CreateCloudTableClientAsync(configuration)).ConfigureAwait(false);
 
             // Now get the container and create it if it doesn't already exist.
-            CloudTable container = tableClient.GetTableReference(HashAndEncodeTableName(tenantedTableStorageTableDefinition.TableName));
+            CloudTable container = tableClient.GetTableReference(AzureStorageNameHelper.HashAndEncodeTableName(tenantedTableStorageTableDefinition.TableName));
 
             await container.CreateIfNotExistsAsync().ConfigureAwait(false);
 
             return container;
-        }
-
-        private static string HashAndEncodeTableName(string containerName)
-        {
-            byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using var hash = new SHA1CryptoServiceProvider();
-            byte[] hashedBytes = hash.ComputeHash(byteContents);
-            string hexString = TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
-
-            // Table names can't start with a number, so prefix all names with a letter
-            return "t" + hexString;
         }
 
         private static string BuildTenantSpecificTableName(ITenant tenant, string tableName)

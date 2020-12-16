@@ -153,16 +153,16 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                             "ConnectionString",
                             "KeyVaultName",
                             "ConnectionStringSecretName"});
-                table1.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             string.Format("{0}", connectionString),
                             string.Format("{0}", keyVaultName),
                             string.Format("{0}", connectionStringSecretName)});
 #line 12
- testRunner.Given("a SqlConfiguration", ((string)(null)), table1, "Given ");
+ testRunner.Given("a SqlConfiguration", ((string)(null)), table5, "Given ");
 #line hidden
 #line 15
  testRunner.When("I validate the configuration", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
