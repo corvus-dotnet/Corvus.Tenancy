@@ -15,14 +15,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="C:\Users\JonathanGeorge\.nuget\packages\corvus.extensions.cosmosclient\1.0.4\contentFiles\any\netstandard2.0\ThirdPartyNotice.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Corvus.Extensions.CosmosClient" Version="1.0.4" />
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.5" />
-    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.1" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.16.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.12" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.12" />
   </ItemGroup>
