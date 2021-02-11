@@ -5,7 +5,10 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{D29CABE7-467E-4CF6-B44B-3C58AB76145A}"
 	ProjectSection(SolutionItems) = preProject
+		..\azure-pipelines.release.yml = ..\azure-pipelines.release.yml
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
+		..\GitVersion.yml = ..\GitVersion.yml
+		..\imm.yaml = ..\imm.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Tenancy.Abstractions", "Corvus.Tenancy.Abstractions\Corvus.Tenancy.Abstractions.csproj", "{F76A30F7-453B-41B2-B0C4-2C7A4ACAC3F4}"
@@ -20,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Tenancy.Specs", "Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Azure.Gremlin.Tenancy", "Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj", "{920CD7B4-7320-4892-8DDA-03C48F25F30E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvus.Sql.Tenancy", "Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj", "{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Sql.Tenancy", "Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj", "{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
