@@ -48,7 +48,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
             services.AddSingleton<ITenantGremlinContainerFactory>(s =>
             {
                 TenantGremlinContainerFactoryOptions options = getOptions(s);

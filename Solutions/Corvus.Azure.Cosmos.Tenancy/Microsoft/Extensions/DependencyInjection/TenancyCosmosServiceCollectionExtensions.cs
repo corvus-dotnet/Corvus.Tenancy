@@ -49,8 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
-            services.AddCosmosClientExtensions();
+            services.AddCosmosClientBuilder();
 
             services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {

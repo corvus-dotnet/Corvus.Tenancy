@@ -47,7 +47,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
                 TenantCloudBlobContainerFactoryOptions options = getOptions(s);

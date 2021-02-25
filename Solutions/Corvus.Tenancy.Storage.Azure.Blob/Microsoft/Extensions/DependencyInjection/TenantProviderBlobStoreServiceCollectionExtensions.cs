@@ -7,6 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System;
     using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
+    using Corvus.ContentHandling;
     using Corvus.Extensions.Json;
     using Corvus.Json;
     using Corvus.Tenancy;
@@ -35,11 +36,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
+            services.AddContentTypeBasedSerializationSupport();
+            services.AddContent(contentFactory => contentFactory.RegisterContent<Tenant>());
+
             services.AddSingleton(sp =>
             {
                 BlobStorageConfiguration rootTenantStorageConfig = getRootTenantStorageConfiguration(sp);
-                RootTenant rootTenant = sp.GetRequiredService<RootTenant>();
+
+                IPropertyBagFactory propertyBagFactory = sp.GetRequiredService<IPropertyBagFactory>();
+                var rootTenant = new RootTenant(propertyBagFactory);
 
                 rootTenant.UpdateProperties(
                     values => values.AddBlobStorageConfiguration(
@@ -47,7 +52,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
                 IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();
-                IPropertyBagFactory propertyBagFactory = sp.GetRequiredService<IPropertyBagFactory>();
 
                 return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantCloudBlobContainerFactory, serializerSettingsProvider);
             });
