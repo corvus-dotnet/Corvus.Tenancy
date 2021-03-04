@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy.Exceptions;
+    using Corvus.Testing.SpecFlow;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using TechTalk.SpecFlow;

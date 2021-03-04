@@ -3,8 +3,8 @@
     using System;
     using System.Data.SqlClient;
     using System.Threading.Tasks;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Sql.Tenancy;
+    using Corvus.Testing.SpecFlow;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;

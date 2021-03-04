@@ -21,7 +21,7 @@ namespace Corvus.Tenancy.Specs.Features
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("SqlConnection")]
-    [NUnit.Framework.CategoryAttribute("setupContainer")]
+    [NUnit.Framework.CategoryAttribute("perFeatureContainer")]
     [NUnit.Framework.CategoryAttribute("setupTenantedSqlConnection")]
     public partial class SqlConnectionFeature
     {
@@ -29,7 +29,7 @@ namespace Corvus.Tenancy.Specs.Features
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = new string[] {
-                "setupContainer",
+                "perFeatureContainer",
                 "setupTenantedSqlConnection"};
         
 #line 1 "SqlConnection.feature"
@@ -41,7 +41,7 @@ namespace Corvus.Tenancy.Specs.Features
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "SqlConnection", "\tIn order to use SQL Server storage for tenanted services\r\n\tAs a developer\r\n\tI wa" +
                     "nt to be able to manage the SqlConnection", ProgrammingLanguage.CSharp, new string[] {
-                        "setupContainer",
+                        "perFeatureContainer",
                         "setupTenantedSqlConnection"});
             testRunner.OnFeatureStart(featureInfo);
         }

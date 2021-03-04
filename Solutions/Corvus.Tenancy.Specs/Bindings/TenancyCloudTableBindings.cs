@@ -4,14 +4,9 @@
 
 namespace Corvus.Tenancy.Specs.Bindings
 {
-    using System;
     using System.Threading.Tasks;
-    using Corvus.Azure.Storage.Tenancy;
-    using Corvus.SpecFlow.Extensions;
-    using Corvus.Tenancy;
+    using Corvus.Testing.SpecFlow;
     using Microsoft.Azure.Cosmos.Table;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
 
     /// <summary>

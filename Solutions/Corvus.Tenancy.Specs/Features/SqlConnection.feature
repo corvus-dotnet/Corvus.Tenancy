@@ -1,4 +1,4 @@
-﻿@setupContainer
+﻿@perFeatureContainer
 @setupTenantedSqlConnection
 Feature: SqlConnection
 	In order to use SQL Server storage for tenanted services

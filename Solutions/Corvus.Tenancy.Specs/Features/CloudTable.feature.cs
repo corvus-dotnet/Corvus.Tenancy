@@ -21,7 +21,7 @@ namespace Corvus.Tenancy.Specs.Features
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("CloudTable")]
-    [NUnit.Framework.CategoryAttribute("setupContainer")]
+    [NUnit.Framework.CategoryAttribute("perFeatureContainer")]
     [NUnit.Framework.CategoryAttribute("setupTenantedCloudTable")]
     public partial class CloudTableFeature
     {
@@ -29,7 +29,7 @@ namespace Corvus.Tenancy.Specs.Features
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = new string[] {
-                "setupContainer",
+                "perFeatureContainer",
                 "setupTenantedCloudTable"};
         
 #line 1 "CloudTable.feature"
@@ -41,7 +41,7 @@ namespace Corvus.Tenancy.Specs.Features
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "CloudTable", "\tIn order to use cloud table storage for tenanted services\r\n\tAs a developer\r\n\tI w" +
                     "ant to be able to manage the table", ProgrammingLanguage.CSharp, new string[] {
-                        "setupContainer",
+                        "perFeatureContainer",
                         "setupTenantedCloudTable"});
             testRunner.OnFeatureStart(featureInfo);
         }

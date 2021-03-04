@@ -21,7 +21,7 @@ namespace Corvus.Tenancy.Specs.Features
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("GremlinContainer")]
-    [NUnit.Framework.CategoryAttribute("setupContainer")]
+    [NUnit.Framework.CategoryAttribute("perFeatureContainer")]
     [NUnit.Framework.CategoryAttribute("setupTenantedGremlinClient")]
     public partial class GremlinContainerFeature
     {
@@ -29,7 +29,7 @@ namespace Corvus.Tenancy.Specs.Features
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = new string[] {
-                "setupContainer",
+                "perFeatureContainer",
                 "setupTenantedGremlinClient"};
         
 #line 1 "GremlinContainer.feature"
@@ -41,7 +41,7 @@ namespace Corvus.Tenancy.Specs.Features
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "GremlinContainer", "\tIn order to use cosmos storage via Gremlin for tenanted services\r\n\tAs a develope" +
                     "r\r\n\tI want to be able to manage the container", ProgrammingLanguage.CSharp, new string[] {
-                        "setupContainer",
+                        "perFeatureContainer",
                         "setupTenantedGremlinClient"});
             testRunner.OnFeatureStart(featureInfo);
         }

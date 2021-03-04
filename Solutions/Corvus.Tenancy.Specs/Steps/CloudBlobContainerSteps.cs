@@ -4,8 +4,8 @@
     using System.Threading.Tasks;
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy.Specs.Bindings;
+    using Corvus.Testing.SpecFlow;
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

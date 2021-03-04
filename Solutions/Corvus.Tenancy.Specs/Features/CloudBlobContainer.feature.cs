@@ -21,7 +21,7 @@ namespace Corvus.Tenancy.Specs.Features
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
     [NUnit.Framework.DescriptionAttribute("CloudBlobContainer")]
-    [NUnit.Framework.CategoryAttribute("setupContainer")]
+    [NUnit.Framework.CategoryAttribute("perFeatureContainer")]
     [NUnit.Framework.CategoryAttribute("setupTenantedCloudBlobContainer")]
     public partial class CloudBlobContainerFeature
     {
@@ -29,7 +29,7 @@ namespace Corvus.Tenancy.Specs.Features
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = new string[] {
-                "setupContainer",
+                "perFeatureContainer",
                 "setupTenantedCloudBlobContainer"};
         
 #line 1 "CloudBlobContainer.feature"
@@ -41,7 +41,7 @@ namespace Corvus.Tenancy.Specs.Features
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "CloudBlobContainer", "\tIn order to use cloud blob storage for tenanted services\r\n\tAs a developer\r\n\tI wa" +
                     "nt to be able to manage the container", ProgrammingLanguage.CSharp, new string[] {
-                        "setupContainer",
+                        "perFeatureContainer",
                         "setupTenantedCloudBlobContainer"});
             testRunner.OnFeatureStart(featureInfo);
         }

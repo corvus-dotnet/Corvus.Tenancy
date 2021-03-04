@@ -11,8 +11,8 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.Storage.Tenancy;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Sql.Tenancy;
+    using Corvus.Testing.SpecFlow;
     using Corvus.Tenancy;
     using Corvus.Tenancy.Internal;
     using Microsoft.Azure.Storage.Blob;
@@ -30,7 +30,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         /// Initializes the container before each feature's tests are run.
         /// </summary>
         /// <param name="featureContext">The SpecFlow test context.</param>
-        [BeforeFeature("@setupContainer", Order = ContainerBeforeFeatureOrder.PopulateServiceCollection)]
+        [BeforeFeature("@perFeatureContainer", Order = ContainerBeforeFeatureOrder.PopulateServiceCollection)]
         public static void InitializeContainer(FeatureContext featureContext)
         {
             ContainerBindings.ConfigureServices(

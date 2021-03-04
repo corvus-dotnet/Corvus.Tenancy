@@ -7,8 +7,8 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System;
     using System.Threading.Tasks;
     using Corvus.Azure.GremlinExtensions.Tenancy;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy;
+    using Corvus.Testing.SpecFlow;
     using Gremlin.Net.Driver;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

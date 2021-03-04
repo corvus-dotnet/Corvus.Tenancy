@@ -8,9 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.Cosmos.Tenancy.Internal;
-    using Corvus.ContentHandling;
     using Corvus.Extensions.Cosmos;
-    using Corvus.Tenancy;
     using Corvus.Tenancy.Internal;
 
     /// <summary>

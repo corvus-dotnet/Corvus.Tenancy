@@ -8,7 +8,6 @@ namespace Corvus.Azure.Storage.Tenancy
     using System.Collections.Generic;
     using System.Linq;
     using Corvus.Tenancy;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Extension methods for storage features for the tenant.
