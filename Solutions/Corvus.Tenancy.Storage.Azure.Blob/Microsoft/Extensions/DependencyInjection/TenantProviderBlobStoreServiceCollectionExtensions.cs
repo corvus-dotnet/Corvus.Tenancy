@@ -11,6 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Corvus.Extensions.Json;
     using Corvus.Json;
     using Corvus.Tenancy;
+    using Corvus.Tenancy.Internal;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -36,8 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddContentTypeBasedSerializationSupport();
-            services.AddContent(contentFactory => contentFactory.RegisterContent<Tenant>());
+            services.AddRequiredTenancyServices();
 
             services.AddSingleton(sp =>
             {

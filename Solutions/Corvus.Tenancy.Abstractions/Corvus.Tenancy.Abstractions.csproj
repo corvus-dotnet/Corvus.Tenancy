@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Corvus.ContentHandling.Json" Version="2.0.1" />
+    <PackageReference Include="Corvus.ContentHandling.Json" Version="2.0.2" />
     <PackageReference Include="Corvus.Extensions" Version="1.1.2" />
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>

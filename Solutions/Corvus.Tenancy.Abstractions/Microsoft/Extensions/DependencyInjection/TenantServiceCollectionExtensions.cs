@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </para>
         /// <para>
         /// Secondly it registered the <see cref="Tenant"/> type for content type based serialization. This should now be
-        /// by the registration method for the selected <see cref="ITenantProvider"/>.
+        /// done by the registration method for the selected <see cref="ITenantProvider"/>.
         /// </para>
         /// <para>
         /// Note that this had the side effect of adding the Corvus.Extensions.Newtonsoft.Json

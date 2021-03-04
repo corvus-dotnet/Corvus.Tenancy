@@ -7,6 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System;
     using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
+    using Corvus.Tenancy.Internal;
 
     /// <summary>
     /// Standard configuration code for services with stores implemented on top of tenanted
@@ -46,6 +47,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 return services;
             }
+
+            services.AddRequiredTenancyServices();
 
             services.AddSingleton<ITenantCloudTableFactory>(s =>
             {

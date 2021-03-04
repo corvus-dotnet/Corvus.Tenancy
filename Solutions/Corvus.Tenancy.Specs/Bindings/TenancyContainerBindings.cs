@@ -14,6 +14,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.SpecFlow.Extensions;
     using Corvus.Sql.Tenancy;
     using Corvus.Tenancy;
+    using Corvus.Tenancy.Internal;
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,8 @@ namespace Corvus.Tenancy.Specs.Bindings
                         .Build();
 
                     serviceCollection.AddSingleton(config);
+
+                    serviceCollection.AddRequiredTenancyServices();
 
                     if (featureContext.FeatureInfo.Tags.Any(t => t == "withBlobStorageTenantProvider"))
                     {

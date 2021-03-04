@@ -2,15 +2,16 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Corvus.Json;
     using Corvus.Tenancy;
     using Corvus.Tenancy.Exceptions;
 
 #pragma warning disable IDE0060 // Unused arguments
     internal class FakeTenantProvider : ITenantProvider
     {
-        public FakeTenantProvider(RootTenant rootTenant)
+        public FakeTenantProvider(IPropertyBagFactory propertyBagFactory)
         {
-            this.Root = rootTenant;
+            this.Root = new RootTenant(propertyBagFactory);
         }
 
         public RootTenant Root { get; }
