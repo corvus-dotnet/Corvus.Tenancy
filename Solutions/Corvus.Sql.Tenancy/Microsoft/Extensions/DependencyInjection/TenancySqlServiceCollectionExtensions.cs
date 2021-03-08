@@ -48,7 +48,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
             services.AddSingleton<ITenantSqlConnectionFactory>(s =>
             {
                 TenantSqlConnectionFactoryOptions options = getOptions(s);

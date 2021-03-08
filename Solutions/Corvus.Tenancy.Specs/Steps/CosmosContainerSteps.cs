@@ -2,8 +2,8 @@
 {
     using System;
     using Corvus.Azure.Cosmos.Tenancy;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy.Specs.Bindings;
+    using Corvus.Testing.SpecFlow;
     using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;

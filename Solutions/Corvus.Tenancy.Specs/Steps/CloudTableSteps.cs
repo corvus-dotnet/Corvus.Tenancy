@@ -4,8 +4,8 @@
     using System.Threading.Tasks;
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
-    using Corvus.SpecFlow.Extensions;
     using Corvus.Tenancy.Specs.Bindings;
+    using Corvus.Testing.SpecFlow;
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -79,7 +79,7 @@
             Assert.AreEqual(expectedName, table.Name);
         }
 
-        [Then(@"the tenanted cloud table should be named using a hash of the tenant Id and the name specified in the table configuration")]
+        [Then("the tenanted cloud table should be named using a hash of the tenant Id and the name specified in the table configuration")]
         public void ThenTheTenantedCloudTableShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheTableConfiguration()
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();

@@ -1,4 +1,4 @@
-﻿@setupContainer
+﻿@perFeatureContainer
 @setupTenantedCloudBlobContainer
 
 Feature: CloudBlobContainer

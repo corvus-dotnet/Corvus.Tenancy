@@ -1,4 +1,4 @@
-﻿@setupContainer
+﻿@perFeatureContainer
 @withBlobStorageTenantProvider
 
 Feature: TenantStorage

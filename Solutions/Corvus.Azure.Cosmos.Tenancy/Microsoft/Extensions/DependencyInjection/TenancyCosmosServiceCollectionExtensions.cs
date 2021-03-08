@@ -9,6 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Azure.Cosmos.Tenancy.Internal;
     using Corvus.Extensions.Cosmos;
+    using Corvus.Tenancy.Internal;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -49,8 +50,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
-            services.AddCosmosClientExtensions();
+            services.AddRequiredTenancyServices();
+            services.AddCosmosClientBuilder();
 
             services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {

@@ -1,4 +1,4 @@
-﻿@setupContainer
+﻿@perFeatureContainer
 @setupTenantedGremlinClient
 
 Feature: GremlinContainer

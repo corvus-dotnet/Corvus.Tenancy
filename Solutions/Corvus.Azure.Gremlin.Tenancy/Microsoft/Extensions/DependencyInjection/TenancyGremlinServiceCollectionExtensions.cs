@@ -8,6 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System.Linq;
     using Corvus.Azure.GremlinExtensions.Tenancy;
     using Corvus.Azure.GremlinExtensions.Tenancy.Internal;
+    using Corvus.Tenancy.Internal;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -48,7 +49,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 return services;
             }
 
-            services.AddRootTenant();
+            services.AddRequiredTenancyServices();
+
             services.AddSingleton<ITenantGremlinContainerFactory>(s =>
             {
                 TenantGremlinContainerFactoryOptions options = getOptions(s);

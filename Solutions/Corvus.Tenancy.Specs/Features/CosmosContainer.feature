@@ -1,4 +1,4 @@
-﻿@setupContainer
+﻿@perFeatureContainer
 @setupTenantedCosmosContainer
 
 Feature: CosmosContainer
