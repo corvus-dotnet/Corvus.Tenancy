@@ -6,18 +6,23 @@ namespace Corvus.Tenancy
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Xml;
+
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Extensions;
     using Corvus.Extensions.Json;
     using Corvus.Json;
     using Corvus.Tenancy.Exceptions;
-    using Microsoft.Azure.Storage;
-    using Microsoft.Azure.Storage.Blob;
+
+    using global::Azure;
+    using global::Azure.Storage.Blobs;
+    using global::Azure.Storage.Blobs.Models;
+    using global::Azure.Storage.Blobs.Specialized;
+
     using Newtonsoft.Json;
 
     /// <summary>
@@ -28,7 +33,7 @@ namespace Corvus.Tenancy
     {
         private const string LiveTenantsPrefix = "live/";
         private const string DeletedTenantsPrefix = "deleted/";
-        private readonly ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory;
+        private readonly ITenantBlobContainerClientFactory tenantBlobContainerClientFactory;
         private readonly JsonSerializerSettings serializerSettings;
         private readonly IPropertyBagFactory propertyBagFactory;
 
@@ -41,12 +46,12 @@ namespace Corvus.Tenancy
         /// representation exists (i.e., when creating a new tenant), and building of modified property
         /// bags.
         /// </param>
-        /// <param name="tenantCloudBlobContainerFactory">The tenanted cloud blob container factory.</param>
+        /// <param name="tenantBlobContainerClientFactory">The tenanted cloud blob container factory.</param>
         /// <param name="serializerSettingsProvider">The serializer settings provider for tenant serialization.</param>
         public TenantProviderBlobStore(
             RootTenant tenant,
             IPropertyBagFactory propertyBagFactory,
-            ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory,
+            ITenantBlobContainerClientFactory tenantBlobContainerClientFactory,
             IJsonSerializerSettingsProvider serializerSettingsProvider)
         {
             if (serializerSettingsProvider is null)
@@ -55,7 +60,7 @@ namespace Corvus.Tenancy
             }
 
             this.Root = tenant ?? throw new ArgumentNullException(nameof(tenant));
-            this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory ?? throw new ArgumentNullException(nameof(tenantCloudBlobContainerFactory));
+            this.tenantBlobContainerClientFactory = tenantBlobContainerClientFactory ?? throw new ArgumentNullException(nameof(tenantBlobContainerClientFactory));
             this.serializerSettings = serializerSettingsProvider.Instance;
             this.propertyBagFactory = propertyBagFactory;
         }
@@ -83,16 +88,12 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
+                (_, BlobContainerClient container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
                 return await this.GetTenantFromContainerAsync(tenantId, container, etag).ConfigureAwait(false);
             }
             catch (FormatException fex)
             {
                 throw new TenantNotFoundException("Unsupported tenant ID", fex);
-            }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
-            {
-                throw new TenantNotFoundException();
             }
         }
 
@@ -106,18 +107,33 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId).ConfigureAwait(false);
+                (_, BlobContainerClient container) = await this.GetContainerAndTenantForChildTenantsOf(tenantId).ConfigureAwait(false);
 
-                BlobContinuationToken? blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
+                string? blobContinuationToken = DecodeUrlEncodedContinuationToken(continuationToken);
 
-                BlobResultSegment segment = await container.ListBlobsSegmentedAsync(LiveTenantsPrefix, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
-                return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(segment.ContinuationToken));
+                AsyncPageable<BlobItem> pageable = container.GetBlobsAsync(prefix: LiveTenantsPrefix);
+                IAsyncEnumerable<Page<BlobItem>> pages = pageable.AsPages(blobContinuationToken, limit);
+                await using IAsyncEnumerator<Page<BlobItem>> page = pages.GetAsyncEnumerator();
+                Page<BlobItem>? p = await page.MoveNextAsync()
+                    ? page.Current
+                    : null;
+                IEnumerable<BlobItem> items = p?.Values ?? Enumerable.Empty<BlobItem>();
+
+                ////BlobResultSegment segment = await container.GetBlobsAsync(
+                ////    prefix: LiveTenantsPrefix,
+                ////    true,   // Flat
+                ////    BlobListingDetails.None,
+                ////    limit,
+                ////    blobContinuationToken,
+                ////    null,
+                ////    null).ConfigureAwait(false);
+                return new TenantCollectionResult(items.Select(s => s.Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(p?.ContinuationToken));
             }
             catch (FormatException fex)
             {
                 throw new TenantNotFoundException("Unsupported tenant ID", fex);
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
                 throw new TenantNotFoundException();
             }
@@ -143,9 +159,9 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
+                (_, BlobContainerClient container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
 
-                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
+                BlockBlobClient blob = GetLiveTenantBlockBlobReference(tenantId, container);
 
                 Tenant tenant = await this.GetTenantFromContainerAsync(tenantId, container, null).ConfigureAwait(false);
 
@@ -159,19 +175,20 @@ namespace Corvus.Tenancy
                     name ?? tenant.Name,
                     updatedProperties);
                 string text = JsonConvert.SerializeObject(updatedTenant, this.serializerSettings);
-                await blob.UploadTextAsync(text).ConfigureAwait(false);
-                tenant.ETag = blob.Properties.ETag;
+                using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(text));
+                Response<BlobContentInfo> uploadResponse = await blob.UploadAsync(contentStream, new BlobUploadOptions { Conditions = new BlobRequestConditions { IfMatch = new ETag(tenant.ETag!) } }).ConfigureAwait(false);
+                tenant.ETag = uploadResponse.Value.ETag.ToString("G");
                 return updatedTenant;
             }
             catch (FormatException fex)
             {
                 throw new TenantNotFoundException("Unsupported tenant ID", fex);
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
                 throw new TenantNotFoundException();
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.Conflict)
             {
                 throw new TenantConflictException();
             }
@@ -194,7 +211,7 @@ namespace Corvus.Tenancy
 
             try
             {
-                (ITenant parentTenant, CloudBlobContainer cloudBlobContainer) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
+                (ITenant parentTenant, BlobContainerClient blobContainerClient) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
 
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
@@ -210,15 +227,14 @@ namespace Corvus.Tenancy
                 // As we create the new blob, we need to ensure there isn't already a tenant with the same Id. We do this by
                 // providing an If-None-Match header passing a "*", which will cause a storage exception with a 409 status
                 // code if a blob with the same Id already exists.
-                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
+                BlockBlobClient blob = GetLiveTenantBlockBlobReference(child.Id, blobContainerClient);
                 string text = JsonConvert.SerializeObject(child, this.serializerSettings);
-                await blob.UploadTextAsync(
-                    text,
-                    null,
-                    AccessCondition.GenerateIfNoneMatchCondition("*"),
-                    null,
-                    null).ConfigureAwait(false);
-                child.ETag = blob.Properties.ETag;
+                using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(text));
+                Response<BlobContentInfo> uploadResponse = await blob.UploadAsync(
+                    contentStream,
+                    new BlobUploadOptions { Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All } })
+                    .ConfigureAwait(false);
+                child.ETag = uploadResponse.Value.ETag.ToString("G");
 
                 return child;
             }
@@ -226,11 +242,11 @@ namespace Corvus.Tenancy
             {
                 throw new TenantNotFoundException("Unsupported tenant ID", fex);
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
                 throw new TenantNotFoundException();
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.Conflict)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.Conflict)
             {
                 // This exception is thrown because there's already a tenant with the same Id. This should never happen when
                 // this method has been called from CreateChildTenantAsync as the Guid will have been generated and the
@@ -239,9 +255,8 @@ namespace Corvus.Tenancy
                 // the client code - creating tenants with well known Ids is something one would expect to happen under
                 // controlled conditions, so it's only likely that a conflict will occur when either the client code has made
                 // a mistake or someone is actively trying to cause problems.
-                throw new ArgumentException(
-                    $"A child tenant of '{parentTenantId}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.",
-                    nameof(wellKnownChildTenantGuid));
+                throw new TenantConflictException(
+                    $"A child tenant of '{parentTenantId}' with a well known Guid of '{wellKnownChildTenantGuid}' already exists.");
             }
         }
 
@@ -260,69 +275,44 @@ namespace Corvus.Tenancy
 
             try
             {
-                (_, CloudBlobContainer container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
-                CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
-                string blobText = await blob.DownloadTextAsync().ConfigureAwait(false);
-                CloudBlockBlob deletedBlob = container.GetBlockBlobReference(DeletedTenantsPrefix + tenantId);
-                await deletedBlob.UploadTextAsync(blobText).ConfigureAwait(false);
+                (_, BlobContainerClient container) = await this.GetContainerAndTenantForChildTenantsOf(TenantExtensions.GetRequiredParentId(tenantId)).ConfigureAwait(false);
+                BlockBlobClient blob = GetLiveTenantBlockBlobReference(tenantId, container);
+                Response<BlobDownloadInfo> downloadResponse = await blob.DownloadAsync().ConfigureAwait(false);
+                using var deletedBlobContent = new MemoryStream();
+                await downloadResponse.Value.Content.CopyToAsync(deletedBlobContent).ConfigureAwait(false);
+                deletedBlobContent.Position = 0;
+
+                BlockBlobClient deletedBlob = container.GetBlockBlobClient(DeletedTenantsPrefix + tenantId);
+                await deletedBlob.UploadAsync(deletedBlobContent).ConfigureAwait(false);
                 await blob.DeleteIfExistsAsync().ConfigureAwait(false);
             }
             catch (FormatException fex)
             {
                 throw new TenantNotFoundException("Unsupported tenant ID", fex);
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
                 throw new TenantNotFoundException();
             }
         }
 
         /// <summary>
-        /// Generates a URL-friendly continuation token from a BlobContinuationToken.
+        /// Decodes a URL-friendly continuation token back to its original form.
         /// </summary>
-        /// <param name="continuationToken">The continuation token.</param>
-        /// <returns>A <see cref="BlobContinuationToken"/> built from the continuation token.</returns>
-        private static async Task<BlobContinuationToken?> GetBlobContinuationTokenAsync(string? continuationToken)
-        {
-            if (continuationToken == null)
-            {
-                return null;
-            }
-
-            var output = new BlobContinuationToken();
-            using (var reader = XmlReader.Create(continuationToken.Base64UrlDecode().AsStream(Encoding.Unicode), new XmlReaderSettings { Async = true }))
-            {
-                await output.ReadXmlAsync(reader).ConfigureAwait(false);
-            }
-
-            return output;
-        }
+        /// <param name="continuationTokenInUrlForm">The continuation token.</param>
+        /// <returns>A <see cref="string"/> built from the continuation token.</returns>
+        private static string? DecodeUrlEncodedContinuationToken(string? continuationTokenInUrlForm) => continuationTokenInUrlForm?.Base64UrlDecode();
 
         /// <summary>
-        /// Generates a URL-friendly continuation token from a BlobContinuationToken.
+        /// Generates a URL-friendly continuation token from a continuation token provided by blob storage.
         /// </summary>
-        /// <param name="continuationToken">The blob continuation token.</param>
-        /// <returns>A URL-friendly string, or null if there are no further results.</returns>
-        private static string? GenerateContinuationToken(BlobContinuationToken? continuationToken)
+        /// <param name="continuationToken">The continuation token in the form blob storage supplied it.</param>
+        /// <returns>A URL-friendly string, or null if <paramref name="continuationToken"/> was null.</returns>
+        private static string? GenerateContinuationToken(string? continuationToken) => continuationToken?.Base64UrlEncode();
+
+        private static BlockBlobClient GetLiveTenantBlockBlobReference(string tenantId, BlobContainerClient container)
         {
-            if (continuationToken == null)
-            {
-                return null;
-            }
-
-            var output = new StringBuilder();
-            using (var writer = XmlWriter.Create(output, new XmlWriterSettings() { Indent = false }))
-            {
-                continuationToken.WriteXml(writer);
-                writer.Flush();
-            }
-
-            return output.ToString().Base64UrlEncode();
-        }
-
-        private static CloudBlockBlob GetLiveTenantBlockBlobReference(string tenantId, CloudBlobContainer container)
-        {
-            return container.GetBlockBlobReference(LiveTenantsPrefix + tenantId);
+            return container.GetBlockBlobClient(LiveTenantsPrefix + tenantId);
         }
 
         /// <summary>
@@ -331,16 +321,16 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenantId">The id of the parent tenant.</param>
         /// <returns>The parent tenant, and a blob container containing the child tenants of that parent tenant.</returns>
-        private async Task<(ITenant, CloudBlobContainer)> GetContainerAndTenantForChildTenantsOf(string tenantId)
+        private async Task<(ITenant, BlobContainerClient)> GetContainerAndTenantForChildTenantsOf(string tenantId)
         {
             ITenant currentTenant = this.Root;
 
             // Get the repo for the root tenant
-            CloudBlobContainer cloudBlobContainer = await this.GetCloudBlobContainer(currentTenant).ConfigureAwait(false);
+            BlobContainerClient blobContainerClient = await this.GetBlobContainerClient(currentTenant).ConfigureAwait(false);
 
             if (tenantId == RootTenant.RootTenantId)
             {
-                return (this.Root, cloudBlobContainer);
+                return (this.Root, blobContainerClient);
             }
 
             // Skip the root id
@@ -350,14 +340,14 @@ namespace Corvus.Tenancy
             foreach (string id in ids)
             {
                 // Get the tenant from its parent's container
-                currentTenant = await this.GetTenantFromContainerAsync(id, cloudBlobContainer, null).ConfigureAwait(false);
+                currentTenant = await this.GetTenantFromContainerAsync(id, blobContainerClient, null).ConfigureAwait(false);
 
                 // Then get the container for that tenant
-                cloudBlobContainer = await this.GetCloudBlobContainer(currentTenant).ConfigureAwait(false);
+                blobContainerClient = await this.GetBlobContainerClient(currentTenant).ConfigureAwait(false);
             }
 
             // Finally, return the tenant repository which contains the children of the specified tenant
-            return (currentTenant, cloudBlobContainer);
+            return (currentTenant, blobContainerClient);
         }
 
         /// <summary>
@@ -365,29 +355,42 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="parentTenant">The tenant for which to get the child tenant repository.</param>
         /// <returns>A <see cref="Task"/> which completes with the document repository for children of the specified tenant.</returns>
-        private Task<CloudBlobContainer> GetCloudBlobContainer(ITenant parentTenant)
+        private Task<BlobContainerClient> GetBlobContainerClient(ITenant parentTenant)
         {
-            return this.tenantCloudBlobContainerFactory.GetBlobContainerForTenantAsync(parentTenant, ContainerDefinition);
+            return this.tenantBlobContainerClientFactory.GetBlobContainerForTenantAsync(parentTenant, ContainerDefinition);
         }
 
-        private async Task<Tenant> GetTenantFromContainerAsync(string tenantId, CloudBlobContainer container, string? etag)
+        private async Task<Tenant> GetTenantFromContainerAsync(string tenantId, BlobContainerClient container, string? etag)
         {
-            CloudBlockBlob blob = GetLiveTenantBlockBlobReference(tenantId, container);
-            try
-            {
-                string text = await blob.DownloadTextAsync(Encoding.UTF8, string.IsNullOrEmpty(etag) ? null : AccessCondition.GenerateIfNoneMatchCondition(etag), null, null).ConfigureAwait(false);
-                Tenant tenant = JsonConvert.DeserializeObject<Tenant>(text, this.serializerSettings);
-                tenant.ETag = blob.Properties.ETag;
-                return tenant;
-            }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotModified)
+            BlockBlobClient blob = GetLiveTenantBlockBlobReference(tenantId, container);
+
+            // Can't use DownloadContentAsync because of https://github.com/Azure/azure-sdk-for-net/issues/22598
+            Response<BlobDownloadStreamingResult> response = await blob.DownloadStreamingAsync(
+                conditions: string.IsNullOrEmpty(etag) ? null : new BlobRequestConditions { IfNoneMatch = new ETag(etag!) })
+                .ConfigureAwait(false);
+
+            int status = response.GetRawResponse().Status;
+            if (status == 304)
             {
                 throw new TenantNotModifiedException();
             }
-            catch (StorageException ex) when (ex.RequestInformation.HttpStatusCode == (int)HttpStatusCode.NotFound)
+            else if (status == 404)
             {
                 throw new TenantNotFoundException();
             }
+
+            // Note: it is technically possible to use System.Text.Json to work directly from
+            // the UTF-8 data, which is more efficient than decoding to a .NET UTF-16 string
+            // first. However, we have to do this for the time being because we are in the world of
+            // IJsonSerializerSettingsProvider, where all serialization options are managed in
+            // terms of JSON.NET.
+            using BlobDownloadStreamingResult blobDownloadStreamingResult = response.Value;
+            BinaryData data = await BinaryData.FromStreamAsync(blobDownloadStreamingResult.Content).ConfigureAwait(false);
+            string text = data.ToString();
+
+            Tenant tenant = JsonConvert.DeserializeObject<Tenant>(text, this.serializerSettings);
+            tenant.ETag = response.Value.Details.ETag.ToString("G");
+            return tenant;
         }
     }
 }

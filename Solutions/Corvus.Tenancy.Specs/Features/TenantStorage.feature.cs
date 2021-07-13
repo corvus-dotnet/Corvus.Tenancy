@@ -349,13 +349,13 @@ this.ScenarioInitialize(scenarioInfo);
         
         [NUnit.Framework.TestAttribute()]
         [NUnit.Framework.DescriptionAttribute("Creating a child of a child with a well known Id that is already in use by a chil" +
-            "d of the same parent throws an ArgumentException")]
-        public virtual void CreatingAChildOfAChildWithAWellKnownIdThatIsAlreadyInUseByAChildOfTheSameParentThrowsAnArgumentException()
+            "d of the same parent throws a TenantConflictException")]
+        public virtual void CreatingAChildOfAChildWithAWellKnownIdThatIsAlreadyInUseByAChildOfTheSameParentThrowsATenantConflictException()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Creating a child of a child with a well known Id that is already in use by a chil" +
-                    "d of the same parent throws an ArgumentException", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+                    "d of the same parent throws a TenantConflictException", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
 #line 44
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -389,7 +389,7 @@ this.ScenarioInitialize(scenarioInfo);
                         "-E7FB-4214-8878-F9E7CA9B0F5F\" for tenant called \"ChildTenant1\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 48
- testRunner.Then("an \"ArgumentException\" is thrown", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("an \"TenantConflictException\" is thrown", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

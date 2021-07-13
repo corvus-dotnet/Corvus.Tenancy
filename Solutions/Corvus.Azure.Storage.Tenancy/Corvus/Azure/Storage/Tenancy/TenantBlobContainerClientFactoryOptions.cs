@@ -1,13 +1,13 @@
-﻿// <copyright file="TenantCloudBlobContainerFactoryOptions.cs" company="Endjin Limited">
+﻿// <copyright file="TenantBlobContainerClientFactoryOptions.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
 namespace Corvus.Azure.Storage.Tenancy
 {
     /// <summary>
-    /// Configuration settings for <see cref="TenantCloudBlobContainerFactory"/>.
+    /// Configuration settings for <see cref="TenantBlobContainerClientFactory"/>.
     /// </summary>
-    public class TenantCloudBlobContainerFactoryOptions
+    public class TenantBlobContainerClientFactoryOptions
     {
         /// <summary>
         /// Gets or sets the connection string to use when obtaining tokens as the service identity.
@@ -26,7 +26,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// file) use the following code in your startup:
         /// </p>
         /// <code><![CDATA[
-        /// services.AddTenantCloudBlobContainerFactory(configurationRoot.Get<TenantCloudBlobContainerFactoryOptions>());
+        /// services.AddTenantBlobContainerClientFactory(configurationRoot.Get<TenantBlobContainerClientFactoryOptions>());
         /// ]]></code>
         /// <p>
         /// The <c>Get&lt;T&gt;</c> method used here is an extension method in the
@@ -38,7 +38,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </p>
         /// <p>
         /// There is no requirement to use <c>Microsoft.Extensions.Configuration</c>. You are free
-        /// to create an instance of <see cref="TenantCloudBlobContainerFactoryOptions"/> however you like. The
+        /// to create an instance of <see cref="TenantBlobContainerClientFactoryOptions"/> however you like. The
         /// example above just shows an easy way to support the common configuration convention of
         /// enabling the connection string to be set with an application setting named
         /// <c>AzureServicesAuthConnectionString</c>.

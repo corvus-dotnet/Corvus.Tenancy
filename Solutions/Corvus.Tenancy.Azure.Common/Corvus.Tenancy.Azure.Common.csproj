@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
   <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
 
   <PropertyGroup>
@@ -15,22 +15,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="C:\Users\JonathanGeorge\.nuget\packages\corvus.extensions.cosmosclient\1.0.4\contentFiles\any\netstandard2.0\ThirdPartyNotice.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Corvus.Extensions.CosmosClient" Version="3.0.0-212-azure-sdk-updates.1" />
+    <PackageReference Include="Azure.Identity" Version="1.4.0" />
+    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.2.0" />
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.16" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.16" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Corvus.Tenancy.Azure.Common\Corvus.Tenancy.Azure.Common.csproj" />
+    <ProjectReference Include="..\Corvus.Tenancy.Abstractions\Corvus.Tenancy.Abstractions.csproj" />
   </ItemGroup>
-
 
 </Project>

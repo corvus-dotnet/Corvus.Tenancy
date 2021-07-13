@@ -1,19 +1,21 @@
-﻿// <copyright file="TenancyCloudBlobContainerBindings.cs" company="Endjin Limited">
+﻿// <copyright file="TenancyBlobContainerClientBindings.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
 namespace Corvus.Tenancy.Specs.Bindings
 {
     using System.Threading.Tasks;
+
+    using global::Azure.Storage.Blobs;
+
     using Corvus.Testing.SpecFlow;
-    using Microsoft.Azure.Storage.Blob;
     using TechTalk.SpecFlow;
 
     /// <summary>
     /// Specflow bindings to support a tenanted cloud blob container.
     /// </summary>
     [Binding]
-    public static class TenancyCloudBlobContainerBindings
+    public static class TenancyBlobContainerClientBindings
     {
         /// <summary>
         /// The key for the tenancy container in the feature context.
@@ -25,11 +27,11 @@ namespace Corvus.Tenancy.Specs.Bindings
         /// </summary>
         /// <param name="featureContext">The feature context.</param>
         /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
-        [AfterFeature("@setupTenantedCloudBlobContainer", Order = 100000)]
+        [AfterFeature("@setupTenantedBlobContainerClient", Order = 100000)]
         public static Task TeardownCosmosDB(FeatureContext featureContext)
         {
             return featureContext.RunAndStoreExceptionsAsync(
-                async () => await featureContext.Get<CloudBlobContainer>(TenancySpecsContainer).DeleteAsync().ConfigureAwait(false));
+                async () => await featureContext.Get<BlobContainerClient>(TenancySpecsContainer).DeleteAsync().ConfigureAwait(false));
         }
     }
 }

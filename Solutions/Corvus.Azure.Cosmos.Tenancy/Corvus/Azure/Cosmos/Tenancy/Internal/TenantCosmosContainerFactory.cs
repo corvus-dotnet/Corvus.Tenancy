@@ -7,13 +7,13 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+
     using Corvus.Extensions.Cosmos;
     using Corvus.Tenancy;
+    using Corvus.Tenancy.Azure.Common;
+
     using Microsoft.Azure.Cosmos;
     using Microsoft.Azure.Cosmos.Fluent;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -37,10 +37,10 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, TenantCosmosContainerFactoryOptions)"/>.
+    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(IServiceCollection, TenantCosmosContainerFactoryOptions)"/>.
     /// </para>
     /// <para>
-    /// Now, whenever you want to obtain a Cosmos container for a tenant, you simply call <see cref="TenantCosmosContainerFactory.GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
+    /// Now, whenever you want to obtain a Cosmos container for a tenant, you simply call <see cref="ITenantCosmosContainerFactory.GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
     /// it the tenant and the container definition you want to use.
     /// </para>
     /// <para>
@@ -59,12 +59,13 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    internal class TenantCosmosContainerFactory : ITenantCosmosContainerFactory
+    internal class TenantCosmosContainerFactory :
+        TenantStorageFactory<Container, CosmosContainerDefinition, CosmosConfiguration>,
+        ITenantCosmosContainerFactory
     {
         private const string DevelopmentStorageConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
-        private readonly ConcurrentDictionary<object, Task<CosmosClient>> clients = new ConcurrentDictionary<object, Task<CosmosClient>>();
-        private readonly ConcurrentDictionary<object, Task<Container>> containers = new ConcurrentDictionary<object, Task<Container>>();
+        private readonly ConcurrentDictionary<string, Task<CosmosClient>> clients = new ConcurrentDictionary<string, Task<CosmosClient>>();
         private readonly TenantCosmosContainerFactoryOptions? options;
         private readonly ICosmosClientBuilderFactory cosmosClientBuilderFactory;
         private readonly Random random = new Random();
@@ -76,135 +77,16 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
         /// <param name="options">Configuration for the TenantCosmosContainerFactory.</param>
         public TenantCosmosContainerFactory(ICosmosClientBuilderFactory cosmosClientBuilderFactory, TenantCosmosContainerFactoryOptions? options = null)
         {
-            this.cosmosClientBuilderFactory = cosmosClientBuilderFactory ?? throw new System.ArgumentNullException(nameof(cosmosClientBuilderFactory));
+            this.cosmosClientBuilderFactory = cosmosClientBuilderFactory ?? throw new ArgumentNullException(nameof(cosmosClientBuilderFactory));
             this.options = options;
         }
 
-        /// <summary>
-        /// Creates a tenant-specific version of a storage container definition.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to build the definition.</param>
-        /// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
-        /// <returns>A Cosmos container definition unique to the tenant.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "RCS1047:Non-asynchronous method name should not end with 'Async'.", Justification = "Temporarily reverting for a proper fix in its own PR. See Issue #65")]
-        public static CosmosContainerDefinition GetContainerDefinitionForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
+        /// <inheritdoc/>
+        protected override async Task<Container> CreateContainerAsync(
+            ITenant tenant,
+            CosmosContainerDefinition tenantedCosmosContainerDefinition,
+            CosmosConfiguration configuration)
         {
-            if (tenant is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenant));
-            }
-
-            if (containerDefinition is null)
-            {
-                throw new System.ArgumentNullException(nameof(containerDefinition));
-            }
-
-            return new CosmosContainerDefinition(BuildTenantSpecificDatabaseName(tenant, containerDefinition.DatabaseName), BuildTenantSpecificContainerName(tenant, containerDefinition.ContainerName), containerDefinition.PartitionKeyPath, containerDefinition.ContainerThroughput, containerDefinition.DatabaseThroughput);
-        }
-
-        /// <summary>
-        /// Gets the cache key for a tenant Cosmos container.
-        /// </summary>
-        /// <param name="tenantCosmosContainerDefinition">The definition of the tenant Cosmos container.</param>
-        /// <returns>The cache key.</returns>
-        public static object GetKeyFor(CosmosContainerDefinition tenantCosmosContainerDefinition)
-        {
-            if (tenantCosmosContainerDefinition is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenantCosmosContainerDefinition));
-            }
-
-            return $"{tenantCosmosContainerDefinition.DatabaseName}__{tenantCosmosContainerDefinition.ContainerName}";
-        }
-
-        /// <summary>
-        /// Gets the cache key for a storage account client.
-        /// </summary>
-        /// <param name="storageConfiguration">The configuration of the tenant storage account.</param>
-        /// <returns>The cache key.</returns>
-        public static object GetKeyFor(CosmosConfiguration storageConfiguration)
-        {
-            if (storageConfiguration is null)
-            {
-                throw new System.ArgumentNullException(nameof(storageConfiguration));
-            }
-
-            return string.IsNullOrEmpty(storageConfiguration.AccountUri) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.AccountUri}";
-        }
-
-        /// <summary>
-        /// Get a Cosmos container for a tenant.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to retrieve the container.</param>
-        /// <param name="containerDefinition">The details of the container to create.</param>
-        /// <returns>The container instance for the tenant.</returns>
-        /// <remarks>
-        /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
-        /// </remarks>
-        public async Task<Container> GetContainerForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition)
-        {
-            if (tenant is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenant));
-            }
-
-            if (containerDefinition is null)
-            {
-                throw new System.ArgumentNullException(nameof(containerDefinition));
-            }
-
-            CosmosContainerDefinition tenantedCosmosContainerDefinition = GetContainerDefinitionForTenantAsync(tenant, containerDefinition);
-            object key = GetKeyFor(tenantedCosmosContainerDefinition);
-
-            Task<Container> result = this.containers.GetOrAdd(
-                key,
-                _ => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition));
-
-            if (result.IsFaulted)
-            {
-                // If a task has been created in the previous statement, it won't have completed yet. Therefore if it's
-                // faulted, that means it was added as part of a previous request to this method, and subsequently
-                // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
-                // return. If removing the value fails, that's likely because it's been removed by a different thread,
-                // so we will ignore that and just attempt to create and return a new value anyway.
-                this.containers.TryRemove(key, out Task<Container> _);
-
-                // Wait for a short and random time, to reduce the potential for large numbers of spurious container
-                // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
-                await Task.Delay(this.random.Next(150, 250)).ConfigureAwait(false);
-
-                result = this.containers.GetOrAdd(
-                    key,
-                    _ => this.CreateTenantCosmosContainer(tenant, containerDefinition, tenantedCosmosContainerDefinition));
-            }
-
-            return await result.ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Create the repository instance.
-        /// </summary>
-        /// <param name="tenant">The tenant.</param>
-        /// <param name="tenantedCosmosContainerDefinition">The container definition, adapted for the tenant.</param>
-        /// <param name="configuration">The Cosmos configuration.</param>
-        /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
-        protected async Task<Container> CreateCosmosContainerInstanceAsync(ITenant tenant, CosmosContainerDefinition tenantedCosmosContainerDefinition, CosmosConfiguration configuration)
-        {
-            if (tenant is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenant));
-            }
-
-            if (tenantedCosmosContainerDefinition is null)
-            {
-                throw new System.ArgumentNullException(nameof(tenantedCosmosContainerDefinition));
-            }
-
-            if (configuration is null)
-            {
-                throw new System.ArgumentNullException(nameof(configuration));
-            }
-
             // Note: the use of the null forgiving operator in the next two statements is necessary
             // only for as long as we target .NET Standard 2.0. It does not have the NotNullWhen
             // attribute on string.IsNullOrWhiteSpace, meaning the compiler cannot infer that
@@ -225,8 +107,7 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                     : BuildTenantSpecificContainerName(tenant, configuration.ContainerName!));
 
             // Get the Cosmos client for the specified configuration.
-            object accountCacheKey = GetKeyFor(configuration);
-
+            string accountCacheKey = GetCacheKeyForStorageAccount(configuration);
             CosmosClient cosmosClient = await this.clients.GetOrAdd(
                 accountCacheKey,
                 _ => this.CreateCosmosClientAsync(configuration)).ConfigureAwait(false);
@@ -243,6 +124,45 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
                     tenantedCosmosContainerDefinition.ContainerThroughput).ConfigureAwait(false);
 
             return response.Container;
+        }
+
+        /// <inheritdoc/>
+        protected override CosmosContainerDefinition MakeDefinition(
+            string tenantSpecificContainerName,
+            ITenant tenant,
+            CosmosContainerDefinition nonTenantSpecificContainerDefinition)
+            => new CosmosContainerDefinition(
+                BuildTenantSpecificDatabaseName(tenant, nonTenantSpecificContainerDefinition.DatabaseName),
+                tenantSpecificContainerName,
+                nonTenantSpecificContainerDefinition.PartitionKeyPath,
+                nonTenantSpecificContainerDefinition.ContainerThroughput,
+                nonTenantSpecificContainerDefinition.DatabaseThroughput);
+
+        /// <inheritdoc/>
+        protected override string GetCacheKeyForContainer(CosmosContainerDefinition tenantCosmosContainerDefinition)
+            => $"{tenantCosmosContainerDefinition.DatabaseName}__{tenantCosmosContainerDefinition.ContainerName}";
+
+        /// <inheritdoc/>
+        protected override string GetContainerName(CosmosContainerDefinition definition)
+            => definition.ContainerName;
+
+        /// <inheritdoc/>
+        protected override CosmosConfiguration GetConfiguration(ITenant tenant, CosmosContainerDefinition definition)
+            => tenant.GetCosmosConfiguration(definition);
+
+        /// <summary>
+        /// Gets the cache key for a storage account client.
+        /// </summary>
+        /// <param name="storageConfiguration">The configuration of the tenant storage account.</param>
+        /// <returns>The cache key.</returns>
+        private static string GetCacheKeyForStorageAccount(CosmosConfiguration storageConfiguration)
+        {
+            if (storageConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(storageConfiguration));
+            }
+
+            return string.IsNullOrEmpty(storageConfiguration.AccountUri) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.AccountUri}";
         }
 
         private static string BuildTenantSpecificContainerName(ITenant tenant, string container) => $"{tenant.Id.ToLowerInvariant()}-{container}";
@@ -264,31 +184,15 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
             }
             else
             {
-                string accountKey = await this.GetAccountKeyAsync(configuration).ConfigureAwait(false);
+                string accountKey = await this.GetKeyVaultSecretAsync(
+                    this.options?.AzureServicesAuthConnectionString,
+                    configuration.KeyVaultName!,
+                    configuration.AccountKeySecretName!).ConfigureAwait(false);
                 builder = this.cosmosClientBuilderFactory.CreateCosmosClientBuilder(configuration.AccountUri, accountKey);
             }
 
             // TODO: do we want to change any defaults?
             return builder.Build();
-        }
-
-        private async Task<string> GetAccountKeyAsync(CosmosConfiguration storageConfiguration)
-        {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
-
-            SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
-            return accountKey.Value;
-        }
-
-        private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedCosmosContainerDefinition)
-        {
-            CosmosConfiguration? configuration = tenant.GetCosmosConfiguration(repositoryDefinition);
-
-            // Although GetCosmosConfiguration can return null, CreateCosmosContainerInstanceAsync
-            // will detect that and throw, so it's OK to silence the compiler warning with the null
-            // forgiving operator here.
-            return await this.CreateCosmosContainerInstanceAsync(tenant, tenantedCosmosContainerDefinition, configuration!).ConfigureAwait(false);
         }
     }
 }

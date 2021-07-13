@@ -1,4 +1,4 @@
-﻿// <copyright file="ITenantCloudBlobContainerFactory.cs" company="Endjin Limited">
+﻿// <copyright file="ITenantBlobContainerClientFactory.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -6,14 +6,15 @@ namespace Corvus.Azure.Storage.Tenancy
 {
     using System.Threading.Tasks;
     using Corvus.Tenancy;
-    using Microsoft.Azure.Storage.Blob;
+
+    using global::Azure.Storage.Blobs;
 
     /// <summary>
-    /// A factory for a <see cref="CloudBlobContainer"/>.
+    /// A factory for a <see cref="BlobContainerClient"/>.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// You use this type to get an instance of an <see cref="CloudBlobContainer"/> for a specific
+    /// You use this type to get an instance of an <see cref="BlobContainerClient"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
     /// configuration comes from the tenant via <see cref="BlobStorageTenantExtensions.AddBlobStorageConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, BlobStorageContainerDefinition, BlobStorageConfiguration)"/>.
     /// </para>
@@ -22,17 +23,16 @@ namespace Corvus.Azure.Storage.Tenancy
     /// provider and configuration for your repositories.
     /// </para>
     /// <para>
-    /// First, add the blob container factory and the configuration account key provider in your container configuration (assuming you have added a standard ConfigurationRoot to your solution).
+    /// First, add the blob container factory in your container configuration.
     /// </para>
     /// <code>
-    /// serviceCollection.AddTenantCloudBlobContainerFactory();
-    /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
+    /// serviceCollection.AddTenantBlobContainerClientFactory(tenantBlobContainerClientFactoryOptions);
     /// </code>
     /// <para>
     /// <code>
-    /// TenantCloudBlobContainerFactory factory;
+    /// ITenantBlobContainerClientFactory factory;
     ///
-    /// var repository = await factory.GetBlobContainerForTenantAsync(tenantProvider.Root, new BlobStorageContainerDefinition("somecontainer"));
+    /// BlobContainerClient client = await factory.GetBlobContainerForTenantAsync(tenantProvider.Root, new BlobStorageContainerDefinition("somecontainer"));
     /// </code>
     /// </para>
     /// <para>
@@ -40,16 +40,16 @@ namespace Corvus.Azure.Storage.Tenancy
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
-    /// Note that it will be possible for code that obtains a CloudBlobContainer in this way to use the resulting object to access
+    /// Note that it will be possible for code that obtains a BlobContainerClient in this way to use the resulting object to access
     /// the CloudBlobClient and thus access other blob contains in the same container. As such these objects should only ever be
     /// handed to trusted code.
     /// </para>
     /// <para>
-    /// Note also that because we have not wrapped the resulting CloudBlobContainer in a class of our own, we cannot automatically
+    /// Note also that because we have not wrapped the resulting BlobContainerClient in a class of our own, we cannot automatically
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public interface ITenantCloudBlobContainerFactory
+    public interface ITenantBlobContainerClientFactory
     {
         /// <summary>
         /// Get a blob container for a tenant.
@@ -60,6 +60,6 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <remarks>
         /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
         /// </remarks>
-        Task<CloudBlobContainer> GetBlobContainerForTenantAsync(ITenant tenant, BlobStorageContainerDefinition containerDefinition);
+        Task<BlobContainerClient> GetBlobContainerForTenantAsync(ITenant tenant, BlobStorageContainerDefinition containerDefinition);
     }
 }

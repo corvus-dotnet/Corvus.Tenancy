@@ -19,13 +19,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds services required by tenancy Azure storage based stores.
         /// </summary>
         /// <param name="services">The service collection.</param>
-        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
+        /// <param name="options">Configuration for the TenantBlobContainerClientFactory.</param>
         /// <returns>The modified service collection.</returns>
-        public static IServiceCollection AddTenantCloudBlobContainerFactory(
+        public static IServiceCollection AddTenantBlobContainerClientFactory(
             this IServiceCollection services,
-            TenantCloudBlobContainerFactoryOptions options)
+            TenantBlobContainerClientFactoryOptions options)
         {
-            return services.AddTenantCloudBlobContainerFactory(_ => options);
+            return services.AddTenantBlobContainerClientFactory(_ => options);
         }
 
         /// <summary>
@@ -34,27 +34,27 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">The target service collection.</param>
         /// <param name="getOptions">Function to get the configuration options.</param>
         /// <returns>The service collection.</returns>
-        public static IServiceCollection AddTenantCloudBlobContainerFactory(
+        public static IServiceCollection AddTenantBlobContainerClientFactory(
             this IServiceCollection services,
-            Func<IServiceProvider, TenantCloudBlobContainerFactoryOptions> getOptions)
+            Func<IServiceProvider, TenantBlobContainerClientFactoryOptions> getOptions)
         {
             if (services is null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
 
-            if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
+            if (services.Any(s => typeof(ITenantBlobContainerClientFactory).IsAssignableFrom(s.ServiceType)))
             {
                 return services;
             }
 
             services.AddRequiredTenancyServices();
 
-            services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
+            services.AddSingleton<ITenantBlobContainerClientFactory>(s =>
             {
-                TenantCloudBlobContainerFactoryOptions options = getOptions(s);
+                TenantBlobContainerClientFactoryOptions options = getOptions(s);
 
-                return new TenantCloudBlobContainerFactory(options);
+                return new TenantBlobContainerClientFactory(options);
             });
 
             return services;

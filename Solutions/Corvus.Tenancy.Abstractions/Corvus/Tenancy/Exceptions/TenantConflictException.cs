@@ -8,8 +8,14 @@ namespace Corvus.Tenancy.Exceptions
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// The tenant has not been modified.
+    /// The tenant operation has not been completed due to a conflict.
     /// </summary>
+    /// <remarks>
+    /// For operations that modify an existing tenant, this exception is thrown when the tenant in
+    /// storage has been modified since the client started the operation, as determined by a
+    /// non-matching ETag. For operations attempting to create a new tenant, this is thrown when
+    /// a tenant with the specified ID already exists.
+    /// </remarks>
     [Serializable]
     public class TenantConflictException : Exception
     {
