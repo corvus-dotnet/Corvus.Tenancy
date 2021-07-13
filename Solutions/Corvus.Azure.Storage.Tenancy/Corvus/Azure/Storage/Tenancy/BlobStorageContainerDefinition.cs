@@ -4,7 +4,7 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
-    using Microsoft.Azure.Storage.Blob;
+    using global::Azure.Storage.Blobs.Models;
 
     /// <summary>
     /// A definition of a blob storage container.
@@ -16,7 +16,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </summary>
         /// <param name="containerName">The <see cref="ContainerName"/>.</param>
         /// <param name="accessType">The <see cref="AccessType"/>.</param>
-        public BlobStorageContainerDefinition(string containerName, BlobContainerPublicAccessType accessType = BlobContainerPublicAccessType.Off)
+        public BlobStorageContainerDefinition(string containerName, PublicAccessType accessType = PublicAccessType.None)
         {
             this.ContainerName = containerName;
             this.AccessType = accessType;
@@ -30,6 +30,6 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <summary>
         /// Gets or sets the access type for the container.
         /// </summary>
-        public BlobContainerPublicAccessType AccessType { get; set; }
+        public PublicAccessType AccessType { get; set; }
     }
 }

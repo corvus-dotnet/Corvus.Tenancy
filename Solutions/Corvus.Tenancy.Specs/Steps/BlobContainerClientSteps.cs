@@ -2,23 +2,25 @@
 {
     using System;
     using System.Threading.Tasks;
+
+    using global::Azure.Storage.Blobs;
+
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Specs.Bindings;
     using Corvus.Testing.SpecFlow;
-    using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
     using TechTalk.SpecFlow;
 
     [Binding]
-    public class CloudBlobContainerSteps
+    public class BlobContainerClientSteps
     {
         private readonly FeatureContext featureContext;
         private readonly IServiceProvider serviceProvider;
 
-        public CloudBlobContainerSteps(FeatureContext featureContext)
+        public BlobContainerClientSteps(FeatureContext featureContext)
         {
             this.featureContext = featureContext;
             this.serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
@@ -53,34 +55,34 @@
         public async Task ThenIShouldBeAbleToGetTheTenantedContainer()
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            ITenantCloudBlobContainerFactory factory = this.serviceProvider.GetRequiredService<ITenantCloudBlobContainerFactory>();
+            ITenantBlobContainerClientFactory factory = this.serviceProvider.GetRequiredService<ITenantBlobContainerClientFactory>();
 
             BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
 
-            CloudBlobContainer tenancySpecsContainer = await factory.GetBlobContainerForTenantAsync(
+            BlobContainerClient tenancySpecsContainer = await factory.GetBlobContainerForTenantAsync(
                 tenantProvider.Root,
                 blobStorageContainerDefinition).ConfigureAwait(false);
 
             Assert.IsNotNull(tenancySpecsContainer);
 
             // Add to feature context so it will be torn down after the test.
-            this.featureContext.Set(tenancySpecsContainer, TenancyCloudBlobContainerBindings.TenancySpecsContainer);
+            this.featureContext.Set(tenancySpecsContainer, TenancyBlobContainerClientBindings.TenancySpecsContainer);
         }
 
         [Then("the tenanted cloud blob container should be named using a hash of the tenant Id and the name specified in the blob container definition")]
-        public void ThenTheTenantedCloudBlobContainerShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheBlobContainerDefinition()
+        public void ThenTheTenantedBlobContainerClientShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheBlobContainerDefinition()
         {
             BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
             string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", blobStorageContainerDefinition.ContainerName);
             string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
 
-            CloudBlobContainer container = this.featureContext.Get<CloudBlobContainer>(TenancyCloudBlobContainerBindings.TenancySpecsContainer);
+            BlobContainerClient container = this.featureContext.Get<BlobContainerClient>(TenancyBlobContainerClientBindings.TenancySpecsContainer);
 
             Assert.AreEqual(expectedName, container.Name);
         }
 
         [Then("the tenanted cloud blob container should be named using a hash of the tenant Id and the name specified in the blob configuration")]
-        public void ThenTheTenantedCloudBlobContainerShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheBlobConfiguration()
+        public void ThenTheTenantedBlobContainerClientShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheBlobConfiguration()
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
             BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
@@ -89,13 +91,13 @@
             string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", blobStorageConfiguration.Container);
             string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
 
-            CloudBlobContainer container = this.featureContext.Get<CloudBlobContainer>(TenancyCloudBlobContainerBindings.TenancySpecsContainer);
+            BlobContainerClient container = this.featureContext.Get<BlobContainerClient>(TenancyBlobContainerClientBindings.TenancySpecsContainer);
 
             Assert.AreEqual(expectedName, container.Name);
         }
 
         [Then("the tenanted cloud blob container should be named using a hash of the name specified in the blob configuration")]
-        public void ThenTheTenantedCloudBlobContainerShouldBeNamedUsingAHashOfTheNameSpecifiedInTheBlobConfiguration()
+        public void ThenTheTenantedBlobContainerClientShouldBeNamedUsingAHashOfTheNameSpecifiedInTheBlobConfiguration()
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
             BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
@@ -104,7 +106,7 @@
             string expectedNamePlain = blobStorageConfiguration.Container!;
             string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
 
-            CloudBlobContainer container = this.featureContext.Get<CloudBlobContainer>(TenancyCloudBlobContainerBindings.TenancySpecsContainer);
+            BlobContainerClient container = this.featureContext.Get<BlobContainerClient>(TenancyBlobContainerClientBindings.TenancySpecsContainer);
 
             Assert.AreEqual(expectedName, container.Name);
         }

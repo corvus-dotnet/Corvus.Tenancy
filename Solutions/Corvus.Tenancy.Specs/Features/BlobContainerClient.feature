@@ -1,7 +1,7 @@
 ﻿@perFeatureContainer
-@setupTenantedCloudBlobContainer
+@setupTenantedBlobContainerClient
 
-Feature: CloudBlobContainer
+Feature: BlobContainerClient
 	In order to use cloud blob storage for tenanted services
 	As a developer
 	I want to be able to manage the container

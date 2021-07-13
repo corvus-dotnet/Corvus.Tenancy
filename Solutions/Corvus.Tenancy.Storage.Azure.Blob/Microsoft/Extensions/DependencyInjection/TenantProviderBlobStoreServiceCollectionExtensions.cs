@@ -49,10 +49,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     values => values.AddBlobStorageConfiguration(
                         TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig));
 
-                ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
+                ITenantBlobContainerClientFactory tenantBlobContainerClientFactory = sp.GetRequiredService<ITenantBlobContainerClientFactory>();
                 IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();
 
-                return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantCloudBlobContainerFactory, serializerSettingsProvider);
+                return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantBlobContainerClientFactory, serializerSettingsProvider);
             });
 
             services.AddSingleton<ITenantStore>(sp => sp.GetRequiredService<TenantProviderBlobStore>());

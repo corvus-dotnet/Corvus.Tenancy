@@ -11,13 +11,10 @@ namespace Corvus.Sql.Tenancy.Internal
     using System.Text;
     using System.Threading.Tasks;
     using Corvus.Tenancy;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.Azure.Services.AppAuthentication;
-    using Microsoft.Extensions.DependencyInjection;
+    using Corvus.Tenancy.Azure.Common;
 
     /// <summary>
-    /// A factory for a <see cref="Sql"/>.
+    /// A factory for a <see cref="SqlConnection"/>.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -30,15 +27,11 @@ namespace Corvus.Sql.Tenancy.Internal
     /// provider and configuration for your repositories.
     /// </para>
     /// <para>
-    /// First, add the Sql container factory and the configuration account key provider in your container configuration (assuming you have added a standard ConfigurationRoot to your solution).
+    /// First, add the Sql container factory in your container configuration.
     /// </para>
     /// <code>
-    /// serviceCollection.AddTenantSqlContainerFactory();
-    /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
+    /// serviceCollection.AddTenantSqlConnectionFactory(tenantSqlConnectionFactoryOptions);
     /// </code>
-    /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="Microsoft.Extensions.DependencyInjection.TenancySqlServiceCollectionExtensions.AddTenantSqlConnectionFactory(IServiceCollection, TenantSqlConnectionFactoryOptions)"/>.
-    /// </para>
     /// <para>
     /// Now, whenever you want to obtain a Sql connection for a tenant, you simply call <see cref="GetSqlConnectionForTenantAsync(ITenant, SqlConnectionDefinition)"/>, passing
     /// it the tenant and the container definition you want to use.
@@ -47,7 +40,7 @@ namespace Corvus.Sql.Tenancy.Internal
     /// <code>
     /// TenantSqlConnectionFactory factory;
     ///
-    /// var repository = await factory.GetSqlConnectionForTenantAsync(tenantProvider.Root, new SqlConnectionDefinition("somedatabase"));
+    /// SqlConnection connection = await factory.GetSqlConnectionForTenantAsync(tenantProvider.Root, new SqlConnectionDefinition("somedatabase"));
     /// </code>
     /// </para>
     /// <para>
@@ -55,11 +48,13 @@ namespace Corvus.Sql.Tenancy.Internal
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
-    /// Note also that because we have not wrapped the resulting Container in a class of our own, we cannot automatically
+    /// Note that because we have not wrapped the resulting Container in a class of our own, we cannot automatically
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    internal class TenantSqlConnectionFactory : ITenantSqlConnectionFactory
+    internal class TenantSqlConnectionFactory :
+        TenantStorageFactory<SqlConnection, SqlConnectionDefinition, SqlConfiguration>,
+        ITenantSqlConnectionFactory
     {
         private const string DevelopmentStorageConnectionString = "Server=(localdb)\\mssqllocaldb;Database=testtenant;Trusted_Connection=True;MultipleActiveResultSets=true";
 
@@ -69,61 +64,10 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantSqlConnectionFactory"/> class.
         /// </summary>
-        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
+        /// <param name="options">Configuration for the TenantBlobContainerClientFactory.</param>
         public TenantSqlConnectionFactory(TenantSqlConnectionFactoryOptions? options = null)
         {
             this.options = options;
-        }
-
-        /// <summary>
-        /// Creates a tenant-specific version of a sql connection definition.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to build the definition.</param>
-        /// <param name="connectionDefinition">The standard single-tenant version of the definition.</param>
-        /// <returns>A Sql connection definition unique to the tenant.</returns>
-        public static SqlConnectionDefinition GetContainerDefinitionForTenant(ITenant tenant, SqlConnectionDefinition connectionDefinition)
-        {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (connectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(connectionDefinition));
-            }
-
-            return new SqlConnectionDefinition(BuildTenantSpecificDatabaseName(tenant, connectionDefinition.Database));
-        }
-
-        /// <summary>
-        /// Gets the cache key for a tenant Sql connection.
-        /// </summary>
-        /// <param name="tenantSqlConnectionDefinition">The definition of the tenant Sql connection.</param>
-        /// <returns>The cache key.</returns>
-        public static object GetKeyFor(SqlConnectionDefinition tenantSqlConnectionDefinition)
-        {
-            if (tenantSqlConnectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(tenantSqlConnectionDefinition));
-            }
-
-            return $"{tenantSqlConnectionDefinition.Database}";
-        }
-
-        /// <summary>
-        /// Gets the cache key for a storage account client.
-        /// </summary>
-        /// <param name="storageConfiguration">The configuration of the tenant storage account.</param>
-        /// <returns>The cache key.</returns>
-        public static object GetKeyFor(SqlConfiguration storageConfiguration)
-        {
-            if (storageConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(storageConfiguration));
-            }
-
-            return string.IsNullOrEmpty(storageConfiguration.Database) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.Database}";
         }
 
         /// <summary>
@@ -134,18 +78,7 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>A connection instance for the tenant.</returns>
         public Task<SqlConnection> GetSqlConnectionForTenantAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (connectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(connectionDefinition));
-            }
-
-            SqlConnectionDefinition tenantedSqlConnectionDefinition = GetContainerDefinitionForTenant(tenant, connectionDefinition);
-            return this.CreateSqlConnectionAsync(tenant, connectionDefinition, tenantedSqlConnectionDefinition);
+            return this.GetContainerForTenantAsync(tenant, connectionDefinition);
         }
 
         /// <summary>
@@ -155,23 +88,11 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <param name="tenantedSqlConnectionDefinition">The connection definition, adapted for the tenant.</param>
         /// <param name="configuration">The Sql configuration.</param>
         /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
-        protected async Task<SqlConnection> CreateSqlConnectionAsync(ITenant tenant, SqlConnectionDefinition tenantedSqlConnectionDefinition, SqlConfiguration configuration)
+        protected override async Task<SqlConnection> CreateContainerAsync(
+            ITenant tenant,
+            SqlConnectionDefinition tenantedSqlConnectionDefinition,
+            SqlConfiguration configuration)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (tenantedSqlConnectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(tenantedSqlConnectionDefinition));
-            }
-
-            if (configuration is null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
             // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
             configuration.Database = string.IsNullOrWhiteSpace(configuration.Database)
                 ? tenantedSqlConnectionDefinition.Database
@@ -182,7 +103,41 @@ namespace Corvus.Sql.Tenancy.Internal
             return await this.CreateSqlConnectionAsync(configuration).ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
+        protected override SqlConnectionDefinition MakeDefinition(
+            string tenantSpecificContainerName,
+            ITenant tenant,
+            SqlConnectionDefinition nonTenantSpecificContainerDefinition)
+            => new SqlConnectionDefinition(tenantSpecificContainerName);
+
+        /// <inheritdoc/>
+        protected override string GetCacheKeyForContainer(SqlConnectionDefinition definition)
+            => definition.Database;
+
+        /// <inheritdoc/>
+        protected override string GetContainerName(SqlConnectionDefinition definition)
+            => definition.Database;
+
+        /// <inheritdoc/>
+        protected override SqlConfiguration GetConfiguration(ITenant tenant, SqlConnectionDefinition definition)
+            => tenant.GetSqlConfiguration(definition);
+
         private static string BuildTenantSpecificDatabaseName(ITenant tenant, string database) => $"{tenant.Id.ToLowerInvariant()}-{database}";
+
+        /// <summary>
+        /// Gets the cache key for a storage account client.
+        /// </summary>
+        /// <param name="storageConfiguration">The configuration of the tenant storage account.</param>
+        /// <returns>The cache key.</returns>
+        private static object GetKeyFor(SqlConfiguration storageConfiguration)
+        {
+            if (storageConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(storageConfiguration));
+            }
+
+            return string.IsNullOrEmpty(storageConfiguration.Database) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.Database}";
+        }
 
         private static void ThrowConfigurationException(SqlConfiguration storageConfiguration)
         {
@@ -231,10 +186,11 @@ namespace Corvus.Sql.Tenancy.Internal
 
             if (string.IsNullOrEmpty(storageConfiguration.ConnectionString))
             {
-                var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-                using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
-                SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
-                return accountKey.Value;
+                string accountKey = await this.GetKeyVaultSecretAsync(
+                    this.options?.AzureServicesAuthConnectionString,
+                    storageConfiguration.KeyVaultName!,
+                    storageConfiguration.ConnectionStringSecretName!).ConfigureAwait(false);
+                return accountKey;
             }
 
             if (!string.IsNullOrEmpty(storageConfiguration.KeyVaultName) || !string.IsNullOrEmpty(storageConfiguration.ConnectionStringSecretName))
@@ -244,13 +200,6 @@ namespace Corvus.Sql.Tenancy.Internal
 
             // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
             return storageConfiguration.ConnectionString!;
-        }
-
-        private Task<SqlConnection> CreateSqlConnectionAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition, SqlConnectionDefinition tenantedSqlConnectionDefinition)
-        {
-            SqlConfiguration? configuration = tenant.GetSqlConfiguration(connectionDefinition);
-
-            return this.CreateSqlConnectionAsync(tenant, tenantedSqlConnectionDefinition, configuration!);
         }
     }
 }

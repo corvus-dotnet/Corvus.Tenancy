@@ -15,10 +15,10 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.Testing.SpecFlow;
     using Corvus.Tenancy;
     using Corvus.Tenancy.Internal;
-    using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
+    using global::Azure.Storage.Blobs;
 
     /// <summary>
     ///     Container related bindings to configure the service provider for features.
@@ -75,12 +75,12 @@ namespace Corvus.Tenancy.Specs.Bindings
                         serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
                     }
 
-                    var blobOptions = new TenantCloudBlobContainerFactoryOptions
+                    var blobOptions = new TenantBlobContainerClientFactoryOptions
                     {
                         AzureServicesAuthConnectionString = config["AzureServicesAuthConnectionString"],
                     };
 
-                    serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
+                    serviceCollection.AddTenantBlobContainerClientFactory(blobOptions);
 
                     var tableOptions = new TenantCloudTableFactoryOptions
                     {
@@ -126,14 +126,14 @@ namespace Corvus.Tenancy.Specs.Bindings
                 TenantTrackingTenantProviderDecorator tenantTrackingProvider = sp.GetRequiredService<TenantTrackingTenantProviderDecorator>();
                 List<ITenant> tenants = tenantTrackingProvider.CreatedTenants;
                 tenants.Add(tenantTrackingProvider.Root);
-                ITenantCloudBlobContainerFactory blobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
+                ITenantBlobContainerClientFactory blobContainerFactory = sp.GetRequiredService<ITenantBlobContainerClientFactory>();
 
-                CloudBlobContainer[] blobContainers = await Task.WhenAll(
+                BlobContainerClient[] blobContainers = await Task.WhenAll(
                     tenants.Select(tenant => blobContainerFactory.GetBlobContainerForTenantAsync(
                         tenant,
                         TenantProviderBlobStore.ContainerDefinition))).ConfigureAwait(false);
 
-                foreach (CloudBlobContainer container in blobContainers.Distinct(x => x.Name))
+                foreach (BlobContainerClient container in blobContainers.Distinct(x => x.Name))
                 {
                     await container.DeleteIfExistsAsync().ConfigureAwait(false);
                 }

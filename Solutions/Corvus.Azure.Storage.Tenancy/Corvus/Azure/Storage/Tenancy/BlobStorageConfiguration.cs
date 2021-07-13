@@ -4,7 +4,7 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
-    using Microsoft.Azure.Storage.Blob;
+    using global::Azure.Storage.Blobs.Models;
 
     /// <summary>
     /// Encapsulates configuration for a storage account.
@@ -27,7 +27,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// Gets or sets the access type for the container. If set, this overrides the value
         /// specified in <see cref="BlobStorageContainerDefinition.AccessType"/>.
         /// </summary>
-        public BlobContainerPublicAccessType? AccessType { get; set; }
+        public PublicAccessType? AccessType { get; set; }
 
         /// <summary>
         /// Gets or sets the key value name.

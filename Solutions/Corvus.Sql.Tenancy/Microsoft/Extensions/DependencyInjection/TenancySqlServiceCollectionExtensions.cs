@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds services required by tenanted SQL Server based stores.
         /// </summary>
         /// <param name="services">The service collection.</param>
-        /// <param name="options">Configuration for the TenantCloudBlobContainerFactory.</param>
+        /// <param name="options">Configuration for the TenantBlobContainerClientFactory.</param>
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantSqlConnectionFactory(
             this IServiceCollection services,

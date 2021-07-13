@@ -7,7 +7,6 @@ namespace Corvus.Azure.Cosmos.Tenancy
     using System.Threading.Tasks;
     using Corvus.Tenancy;
     using Microsoft.Azure.Cosmos;
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// A factory for a <see cref="Container"/>.
@@ -23,24 +22,20 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// provider and configuration for your repositories.
     /// </para>
     /// <para>
-    /// First, add the Cosmos container factory and the configuration account key provider in your container configuration (assuming you have added a standard ConfigurationRoot to your solution).
+    /// First, add the Cosmos container factory in your container configuration.
     /// </para>
     /// <code>
-    /// serviceCollection.AddTenantCosmosContainerFactory();
-    /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
+    /// serviceCollection.AddTenantCosmosContainerFactory(tenantCosmosContainerFactoryOptions);
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancyCosmosServiceCollectionExtensions.AddTenantCosmosContainerFactory(Microsoft.Extensions.DependencyInjection.IServiceCollection, TenantCosmosContainerFactoryOptions)"/>.
-    /// </para>
-    /// <para>
-    /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="ITenantCosmosContainerFactory.GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
+    /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
     /// it the tenant and the container definition you want to use.
     /// </para>
     /// <para>
     /// <code>
-    /// TenantCloudBlobContainerFactory factory;
+    /// TenantCosmosContainerFactory factory;
     ///
-    /// var repository = await factory.GetBlobContainerForTenantAsync(tenantProvider.Root, new BlobStorageContainerDefinition("somecontainer"));
+    /// Container container = await factory.GetContainerForTenantAsync(tenant, new CosmosContainerDefinition("somedb", "somecontainer"));
     /// </code>
     /// </para>
     /// <para>
@@ -48,12 +43,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
-    /// Note that it will be possible for code that obtains a Container in this way to use the resulting object to access
-    /// the CloudBlobClient and thus access other blob contains in the same container. As such these objects should only ever be
-    /// handed to trusted code.
-    /// </para>
-    /// <para>
-    /// Note also that because we have not wrapped the resulting Container in a class of our own, we cannot automatically
+    /// Note that because we have not wrapped the resulting Container in a class of our own, we cannot automatically
     /// implement key rotation.
     /// </para>
     /// </remarks>
