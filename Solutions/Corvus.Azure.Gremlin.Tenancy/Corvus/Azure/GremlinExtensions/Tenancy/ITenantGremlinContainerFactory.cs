@@ -4,10 +4,9 @@
 
 namespace Corvus.Azure.GremlinExtensions.Tenancy
 {
-    using System.Threading.Tasks;
     using Corvus.Tenancy;
+
     using Gremlin.Net.Driver;
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// A factory for a <see cref="GremlinClient"/>.
@@ -29,12 +28,12 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
     /// serviceCollection.AddTenantGremlinContainerFactory(tenantGremlinContainerFactoryOptions);
     /// </code>
     /// <para>
-    /// Now, whenever you want to obtain a gremlin client for a container for a tenant, you simply call <see cref="GetClientForTenantAsync(ITenant, GremlinContainerDefinition)"/>, passing
+    /// Now, whenever you want to obtain a gremlin client for a container for a tenant, you simply call <see cref="ITenantedStorageContextFactory{TStorageContext}.GetContextForTenantAsync(ITenant, string)"/>, passing
     /// it the tenant and the container definition you want to use.
     /// </para>
     /// <para>
     /// <code>
-    /// TenantGremlinContainerFactory factory;
+    /// ITenantGremlinContainerFactory factory;
     ///
     /// var client = await factory.GetBlobContainerForTenantAsync(tenant, new GremlinContainerDefinition("somedb", "somecontainer"));
     /// </code>
@@ -48,14 +47,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public interface ITenantGremlinContainerFactory
+    public interface ITenantGremlinContainerFactory : ITenantedStorageContextFactory<GremlinClient>
     {
-        /// <summary>
-        /// Gets a gremlin client for a particular tenant and container definition.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to get the client.</param>
-        /// <param name="containerDefinition">The definition of the gremlin container.</param>
-        /// <returns>A <see cref="Task{TResult}"/> which, when complete, returns the gremlin client.</returns>
-        Task<GremlinClient> GetClientForTenantAsync(ITenant tenant, GremlinContainerDefinition containerDefinition);
     }
 }

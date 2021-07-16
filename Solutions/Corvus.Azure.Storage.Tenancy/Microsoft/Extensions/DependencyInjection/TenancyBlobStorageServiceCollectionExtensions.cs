@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 TenantBlobContainerClientFactoryOptions options = getOptions(s);
 
-                return new TenantBlobContainerClientFactory(options);
+                return new BlobContainerClientFactory(options);
             });
 
             return services;

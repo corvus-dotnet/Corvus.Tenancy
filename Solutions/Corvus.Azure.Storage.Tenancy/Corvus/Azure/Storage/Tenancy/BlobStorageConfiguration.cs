@@ -4,8 +4,6 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
-    using global::Azure.Storage.Blobs.Models;
-
     /// <summary>
     /// Encapsulates configuration for a storage account.
     /// </summary>
@@ -18,16 +16,16 @@ namespace Corvus.Azure.Storage.Tenancy
         public string? AccountName { get; set; }
 
         /// <summary>
-        /// Gets or sets the container name. If set, this overrides the name specified in
-        /// <see cref="BlobStorageContainerDefinition.ContainerName"/>.
+        /// Gets or sets the container name.
         /// </summary>
+        /// <remarks>
+        /// This must be the actual container name, so it must conform to the naming rules imposed
+        /// by Azure, and it must unique within the storage account for this configuration, and for
+        /// any other configurations referring to the same storage account. You can use
+        /// <see cref="ContainerNameBuilders.MakeUniqueSafeBlobContainerName(string, string)"/>
+        /// to create a suitable string.
+        /// </remarks>
         public string? Container { get; set; }
-
-        /// <summary>
-        /// Gets or sets the access type for the container. If set, this overrides the value
-        /// specified in <see cref="BlobStorageContainerDefinition.AccessType"/>.
-        /// </summary>
-        public PublicAccessType? AccessType { get; set; }
 
         /// <summary>
         /// Gets or sets the key value name.
@@ -38,10 +36,5 @@ namespace Corvus.Azure.Storage.Tenancy
         /// Gets or sets the account key secret mame.
         /// </summary>
         public string? AccountKeySecretName { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to disable the tenant ID prefix.
-        /// </summary>
-        public bool DisableTenantIdPrefix { get; set; }
     }
 }

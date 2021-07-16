@@ -4,7 +4,6 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
-    using System.Threading.Tasks;
     using Corvus.Tenancy;
 
     using global::Azure.Storage.Blobs;
@@ -16,7 +15,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="BlobContainerClient"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via <see cref="BlobStorageTenantExtensions.AddBlobStorageConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, BlobStorageContainerDefinition, BlobStorageConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="BlobStorageTenantExtensions.AddBlobStorageConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, string, BlobStorageConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
@@ -49,17 +48,7 @@ namespace Corvus.Azure.Storage.Tenancy
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public interface ITenantBlobContainerClientFactory
+    public interface ITenantBlobContainerClientFactory : ITenantedStorageContextFactory<BlobContainerClient>
     {
-        /// <summary>
-        /// Get a blob container for a tenant.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to retrieve the container.</param>
-        /// <param name="containerDefinition">The details of the container to create.</param>
-        /// <returns>The container instance for the tenant.</returns>
-        /// <remarks>
-        /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
-        /// </remarks>
-        Task<BlobContainerClient> GetBlobContainerForTenantAsync(ITenant tenant, BlobStorageContainerDefinition containerDefinition);
     }
 }

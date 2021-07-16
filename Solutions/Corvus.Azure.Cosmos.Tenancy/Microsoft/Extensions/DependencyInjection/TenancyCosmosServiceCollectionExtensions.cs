@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ITenantCosmosContainerFactory>(s =>
             {
                 TenantCosmosContainerFactoryOptions options = getOptions(s);
-                return new TenantCosmosContainerFactory(s.GetRequiredService<ICosmosClientBuilderFactory>(), options);
+                return new CosmosContainerFactory(s.GetRequiredService<ICosmosClientBuilderFactory>(), options);
             });
             return services;
         }

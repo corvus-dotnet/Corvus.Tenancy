@@ -4,6 +4,10 @@
 
 Breaking changes:
 
+* Databases, containers, etc. are no longer created on demand, so these must be created by applications as part of their new tenant initialization
+* The old storage-specific definition types (`BlobStorageContainerDefinition`, `CosmosContainerDefinition`, etc.) have been removed, and instead we now talk about "storage contexts" (where a "context" is a container, or a SQL db) and these contexts are invariable identified by a simple `string` which we refer to as a `contextName`
+* The names of tenant properties in which storage configuration settings go have changed: they used to be ambiguous (with several different providers using `StorageConfiguration__ContainerName`, leading to potential collisions when using multiple storage types), but now they are all prefixed with the name of the configuration type, e.g. `BlobStorageConfiguration__ContainerName`
+
 * replaced deprecated `Microsoft.Azure.Storage.Blob` with `Azure.Storage.Blobs`
 * replaced deprecated `Microsoft.Azure.KeyVault` with `Azure.Security.KeyVault.Secrets`
 * Various types and methods have been renamed to reflect the fact that the `CloudBlobContainer` in the old Azure client libraries has been replaced with the `BlobContainerClient` type:
@@ -21,3 +25,24 @@ This affects the `AccessType` for any `BlobStorageConfiguration`, and also the `
 | Blob      | Blob          |
 
 (Note: if you had Blob before, no change is required.)
+
+
+### Removal of automatic creation of dbs, containers, etc
+
+In V2, the first time you tried to use a container for some storage types, the relevant container (and possible containing database) would be created on demand if necessary for certain storage types. (Non-Gremlin-based Cosmos DB, and Azure Storage Tables and Blobs). This was problematic for various reasons. It meant that tenant initialization failures could happen a long time after a tenant was nominally created. It required storage clients to have credentials capable of performing the relevant initialization. It could also lead to conflicts if settings such as partition keys or throughput for the container were incompatible with settings already in place.
+
+So it now becomes the responsibility of the application creating the tenant always to create all necessary databases and containers up front, and ensuring that the relevant configuration in the tenant specifies all the information required to locate these things.
+
+New helper methods are provided by the `ContainerNameHelpers` class in the `Corvus.Azure.Storage.Tenancy` library to build suitable container names out of a scope (e.g., tenant) ID and context name. This will produce the same names previously produced for automatically-created containers.
+
+
+### Tenant property names for storage configuration
+
+List the various changes.
+
+`BlobStorageConfiguration`
+`TableStorageConfiguration`
+
+
+TBD: the various ITenant*Factory interfaces have all changed
+TBD: removed PartitionKeyPath from CosmosConfiguration

@@ -33,3 +33,10 @@ Scenario: Remove configuration from tenant
 	|           | false                 |
 	When I remove the blob storage configuration from the tenant
 	Then attempting to get the blob storage configuration from the tenant throws an ArgumentException
+
+
+# IDG TODO:
+# Verify that the new helpers in Corvus.Azure.Storage.Tenancy's ContainerNameBuilders make it possible to
+# access data that was originally stored using the old automatic container creation. The tests need to create
+# a container with the same naming scheme that would originally have been created automatically, and then
+# demonstrate that we can access it using the new C3 configuration approach.

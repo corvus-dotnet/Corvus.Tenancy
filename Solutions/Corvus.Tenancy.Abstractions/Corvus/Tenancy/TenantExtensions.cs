@@ -190,6 +190,32 @@ namespace Corvus.Tenancy
                 propertiesToRemove);
         }
 
+        /// <summary>
+        /// Get the storage configuration store in this tenant for a named storage context.
+        /// </summary>
+        /// <typeparam name="TConfiguration">
+        /// The storage configuration type.
+        /// </typeparam>
+        /// <param name="tenant">
+        /// The tenant from which to retrieve the storage configuration.
+        /// </param>
+        /// <param name="contextName">
+        /// The name of the storage context for which to retrieve the configuration.
+        /// </param>
+        /// <returns>
+        /// The configuration for the named storage context.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The tenant does not contain configuration of this type for this context.
+        /// </exception>
+        public static TConfiguration GetStorageContextConfiguration<TConfiguration>(this ITenant tenant, string contextName)
+        {
+            string propertyName = TenantStorageNameHelper.GetStorageContextConfigurationPropertyName<TConfiguration>(contextName);
+            return tenant.Properties.TryGet(propertyName, out TConfiguration output)
+                ? output
+                : throw new InvalidOperationException($"Did not find {propertyName} property in tenant {tenant.Id}");
+        }
+
         private static uint[] CreateLookup32()
         {
             uint[] result = new uint[256];

@@ -78,6 +78,9 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>A connection instance for the tenant.</returns>
         public Task<SqlConnection> GetSqlConnectionForTenantAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition)
         {
+            // This is wrong, because we very specifically don't want to cache the
+            // SqlConnections because they are not shareable. This should be caching
+            // connection strings.
             return this.GetContainerForTenantAsync(tenant, connectionDefinition);
         }
 

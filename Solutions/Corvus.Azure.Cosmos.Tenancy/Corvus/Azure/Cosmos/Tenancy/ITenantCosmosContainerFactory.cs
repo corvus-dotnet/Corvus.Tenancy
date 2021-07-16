@@ -4,8 +4,8 @@
 
 namespace Corvus.Azure.Cosmos.Tenancy
 {
-    using System.Threading.Tasks;
     using Corvus.Tenancy;
+
     using Microsoft.Azure.Cosmos;
 
     /// <summary>
@@ -28,12 +28,13 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// serviceCollection.AddTenantCosmosContainerFactory(tenantCosmosContainerFactoryOptions);
     /// </code>
     /// <para>
-    /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="GetContainerForTenantAsync(ITenant, CosmosContainerDefinition)"/>, passing
+    /// Now, whenever you want to obtain a blob container for a tenant, you simply call <see cref="ITenantedStorageContextFactory{TStorageContext}.GetContextForTenantAsync(Corvus.Tenancy.ITenant, string)"/>,
+    /// passing
     /// it the tenant and the container definition you want to use.
     /// </para>
     /// <para>
     /// <code>
-    /// TenantCosmosContainerFactory factory;
+    /// ITenantCosmosContainerFactory factory;
     ///
     /// Container container = await factory.GetContainerForTenantAsync(tenant, new CosmosContainerDefinition("somedb", "somecontainer"));
     /// </code>
@@ -47,17 +48,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// implement key rotation.
     /// </para>
     /// </remarks>
-    public interface ITenantCosmosContainerFactory
+    public interface ITenantCosmosContainerFactory : ITenantedStorageContextFactory<Container>
     {
-        /// <summary>
-        /// Get a Cosmos container for a tenant.
-        /// </summary>
-        /// <param name="tenant">The tenant for which to retrieve the container.</param>
-        /// <param name="containerDefinition">The details of the container to create.</param>
-        /// <returns>The container instance for the tenant.</returns>
-        /// <remarks>
-        /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
-        /// </remarks>
-        Task<Container> GetContainerForTenantAsync(ITenant tenant, CosmosContainerDefinition containerDefinition);
     }
 }

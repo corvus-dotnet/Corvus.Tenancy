@@ -42,21 +42,13 @@ namespace Corvus.Azure.Cosmos.Tenancy
         public bool DisableTenantIdPrefix { get; set; }
 
         /// <summary>
-        /// Gets or sets the database name. If set, this overrides the value
-        /// specified in <see cref="CosmosContainerDefinition.DatabaseName"/>.
+        /// Gets or sets the database name.
         /// </summary>
         public string? DatabaseName { get; set; }
 
         /// <summary>
-        /// Gets or sets the container name. If set, this overrides the value
-        /// specified in <see cref="CosmosContainerDefinition.ContainerName"/>.
+        /// Gets or sets the container name.
         /// </summary>
         public string? ContainerName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the partition key path. If set, this overrides the value
-        /// specified in <see cref="CosmosContainerDefinition.PartitionKeyPath"/>.
-        /// </summary>
-        public string? PartitionKeyPath { get; set; }
     }
 }
