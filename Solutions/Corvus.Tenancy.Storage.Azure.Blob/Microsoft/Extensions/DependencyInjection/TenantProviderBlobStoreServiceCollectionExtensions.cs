@@ -47,12 +47,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 rootTenant.UpdateProperties(
                     values => values.AddBlobStorageConfiguration(
-                        TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig));
+                        TenantProviderBlobStore.ContainerStorageContextName, rootTenantStorageConfig));
 
-                ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
+                ITenantBlobContainerClientFactory tenantBlobContainerClientFactory = sp.GetRequiredService<ITenantBlobContainerClientFactory>();
                 IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();
 
-                return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantCloudBlobContainerFactory, serializerSettingsProvider);
+                return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantBlobContainerClientFactory, serializerSettingsProvider);
             });
 
             services.AddSingleton<ITenantStore>(sp => sp.GetRequiredService<TenantProviderBlobStore>());

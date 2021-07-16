@@ -16,8 +16,7 @@ namespace Corvus.Azure.Storage.Tenancy
         public string? AccountName { get; set; }
 
         /// <summary>
-        /// Gets or sets the container name. If set, this overrides the name specified in
-        /// <see cref="TableStorageTableDefinition.TableName"/>.
+        /// Gets or sets the container name.
         /// </summary>
         public string? TableName { get; set; }
 

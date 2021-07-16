@@ -7,7 +7,7 @@ namespace Corvus.Sql.Tenancy
     using Corvus.Sql.Tenancy.Internal;
 
     /// <summary>
-    /// Configuration settings for <see cref="TenantSqlConnectionFactory"/>.
+    /// Configuration settings for <see cref="SqlConnectionFactory"/>.
     /// </summary>
     public class TenantSqlConnectionFactoryOptions
     {

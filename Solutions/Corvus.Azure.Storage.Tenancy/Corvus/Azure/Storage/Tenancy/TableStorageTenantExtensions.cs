@@ -18,48 +18,48 @@ namespace Corvus.Azure.Storage.Tenancy
         /// Determines whether the tenant has a table storage configuration.
         /// </summary>
         /// <param name="tenant">The tenant.</param>
-        /// <param name="definition">The table storage container definition.</param>
+        /// <param name="storageContextName">The name of the storage context representing the table storage container.</param>
         /// <returns>True if there is an explicit configuration set for this table storage container definition.</returns>
         /// <remarks>This can be more efficient than trying to get the property, as it avoids a deserialization.</remarks>
-        public static bool HasStorageTableConfiguration(this ITenant tenant, TableStorageTableDefinition definition)
+        public static bool HasStorageTableConfiguration(this ITenant tenant, string storageContextName)
         {
             if (tenant is null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
 
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
-            return tenant.Properties.TryGet<TableStorageConfiguration>(GetConfigurationKey(definition), out TableStorageConfiguration _);
+            return tenant.Properties.TryGet<TableStorageConfiguration>(GetConfigurationKey(storageContextName), out _);
         }
 
         /// <summary>
         /// Get the configuration for the specified table definition for a particular tenant.
         /// </summary>
         /// <param name="tenant">The tenant.</param>
-        /// <param name="definition">The table storage container definition.</param>
+        /// <param name="storageContextName">The name of the storage context representing the table storage container.</param>
         /// <returns>The configuration for the storage account for this tenant.</returns>
-        public static TableStorageConfiguration GetTableStorageConfiguration(this ITenant tenant, TableStorageTableDefinition definition)
+        public static TableStorageConfiguration GetTableStorageConfiguration(this ITenant tenant, string storageContextName)
         {
             if (tenant is null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
 
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out TableStorageConfiguration? configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(storageContextName), out TableStorageConfiguration? configuration))
             {
                 return configuration;
             }
 
-            throw new ArgumentException($"No table storage configuration was found for definition with table name '{definition.TableName}'");
+            throw new ArgumentException($"No table storage configuration was found for storage context with name '{storageContextName}'");
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
         /// <param name="values">Existing configuration values to which to append these.</param>
-        /// <param name="definition">The definition of the table for which to set the configuration.</param>
+        /// <param name="storageContextName">The the storage context name for the table for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
         /// <returns>
         /// Properties to pass to
@@ -75,7 +75,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </returns>
         public static IEnumerable<KeyValuePair<string, object>> AddTableStorageConfiguration(
             this IEnumerable<KeyValuePair<string, object>> values,
-            TableStorageTableDefinition definition,
+            string storageContextName,
             TableStorageConfiguration configuration)
         {
             if (values is null)
@@ -83,9 +83,9 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
             if (configuration is null)
@@ -93,7 +93,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
+            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(storageContextName), configuration));
         }
 
         /// <summary>
@@ -101,25 +101,23 @@ namespace Corvus.Azure.Storage.Tenancy
         /// properties in form suitable for passing as the <c>propertiesToRemove</c> argument to
         /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="definition">The definition of the table for which to remove the configuration.</param>
+        /// <param name="storageContextName">The the storage context name for the table to remove.</param>
         /// <returns>
         /// A single-entry list of properties that can be passed to
         /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>
         /// to remove the storage configuration.
         /// </returns>
-        public static IEnumerable<string> RemoveTableStorageConfiguration(this TableStorageTableDefinition definition)
+        public static IEnumerable<string> RemoveTableStorageConfiguration(string storageContextName)
         {
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
-            return new string[] { GetConfigurationKey(definition) };
+            return new string[] { GetConfigurationKey(storageContextName) };
         }
 
-        private static string GetConfigurationKey(TableStorageTableDefinition definition)
-        {
-            return $"StorageConfiguration__Table__{definition.TableName}";
-        }
+        private static string GetConfigurationKey(string contextName)
+            => TenantStorageNameHelper.GetStorageContextConfigurationPropertyName<TableStorageConfiguration>(contextName);
     }
 }

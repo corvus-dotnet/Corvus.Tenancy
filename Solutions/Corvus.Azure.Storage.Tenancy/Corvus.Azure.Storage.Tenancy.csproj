@@ -15,20 +15,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.9.1" />
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
-    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.5" />
-    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.1" />
-    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.2.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.16" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.16" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Corvus.Tenancy.Abstractions\Corvus.Tenancy.Abstractions.csproj" />
+    <ProjectReference Include="..\Corvus.Tenancy.Azure.Common\Corvus.Tenancy.Azure.Common.csproj" />
   </ItemGroup>
 
 

@@ -8,6 +8,8 @@ namespace Corvus.Tenancy
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using Corvus.Tenancy.Exceptions;
+
     /// <summary>
     /// Provides the ability to explore the hierarchy of a tenant store, and update tenant details.
     /// </summary>
@@ -37,6 +39,12 @@ namespace Corvus.Tenancy
         /// <param name="wellKnownChildTenantGuid">The well known identifier to use when constructing the new tenant's Id.</param>
         /// <param name="name">The name of the child tenant.</param>
         /// <returns>The tenant that was created.</returns>
+        /// <exception cref="TenantNotFoundException">
+        /// No tenant matching <paramref name="parentTenantId"/> was found.
+        /// </exception>
+        /// <exception cref="TenantConflictException">
+        /// A tenant with the id <paramref name="wellKnownChildTenantGuid"/> already exists.
+        /// </exception>
         Task<ITenant> CreateWellKnownChildTenantAsync(string parentTenantId, Guid wellKnownChildTenantGuid, string name);
 
         /// <summary>

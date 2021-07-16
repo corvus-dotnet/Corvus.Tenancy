@@ -15,9 +15,6 @@
     <NoWarn>SA0001;SA1204;SA1600;SA1602;CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <SpecFlowObsoleteCodeBehindFiles Remove="Features\CloudBlobContainer - Copy.feature.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

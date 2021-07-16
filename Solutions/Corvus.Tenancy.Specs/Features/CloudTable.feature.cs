@@ -81,12 +81,12 @@ namespace Corvus.Tenancy.Specs.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Create a table without overriding any settings in the table configuration")]
-        public virtual void CreateATableWithoutOverridingAnySettingsInTheTableConfiguration()
+        [NUnit.Framework.DescriptionAttribute("Create a table")]
+        public virtual void CreateATable()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a table without overriding any settings in the table configuration", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a table", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
 #line 9
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -107,117 +107,12 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
-                            "TableName",
-                            "DisableTenantIdPrefix"});
-                table5.AddRow(new string[] {
-                            "",
-                            "false"});
 #line 10
- testRunner.Given("I have added table storage configuration to the current tenant", ((string)(null)), table5, "Given ");
+ testRunner.Given("I have added table storage configuration to the current tenant with a table name " +
+                        "of \'newname\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 13
+#line 11
  testRunner.Then("I should be able to get the tenanted cloud table", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-#line 14
- testRunner.And("the tenanted cloud table should be named using a hash of the tenant Id and the na" +
-                        "me specified in the table definition", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Create a table with a name specified in the table configuration")]
-        public virtual void CreateATableWithANameSpecifiedInTheTableConfiguration()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a table with a name specified in the table configuration", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 16
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            bool isScenarioIgnored = default(bool);
-            bool isFeatureIgnored = default(bool);
-            if ((tagsOfScenario != null))
-            {
-                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((this._featureTags != null))
-            {
-                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((isScenarioIgnored || isFeatureIgnored))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
-                            "TableName",
-                            "DisableTenantIdPrefix"});
-                table6.AddRow(new string[] {
-                            "newname",
-                            "false"});
-#line 17
- testRunner.Given("I have added table storage configuration to the current tenant", ((string)(null)), table6, "Given ");
-#line hidden
-#line 20
- testRunner.Then("I should be able to get the tenanted cloud table", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-#line 21
- testRunner.And("the tenanted cloud table should be named using a hash of the tenant Id and the na" +
-                        "me specified in the table configuration", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Create a table with a name specified in the table configuration and without the t" +
-            "enant Id prefix")]
-        public virtual void CreateATableWithANameSpecifiedInTheTableConfigurationAndWithoutTheTenantIdPrefix()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create a table with a name specified in the table configuration and without the t" +
-                    "enant Id prefix", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 23
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            bool isScenarioIgnored = default(bool);
-            bool isFeatureIgnored = default(bool);
-            if ((tagsOfScenario != null))
-            {
-                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((this._featureTags != null))
-            {
-                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((isScenarioIgnored || isFeatureIgnored))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
-                            "TableName",
-                            "DisableTenantIdPrefix"});
-                table7.AddRow(new string[] {
-                            "newname",
-                            "true"});
-#line 24
- testRunner.Given("I have added table storage configuration to the current tenant", ((string)(null)), table7, "Given ");
-#line hidden
-#line 27
- testRunner.Then("I should be able to get the tenanted cloud table", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-#line 28
- testRunner.And("the tenanted cloud table should be named using a hash of the name specified in th" +
-                        "e blob configuration", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -230,7 +125,7 @@ this.ScenarioInitialize(scenarioInfo);
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Remove configuration from tenant", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 30
+#line 13
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -250,19 +145,14 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
-                            "TableName",
-                            "DisableTenantIdPrefix"});
-                table8.AddRow(new string[] {
-                            "",
-                            "false"});
-#line 31
- testRunner.Given("I have added table storage configuration to the current tenant", ((string)(null)), table8, "Given ");
+#line 14
+ testRunner.Given("I have added table storage configuration to the current tenant with a table name " +
+                        "of \'newname\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 34
+#line 15
  testRunner.When("I remove the table storage configuration from the tenant", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 35
+#line 16
  testRunner.Then("attempting to get the table storage configuration from the tenant throws an Argum" +
                         "entException", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden

@@ -13,10 +13,14 @@
     public class GremlinContainerSteps
     {
         private readonly FeatureContext featureContext;
+        private readonly string storageContextName;
 
-        public GremlinContainerSteps(FeatureContext featureContext)
+        public GremlinContainerSteps(
+            FeatureContext featureContext,
+            StorageContextTestContext storageContextTestContext)
         {
             this.featureContext = featureContext;
+            this.storageContextName = storageContextTestContext.ContextName;
         }
 
         [Then("I should be able to get the tenanted gremlin client")]
@@ -31,9 +35,8 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            GremlinContainerDefinition definition = this.featureContext.Get<GremlinContainerDefinition>();
             tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveGremlinConfiguration());
+                propertiesToRemove: GremlinStorageTenantExtensions.RemoveGremlinConfiguration(this.storageContextName));
         }
 
         [Then("attempting to get the Gremlin configuration from the tenant throws an ArgumentException")]
@@ -41,11 +44,10 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            GremlinContainerDefinition definition = this.featureContext.Get<GremlinContainerDefinition>();
 
             try
             {
-                tenantProvider.Root.GetGremlinConfiguration(definition);
+                tenantProvider.Root.GetGremlinConfiguration(this.storageContextName);
             }
             catch (ArgumentException)
             {

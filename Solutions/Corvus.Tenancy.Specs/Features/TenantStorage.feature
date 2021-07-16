@@ -41,11 +41,11 @@ Scenario: Create a child of a child with well known Ids
 	Then The tenant called "ChildTenant1" has tenant Id "0bb217ee72b3934481459dd95516b9af"
 	And The tenant called "ChildTenant2" has tenant Id "0bb217ee72b3934481459dd95516b9af055c04ddfbe714428878f9e7ca9b0f5f"
 
-Scenario: Creating a child of a child with a well known Id that is already in use by a child of the same parent throws an ArgumentException
+Scenario: Creating a child of a child with a well known Id that is already in use by a child of the same parent throws a TenantConflictException
 	Given I create a well known child tenant called "ChildTenant1" with a Guid of "ABE7C6C9-8494-4797-B52E-5C7B3EF1CE56" for the root tenant
 	And I create a well known child tenant called "ChildTenant2" with a Guid of "DD045C05-E7FB-4214-8878-F9E7CA9B0F5F" for tenant called "ChildTenant1"
 	And I create a well known child tenant called "ChildTenant3" with a Guid of "DD045C05-E7FB-4214-8878-F9E7CA9B0F5F" for tenant called "ChildTenant1"
-	Then an "ArgumentException" is thrown
+	Then an "TenantConflictException" is thrown
 
 Scenario: Creating children that have the same well known Ids under different parents succeeds
 	Given I create a well known child tenant called "ChildTenant1" with a Guid of "2A182D6E-FF13-4A73-87AF-0B58D8243603" for the root tenant

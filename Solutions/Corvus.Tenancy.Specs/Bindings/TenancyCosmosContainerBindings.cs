@@ -29,35 +29,40 @@ namespace Corvus.Tenancy.Specs.Bindings
         /// Set up a tenanted Cloud Blob Container for the feature.
         /// </summary>
         /// <param name="featureContext">The feature context.</param>
+        /// <param name="storageContextTestContext">
+        /// Information about the storage context shared across test bindings.
+        /// </param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
         [BeforeFeature("@setupTenantedCosmosContainer", Order = ContainerBeforeFeatureOrder.ServiceProviderAvailable)]
-        public static async Task SetupCosmosContainerForRootTenant(FeatureContext featureContext)
+        public static async Task SetupCosmosContainerForRootTenant(
+            FeatureContext featureContext,
+            StorageContextTestContext storageContextTestContext)
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
             ITenantCosmosContainerFactory factory = serviceProvider.GetRequiredService<ITenantCosmosContainerFactory>();
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
-            string containerBase = Guid.NewGuid().ToString();
-
-            var cosmosContainerDefinition = new CosmosContainerDefinition(
-                "endjinspecssharedthroughput",
-                $"{containerBase}tenancyspecs",
-                "/partitionKey",
-                databaseThroughput: 400);
-            featureContext.Set(cosmosContainerDefinition);
+            string databaseName = "endjinspecssharedthroughput";
+            string containerStorageContextName = storageContextTestContext.ContextName;
 
             var cosmosConfiguration = new CosmosConfiguration();
             config.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
-            cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
-            cosmosConfiguration.DisableTenantIdPrefix = true;
-            tenantProvider.Root.UpdateProperties(values => values.AddCosmosConfiguration(cosmosContainerDefinition, cosmosConfiguration));
+            cosmosConfiguration.DatabaseName = databaseName;
+            cosmosConfiguration.ContainerName = storageContextTestContext.ContextName;
+            tenantProvider.Root.UpdateProperties(values => values.AddCosmosConfiguration(containerStorageContextName, cosmosConfiguration));
 
-            Container tenancySpecsContainer = await factory.GetContainerForTenantAsync(
+            Container tenancySpecsContainer = await factory.GetContextForTenantAsync(
                 tenantProvider.Root,
-                cosmosContainerDefinition).ConfigureAwait(false);
+                containerStorageContextName).ConfigureAwait(false);
 
+            await tenancySpecsContainer.Database.Client.CreateDatabaseIfNotExistsAsync(
+                tenancySpecsContainer.Database.Id,
+                throughput: 400);
+            await tenancySpecsContainer.Database.CreateContainerIfNotExistsAsync(
+                tenancySpecsContainer.Id,
+                "/partitionKey");
             featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
         }
 

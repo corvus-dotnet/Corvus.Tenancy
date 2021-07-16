@@ -13,10 +13,14 @@
     public class CosmosContainerSteps
     {
         private readonly FeatureContext featureContext;
+        private readonly string storageContextName;
 
-        public CosmosContainerSteps(FeatureContext featureContext)
+        public CosmosContainerSteps(
+            FeatureContext featureContext,
+            StorageContextTestContext storageContextTestContext)
         {
             this.featureContext = featureContext;
+            this.storageContextName = storageContextTestContext.ContextName;
         }
 
         [Then("I should be able to get the tenanted cosmos container")]
@@ -31,9 +35,8 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            CosmosContainerDefinition definition = this.featureContext.Get<CosmosContainerDefinition>();
             tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveCosmosConfiguration());
+                propertiesToRemove: CosmosStorageTenantExtensions.RemoveCosmosConfiguration(this.storageContextName!));
         }
 
         [Then("attempting to get the Cosmos configuration from the tenant throws an ArgumentException")]
@@ -41,11 +44,10 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            CosmosContainerDefinition definition = this.featureContext.Get<CosmosContainerDefinition>();
 
             try
             {
-                tenantProvider.Root.GetCosmosConfiguration(definition);
+                tenantProvider.Root.GetCosmosConfiguration(this.storageContextName!);
             }
             catch (ArgumentException)
             {

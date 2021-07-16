@@ -8,9 +8,13 @@ namespace Corvus.Sql.Tenancy
     /// Encapsulates the configuration for a connection to a specific SQL Server instance.
     /// </summary>
     /// <remarks>
-    /// <para>This provides the information required to obtain a connection string for use by a <see cref="SqlConnectionDefinition"/> to obtain a connection for a specific database.</para>
-    /// <para>Typically, this is used by a <see cref="ITenantSqlConnectionFactory"/> to create a <see cref="System.Data.SqlClient.SqlConnection"/> for the <see cref="SqlConnectionDefinition"/>.</para>
-    /// <para>Note that if you specify a <see cref="Database"/> in the configuration, it will override the database in the connection definition, forcing all connections to be to the same database for that configuration.</para>
+    /// <para>
+    /// This provides the information required to obtain a connection string for a connection for a
+    /// specific database.
+    /// </para>
+    /// <para>
+    /// Typically, this is used by a <see cref="ITenantSqlConnectionFactory"/> to create a
+    /// <see cref="System.Data.SqlClient.SqlConnection"/> for the named storage context.</para>
     /// </remarks>
     public class SqlConfiguration
     {
@@ -31,16 +35,13 @@ namespace Corvus.Sql.Tenancy
         /// </summary>
         /// <remarks>
         /// <para>
-        /// This should be a connection to a given server, and will <em>not</em> include the <c>Initial Catalog=blah</c> value, as this will be set by the <see cref="SqlConnectionDefinition.Database"/> property.
+        /// This should be a connection to a given server, and will <em>not</em> include the <c>Initial Catalog=blah</c>
+        /// value, as this will be set by the <see cref="Database"/> property. This enables a single secret to be
+        /// shared across multiple Databases.
         /// </para>
         /// <para>If this property is set, then the KeyVaultName should also be set.</para>
         /// </remarks>
         public string? ConnectionStringSecretName { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to disable the tenant ID prefix.
-        /// </summary>
-        public bool DisableTenantIdPrefix { get; set; }
 
         /// <summary>
         /// Gets or sets the base connection string for the server.
@@ -56,8 +57,7 @@ namespace Corvus.Sql.Tenancy
         public bool IsLocalDatabase { get; set; }
 
         /// <summary>
-        /// Gets or sets the database name. If set, this overrides the value
-        /// specified in <see cref="SqlConnectionDefinition.Database"/>.
+        /// Gets or sets the database name.
         /// </summary>
         /// <remarks>
         /// This is used to append the <c>Initial Catalog</c> or <c>Database</c> property of the server connection string supplied.
