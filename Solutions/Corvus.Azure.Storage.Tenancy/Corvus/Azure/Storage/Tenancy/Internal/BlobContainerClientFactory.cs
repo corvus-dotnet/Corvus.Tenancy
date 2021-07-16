@@ -2,7 +2,7 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Azure.Storage.Tenancy
+namespace Corvus.Azure.Storage.Tenancy.Internal
 {
     using System;
     using System.Collections.Concurrent;
@@ -36,7 +36,6 @@ namespace Corvus.Azure.Storage.Tenancy
 
         /// <inheritdoc/>
         protected override async Task<BlobContainerClient> CreateContainerAsync(
-            IStorageContextScope<BlobStorageConfiguration> scope,
             string contextName,
             BlobStorageConfiguration configuration)
         {

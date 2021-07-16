@@ -46,3 +46,5 @@ List the various changes.
 
 TBD: the various ITenant*Factory interfaces have all changed
 TBD: removed PartitionKeyPath from CosmosConfiguration
+
+Rename TenantXxxConfig types to just XxxConfig

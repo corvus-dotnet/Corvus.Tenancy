@@ -20,35 +20,30 @@
         private readonly FeatureContext featureContext;
         private readonly IServiceProvider serviceProvider;
 
+        private string? blobStorageContextName;
+
         public BlobContainerClientSteps(FeatureContext featureContext)
         {
             this.featureContext = featureContext;
             this.serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
         }
 
-        [Given("I have added blob storage configuration to the current tenant")]
-        public void GivenIHaveAddedBlobStorageConfigurationToTheCurrentTenant(Table table)
+        [Given(@"I have added blob storage configuration to the current tenant with a table name of '(.*)'")]
+        public void GivenIHaveAddedBlobStorageConfigurationToTheCurrentTenantWithATableNameOf(string tableName)
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
             IConfigurationRoot config = this.serviceProvider.GetRequiredService<IConfigurationRoot>();
 
             string containerBase = Guid.NewGuid().ToString();
 
-            var blobStorageContainerDefinition = new BlobStorageContainerDefinition($"{containerBase}tenancyspecs");
-            this.featureContext.Set(blobStorageContainerDefinition);
+            this.blobStorageContextName = $"tenancyspecs{Guid.NewGuid()}";
 
-            var blobStorageConfiguration = new BlobStorageConfiguration();
-            config.Bind("TESTBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
-
-            string overriddenContainerName = table.Rows[0]["Container"];
-            if (!string.IsNullOrEmpty(overriddenContainerName))
+            var blobStorageConfiguration = new BlobStorageConfiguration
             {
-                blobStorageConfiguration.Container = overriddenContainerName;
-            }
+                Container = tableName,
+            };
 
-            blobStorageConfiguration.DisableTenantIdPrefix = bool.Parse(table.Rows[0]["DisableTenantIdPrefix"]);
-
-            tenantProvider.Root.UpdateProperties(values => values.AddBlobStorageConfiguration(blobStorageContainerDefinition, blobStorageConfiguration));
+            tenantProvider.Root.UpdateProperties(values => values.AddBlobStorageConfiguration(this.blobStorageContextName, blobStorageConfiguration));
         }
 
         [Then("I should be able to get the tenanted cloud blob container")]
@@ -57,11 +52,9 @@
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
             ITenantBlobContainerClientFactory factory = this.serviceProvider.GetRequiredService<ITenantBlobContainerClientFactory>();
 
-            BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
-
-            BlobContainerClient tenancySpecsContainer = await factory.GetBlobContainerForTenantAsync(
+            BlobContainerClient tenancySpecsContainer = await factory.GetContextForTenantAsync(
                 tenantProvider.Root,
-                blobStorageContainerDefinition).ConfigureAwait(false);
+                this.blobStorageContextName!).ConfigureAwait(false);
 
             Assert.IsNotNull(tenancySpecsContainer);
 
@@ -69,24 +62,11 @@
             this.featureContext.Set(tenancySpecsContainer, TenancyBlobContainerClientBindings.TenancySpecsContainer);
         }
 
-        [Then("the tenanted cloud blob container should be named using a hash of the tenant Id and the name specified in the blob container definition")]
-        public void ThenTheTenantedBlobContainerClientShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheBlobContainerDefinition()
-        {
-            BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
-            string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", blobStorageContainerDefinition.ContainerName);
-            string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
-
-            BlobContainerClient container = this.featureContext.Get<BlobContainerClient>(TenancyBlobContainerClientBindings.TenancySpecsContainer);
-
-            Assert.AreEqual(expectedName, container.Name);
-        }
-
         [Then("the tenanted cloud blob container should be named using a hash of the tenant Id and the name specified in the blob configuration")]
         public void ThenTheTenantedBlobContainerClientShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheBlobConfiguration()
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
-            BlobStorageConfiguration blobStorageConfiguration = tenantProvider.Root.GetBlobStorageConfiguration(blobStorageContainerDefinition);
+            BlobStorageConfiguration blobStorageConfiguration = tenantProvider.Root.GetBlobStorageConfiguration(this.blobStorageContextName!);
 
             string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", blobStorageConfiguration.Container);
             string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
@@ -100,8 +80,7 @@
         public void ThenTheTenantedBlobContainerClientShouldBeNamedUsingAHashOfTheNameSpecifiedInTheBlobConfiguration()
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            BlobStorageContainerDefinition blobStorageContainerDefinition = this.featureContext.Get<BlobStorageContainerDefinition>();
-            BlobStorageConfiguration blobStorageConfiguration = tenantProvider.Root.GetBlobStorageConfiguration(blobStorageContainerDefinition);
+            BlobStorageConfiguration blobStorageConfiguration = tenantProvider.Root.GetBlobStorageConfiguration(this.blobStorageContextName!);
 
             string expectedNamePlain = blobStorageConfiguration.Container!;
             string expectedName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(expectedNamePlain);
@@ -116,9 +95,8 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            BlobStorageContainerDefinition definition = this.featureContext.Get<BlobStorageContainerDefinition>();
             tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveBlobStorageConfiguration());
+                propertiesToRemove: BlobStorageTenantExtensions.RemoveBlobStorageConfiguration(this.blobStorageContextName!));
         }
 
         [Then("attempting to get the blob storage configuration from the tenant throws an ArgumentException")]
@@ -126,11 +104,10 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            BlobStorageContainerDefinition definition = this.featureContext.Get<BlobStorageContainerDefinition>();
 
             try
             {
-                tenantProvider.Root.GetBlobStorageConfiguration(definition);
+                tenantProvider.Root.GetBlobStorageConfiguration(this.blobStorageContextName!);
             }
             catch (ArgumentException)
             {

@@ -37,19 +37,12 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         public string? AuthKeySecretName { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to disable the tenant ID prefix.
-        /// </summary>
-        public bool DisableTenantIdPrefix { get; set; }
-
-        /// <summary>
-        /// Gets or sets the database name. If set, this overrides the value
-        /// specified in <see cref="GremlinContainerDefinition.DatabaseName"/>.
+        /// Gets or sets the database name.
         /// </summary>
         public string? DatabaseName { get; set; }
 
         /// <summary>
-        /// Gets or sets the container name. If set, this overrides the value
-        /// specified in <see cref="GremlinContainerDefinition.ContainerName"/>.
+        /// Gets or sets the container name.
         /// </summary>
         public string? ContainerName { get; set; }
     }

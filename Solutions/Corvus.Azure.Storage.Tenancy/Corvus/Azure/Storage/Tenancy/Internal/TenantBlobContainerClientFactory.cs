@@ -11,7 +11,7 @@ namespace Corvus.Azure.Storage.Tenancy.Internal
     /// <summary>
     /// A factory for a tenanted <see cref="BlobContainerClient"/> instances.
     /// </summary>
-    public class TenantBlobContainerClientFactory :
+    internal class TenantBlobContainerClientFactory :
         TenantedStorageContextFactory<BlobContainerClient, BlobStorageConfiguration>,
         ITenantBlobContainerClientFactory
     {

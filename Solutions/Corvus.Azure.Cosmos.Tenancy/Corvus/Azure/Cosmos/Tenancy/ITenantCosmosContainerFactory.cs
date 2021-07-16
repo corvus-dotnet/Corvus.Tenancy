@@ -15,7 +15,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="Container"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via <see cref="CosmosStorageTenantExtensions.AddCosmosConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, CosmosContainerDefinition, CosmosConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="CosmosStorageTenantExtensions.AddCosmosConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, string, CosmosConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key

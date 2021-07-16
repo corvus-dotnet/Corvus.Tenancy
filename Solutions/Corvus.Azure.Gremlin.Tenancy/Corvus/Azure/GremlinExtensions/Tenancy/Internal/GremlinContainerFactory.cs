@@ -6,17 +6,16 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 {
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+
     using Corvus.Tenancy;
     using Corvus.Tenancy.Azure.Common;
 
     using Gremlin.Net.Driver;
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// A factory for a <see cref="GremlinClient"/>.
     /// </summary>
-    internal class GremlinContainerFactory:
-        CachingStorageContextFactory<GremlinClient, GremlinConfiguration>
+    internal class GremlinContainerFactory : CachingStorageContextFactory<GremlinClient, GremlinConfiguration>
     {
         private const string DevelopmentHostName = "localhost";
         private const int DevelopmentPort = 8901;
@@ -36,7 +35,6 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 
         /// <inheritdoc/>
         protected override async Task<GremlinClient> CreateContainerAsync(
-            IStorageContextScope<GremlinConfiguration> scope,
             string contextName,
             GremlinConfiguration configuration)
         {

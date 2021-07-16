@@ -47,7 +47,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 rootTenant.UpdateProperties(
                     values => values.AddBlobStorageConfiguration(
-                        TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig));
+                        TenantProviderBlobStore.ContainerStorageContextName, rootTenantStorageConfig));
 
                 ITenantBlobContainerClientFactory tenantBlobContainerClientFactory = sp.GetRequiredService<ITenantBlobContainerClientFactory>();
                 IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();

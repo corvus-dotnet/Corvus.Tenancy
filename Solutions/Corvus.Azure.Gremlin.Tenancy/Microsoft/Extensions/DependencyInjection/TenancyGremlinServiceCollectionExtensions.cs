@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<ITenantGremlinContainerFactory>(s =>
             {
                 TenantGremlinContainerFactoryOptions options = getOptions(s);
-                return new GremlinContainerFactory(options);
+                return new TenantGremlinContainerFactory(options);
             });
             return services;
         }

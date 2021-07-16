@@ -4,6 +4,7 @@
     using System.Data.SqlClient;
     using System.Threading.Tasks;
     using Corvus.Sql.Tenancy;
+    using Corvus.Tenancy.Specs.Bindings;
     using Corvus.Testing.SpecFlow;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -15,11 +16,16 @@
     {
         private readonly FeatureContext featureContext;
         private readonly ScenarioContext scenarioContext;
+        private readonly string storageContextName;
 
-        public SqlConnectionSteps(FeatureContext featureContext, ScenarioContext scenarioContext)
+        public SqlConnectionSteps(
+            FeatureContext featureContext,
+            ScenarioContext scenarioContext,
+            StorageContextTestContext storageContextTestContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
+            this.storageContextName = storageContextTestContext.ContextName;
         }
 
         [Then("I should be able to get the tenanted SqlConnection")]
@@ -31,9 +37,6 @@
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
-            var sqlConnectionDefinition = new SqlConnectionDefinition($"{databaseName}tenancyspecs");
-            this.featureContext.Set(sqlConnectionDefinition);
-
             var sqlConfiguration = new SqlConfiguration();
             config.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
 
@@ -43,14 +46,13 @@
             {
                 sqlConfiguration.IsLocalDatabase = true;
                 sqlConfiguration.ConnectionString = "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true";
-                sqlConfiguration.DisableTenantIdPrefix = true;
             }
 
-            tenantProvider.Root.UpdateProperties(values => values.AddSqlConfiguration(sqlConnectionDefinition, sqlConfiguration));
+            tenantProvider.Root.UpdateProperties(values => values.AddSqlConfiguration(this.storageContextName, sqlConfiguration));
 
             using SqlConnection sqlConnection = await factory.GetSqlConnectionForTenantAsync(
                 tenantProvider.Root,
-                sqlConnectionDefinition).ConfigureAwait(false);
+                this.storageContextName).ConfigureAwait(false);
 
             Assert.IsNotNull(sqlConnection);
         }
@@ -85,9 +87,8 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
             tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveSqlConfiguration());
+                propertiesToRemove: SqlStorageTenantExtensions.RemoveSqlConfiguration(this.storageContextName));
         }
 
         [Then("attempting to get the Sql configuration from the tenant throws an ArgumentException")]
@@ -95,11 +96,10 @@
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
 
             try
             {
-                tenantProvider.Root.GetSqlConfiguration(definition);
+                tenantProvider.Root.GetSqlConfiguration(this.storageContextName);
             }
             catch (ArgumentException)
             {

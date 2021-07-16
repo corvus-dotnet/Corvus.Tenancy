@@ -5,7 +5,7 @@
 namespace Corvus.Azure.Storage.Tenancy
 {
     /// <summary>
-    /// Configuration settings for <see cref="BlobContainerClientFactory"/>.
+    /// Configuration settings for <see cref="ITenantBlobContainerClientFactory"/>.
     /// </summary>
     public class TenantCloudTableFactoryOptions
     {

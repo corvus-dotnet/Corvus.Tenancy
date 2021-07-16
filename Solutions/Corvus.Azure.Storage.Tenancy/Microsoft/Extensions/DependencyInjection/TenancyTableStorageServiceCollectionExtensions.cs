@@ -7,6 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     using System;
     using System.Linq;
     using Corvus.Azure.Storage.Tenancy;
+    using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Internal;
 
     /// <summary>

@@ -37,11 +37,6 @@ namespace Corvus.Azure.Cosmos.Tenancy
         public string? AccountKeyConfigurationKey { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to disable the tenant ID prefix.
-        /// </summary>
-        public bool DisableTenantIdPrefix { get; set; }
-
-        /// <summary>
         /// Gets or sets the database name.
         /// </summary>
         public string? DatabaseName { get; set; }

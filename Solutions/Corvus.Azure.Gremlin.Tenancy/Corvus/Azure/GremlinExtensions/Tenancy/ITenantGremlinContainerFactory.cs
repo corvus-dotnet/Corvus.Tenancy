@@ -15,7 +15,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="GremlinClient"/> for a specific
     /// <see cref="ITenant"/>. It uses a KeyVault to get the storage account key for the tenant, and the
-    /// configuration comes from the tenant via <see cref="GremlinStorageTenantExtensions.AddGremlinConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, GremlinContainerDefinition, GremlinConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="GremlinStorageTenantExtensions.AddGremlinConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, string, GremlinConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key

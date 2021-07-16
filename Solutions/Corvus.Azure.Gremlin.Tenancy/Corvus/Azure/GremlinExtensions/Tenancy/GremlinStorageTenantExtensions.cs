@@ -18,27 +18,27 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// Get the configuration for the specified Gremlin container definition for a particular tenant.
         /// </summary>
         /// <param name="tenant">The tenant.</param>
-        /// <param name="definition">The Gremlin storage container definition.</param>
+        /// <param name="storageContextName">The storage context name identifying the Gremlin storage container.</param>
         /// <returns>The configuration for the Gremlin account for this tenant.</returns>
-        public static GremlinConfiguration GetGremlinConfiguration(this ITenant tenant, GremlinContainerDefinition definition)
+        public static GremlinConfiguration GetGremlinConfiguration(this ITenant tenant, string storageContextName)
         {
             if (tenant is null)
             {
                 throw new ArgumentNullException(nameof(tenant));
             }
 
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
             // First, try the configuration specific to this instance
-            if (tenant.Properties.TryGet(GetConfigurationKey(definition), out GremlinConfiguration? configuration))
+            if (tenant.Properties.TryGet(GetConfigurationKey(storageContextName), out GremlinConfiguration? configuration))
             {
                 return configuration;
             }
 
-            throw new ArgumentException($"No Gremlin configuration was found for definition with database name '{definition.DatabaseName}' and container name '{definition.ContainerName}'");
+            throw new ArgumentException($"No Gremlin configuration was found for the storage context name '{storageContextName}'");
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
         /// <param name="values">Existing configuration values to which to append these.</param>
-        /// <param name="definition">The definition of the Gremlin container for which to set the configuration.</param>
+        /// <param name="storageContextName">The storage context name identifying the Gremlin container for which to set the configuration.</param>
         /// <param name="configuration">The configuration to set.</param>
         /// <returns>
         /// Properties to pass to
@@ -54,7 +54,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// </returns>
         public static IEnumerable<KeyValuePair<string, object>> AddGremlinConfiguration(
             this IEnumerable<KeyValuePair<string, object>> values,
-            GremlinContainerDefinition definition,
+            string storageContextName,
             GremlinConfiguration configuration)
         {
             if (values is null)
@@ -62,9 +62,9 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
                 throw new ArgumentNullException(nameof(values));
             }
 
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
             if (configuration is null)
@@ -72,7 +72,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
+            return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(storageContextName), configuration));
         }
 
         /// <summary>
@@ -80,25 +80,23 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         /// properties in form suitable for passing as the <c>propertiesToRemove</c> argument to
         /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
         /// </summary>
-        /// <param name="definition">The definition of the Gremlin container for which to remove the configuration.</param>
+        /// <param name="storageContextName">The storage context name identifying the Gremlin container for which to remove the configuration.</param>
         /// <returns>
         /// A single-entry list of properties that can be passed to
         /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>
         /// to remove the storage configuration.
         /// </returns>
-        public static IEnumerable<string> RemoveGremlinConfiguration(this GremlinContainerDefinition definition)
+        public static IEnumerable<string> RemoveGremlinConfiguration(string storageContextName)
         {
-            if (definition is null)
+            if (storageContextName is null)
             {
-                throw new ArgumentNullException(nameof(definition));
+                throw new ArgumentNullException(nameof(storageContextName));
             }
 
-            return new string[] { GetConfigurationKey(definition) };
+            return new string[] { GetConfigurationKey(storageContextName) };
         }
 
-        private static string GetConfigurationKey(GremlinContainerDefinition definition)
-        {
-            return $"StorageConfiguration__{definition.DatabaseName}__{definition.ContainerName}";
-        }
+        private static string GetConfigurationKey(string storageContextName)
+            => TenantStorageNameHelper.GetStorageContextConfigurationPropertyName<GremlinConfiguration>(storageContextName);
     }
 }

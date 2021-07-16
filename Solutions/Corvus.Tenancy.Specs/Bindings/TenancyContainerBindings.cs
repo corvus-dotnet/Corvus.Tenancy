@@ -30,8 +30,13 @@ namespace Corvus.Tenancy.Specs.Bindings
         /// Initializes the container before each feature's tests are run.
         /// </summary>
         /// <param name="featureContext">The SpecFlow test context.</param>
+        /// <param name="storageContextTestContext">
+        /// Information about the storage context shared across test bindings.
+        /// </param>
         [BeforeFeature("@perFeatureContainer", Order = ContainerBeforeFeatureOrder.PopulateServiceCollection)]
-        public static void InitializeContainer(FeatureContext featureContext)
+        public static void InitializeContainer(
+            FeatureContext featureContext,
+            StorageContextTestContext storageContextTestContext)
         {
             ContainerBindings.ConfigureServices(
                 featureContext,
@@ -58,6 +63,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                         {
                             var blobStorageConfiguration = new BlobStorageConfiguration();
                             config.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
+                            blobStorageConfiguration.Container = storageContextTestContext.ContextName;
                             return blobStorageConfiguration;
                         });
 
@@ -129,9 +135,9 @@ namespace Corvus.Tenancy.Specs.Bindings
                 ITenantBlobContainerClientFactory blobContainerFactory = sp.GetRequiredService<ITenantBlobContainerClientFactory>();
 
                 BlobContainerClient[] blobContainers = await Task.WhenAll(
-                    tenants.Select(tenant => blobContainerFactory.GetBlobContainerForTenantAsync(
+                    tenants.Select(tenant => blobContainerFactory.GetContextForTenantAsync(
                         tenant,
-                        TenantProviderBlobStore.ContainerDefinition))).ConfigureAwait(false);
+                        TenantProviderBlobStore.ContainerStorageContextName))).ConfigureAwait(false);
 
                 foreach (BlobContainerClient container in blobContainers.Distinct(x => x.Name))
                 {

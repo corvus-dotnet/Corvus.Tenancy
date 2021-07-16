@@ -6,8 +6,8 @@ namespace Corvus.Sql.Tenancy
 {
     using System.Data.SqlClient;
     using System.Threading.Tasks;
+
     using Corvus.Tenancy;
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// A factory for a <see cref="SqlConnection"/>.
@@ -16,24 +16,20 @@ namespace Corvus.Sql.Tenancy
     /// <para>
     /// You use this type to get an instance of an <see cref="SqlConnection"/> for a specific
     /// <see cref="ITenant"/>. It typically uses a KeyVault to get the SQL Server connection string for the tenant, and the
-    /// configuration comes from the tenant via <see cref="SqlStorageTenantExtensions.AddSqlConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, SqlConnectionDefinition, SqlConfiguration)"/>.
+    /// configuration comes from the tenant via <see cref="SqlStorageTenantExtensions.AddSqlConfiguration(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{string, object}}, string, SqlConfiguration)"/>.
     /// </para>
     /// <para>
     /// To configure a simple single-tenanted solution, which can ultimately be extended to multitenancy, the easiest route is to configure a configuration-based account key
     /// provider and configuration for your repositories.
     /// </para>
     /// <para>
-    /// First, add the Sql connection factory and the configuration account key provider in your container configuration (assuming you have added a standard ConfigurationRoot to your solution).
+    /// First, add the Sql connection factory in your container configuration.
     /// </para>
     /// <code>
-    /// serviceCollection.AddTenantSqlConnectionFactory();
-    /// serviceCollection.AddTenantConfigurationAccountKeyProvider();
+    /// serviceCollection.AddTenantSqlConnectionFactory(tenantSqlConnectionFactoryOptions);
     /// </code>
     /// <para>
-    /// Then, also as part of your startup, you can configure the Root tenant with some standard configuration. Note that this will typically be done through the container initialization extension method <see cref="TenancySqlServiceCollectionExtensions.AddTenantSqlConnectionFactory(IServiceCollection, TenantSqlConnectionFactoryOptions)"/>.
-    /// </para>
-    /// <para>
-    /// Now, whenever you want to obtain a sql connection for a tenant, you simply call <see cref="GetSqlConnectionForTenantAsync(ITenant, SqlConnectionDefinition)"/>, passing
+    /// Now, whenever you want to obtain a sql connection for a tenant, you simply call <see cref="GetSqlConnectionForTenantAsync(ITenant, string)"/>, passing
     /// it the tenant and the database connection definition you want to use.
     /// </para>
     /// <para>
@@ -55,8 +51,8 @@ namespace Corvus.Sql.Tenancy
         /// Get a <see cref="SqlConnection"/> for a tenant.
         /// </summary>
         /// <param name="tenant">The tenant for which to retrieve the container.</param>
-        /// <param name="connectionDefinition">The details of the SqlConnection to create.</param>
+        /// <param name="storageContextName">The name identifying the context to create.</param>
         /// <returns>The <see cref="SqlConnection"/> instance for the tenant.</returns>
-        Task<SqlConnection> GetSqlConnectionForTenantAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition);
+        Task<SqlConnection> GetSqlConnectionForTenantAsync(ITenant tenant, string storageContextName);
     }
 }

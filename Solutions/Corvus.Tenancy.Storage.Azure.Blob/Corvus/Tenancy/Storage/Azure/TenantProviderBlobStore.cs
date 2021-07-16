@@ -68,7 +68,7 @@ namespace Corvus.Tenancy
         /// <summary>
         /// Gets or sets the container definition for the tenant store.
         /// </summary>
-        public static BlobStorageContainerDefinition ContainerDefinition { get; set; } = new BlobStorageContainerDefinition("corvustenancy");
+        public static string ContainerStorageContextName { get; set; } = "corvustenancy";
 
         /// <inheritdoc/>
         public RootTenant Root { get; }
@@ -216,9 +216,9 @@ namespace Corvus.Tenancy
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
                 // establish their own settings.
-                BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerDefinition);
+                BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerStorageContextName);
                 IPropertyBag childProperties = this.propertyBagFactory.Create(values =>
-                    values.AddBlobStorageConfiguration(ContainerDefinition, tenancyStorageConfiguration));
+                    values.AddBlobStorageConfiguration(ContainerStorageContextName, tenancyStorageConfiguration));
                 var child = new Tenant(
                     parentTenantId.CreateChildId(wellKnownChildTenantGuid),
                     name,
@@ -357,7 +357,7 @@ namespace Corvus.Tenancy
         /// <returns>A <see cref="Task"/> which completes with the document repository for children of the specified tenant.</returns>
         private Task<BlobContainerClient> GetBlobContainerClient(ITenant parentTenant)
         {
-            return this.tenantBlobContainerClientFactory.GetBlobContainerForTenantAsync(parentTenant, ContainerDefinition);
+            return this.tenantBlobContainerClientFactory.GetContextForTenantAsync(parentTenant, ContainerStorageContextName);
         }
 
         private async Task<Tenant> GetTenantFromContainerAsync(string tenantId, BlobContainerClient container, string? etag)

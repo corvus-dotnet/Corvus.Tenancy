@@ -39,22 +39,25 @@ namespace Corvus.Tenancy.Specs.Bindings
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
 
-            string containerBase = Guid.NewGuid().ToString();
+            string databaseName = "endjinspecssharedthroughput";
+            string containerStorageContextName = $"tenancyspecs{Guid.NewGuid()}";
 
-            var gremlinContainerDefinition = new GremlinContainerDefinition(
-                "endjinspecssharedthroughput",
-                $"{containerBase}tenancyspecs");
-            featureContext.Set(gremlinContainerDefinition);
+            ////var gremlinContainerDefinition = new GremlinContainerDefinition(
+            ////    "endjinspecssharedthroughput",
+            ////    $"{containerBase}tenancyspecs");
+            ////featureContext.Set(gremlinContainerDefinition);
 
             var gremlinConfiguration = new GremlinConfiguration();
             config.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
-            gremlinConfiguration.DatabaseName = "endjinspecssharedthroughput";
-            gremlinConfiguration.DisableTenantIdPrefix = true;
-            tenantProvider.Root.UpdateProperties(values => values.AddGremlinConfiguration(gremlinContainerDefinition, gremlinConfiguration));
+            gremlinConfiguration.DatabaseName = databaseName;
+            gremlinConfiguration.ContainerName = containerStorageContextName;
+            tenantProvider.Root.UpdateProperties(values => values.AddGremlinConfiguration(containerStorageContextName, gremlinConfiguration));
 
-            GremlinClient tenancySpecsClient = await factory.GetClientForTenantAsync(
+            GremlinClient tenancySpecsClient = await factory.GetContextForTenantAsync(
                 tenantProvider.Root,
-                gremlinContainerDefinition).ConfigureAwait(false);
+                containerStorageContextName).ConfigureAwait(false);
+
+            //// IDG TODO: so who does create the container?
 
             featureContext.Set(tenancySpecsClient, TenancyGremlinClient);
         }

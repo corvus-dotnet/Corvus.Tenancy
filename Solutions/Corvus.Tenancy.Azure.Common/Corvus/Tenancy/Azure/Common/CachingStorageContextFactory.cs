@@ -131,52 +131,13 @@ namespace Corvus.Tenancy.Azure.Common
             return accountKeyResponse.Value.Value;
         }
 
-        /////// <summary>
-        /////// Gets the name from a container definition.
-        /////// </summary>
-        /////// <param name="definition">The container definition.</param>
-        /////// <returns>The name.</returns>
-        ////protected abstract string GetContainerName(TDefinition definition);
-
-        /////// <summary>
-        /////// Gets a container definition from a tenant-specific name.
-        /////// </summary>
-        /////// <param name="tenantSpecificContainerName">The name.</param>
-        /////// <param name="tenant">The tenant for which the container is required.</param>
-        /////// <param name="nonTenantSpecificContainerDefinition">
-        /////// The original (non-tenant-specific) container definition from which the tenant-specific
-        /////// container name was derived.
-        /////// </param>
-        /////// <returns>The container definition.</returns>
-        ////protected abstract TDefinition MakeDefinition(
-        ////    string tenantSpecificContainerName,
-        ////    ITenant tenant,
-        ////    TDefinition nonTenantSpecificContainerDefinition);
-
-        /////// <summary>
-        /////// Gets tenant-specific container configuration for a container definition.
-        /////// </summary>
-        /////// <param name="tenant">The tenant.</param>
-        /////// <param name="definition">The container definition.</param>
-        /////// <returns>The container configuration.</returns>
-        ////protected abstract TConfiguration GetConfiguration(ITenant tenant, TDefinition definition);
-
-        /////// <summary>
-        /////// Gets the cache key for a tenanted container.
-        /////// </summary>
-        /////// <param name="tenantedContainerDefinition">The tenant-specific definition of the container.</param>
-        /////// <returns>The cache key.</returns>
-        ////protected abstract string GetCacheKeyForContainer(TDefinition tenantedContainerDefinition);
-
         /// <summary>
         /// Create the container instance.
         /// </summary>
-        /// <param name="scope">The scope in which to create the storage context.</param>
         /// <param name="contextName">The name of the storage context required.</param>
         /// <param name="configuration">The container configuration.</param>
         /// <returns>A <see cref="Task"/> with completes with the instance of the container for the tenant.</returns>
         protected abstract Task<TStorageContext> CreateContainerAsync(
-            IStorageContextScope<TConfiguration> scope,
             string contextName,
             TConfiguration configuration);
 
@@ -195,39 +156,13 @@ namespace Corvus.Tenancy.Azure.Common
             return $"{tenant.Id.ToLowerInvariant()}-{container}";
         }
 
-        /////// <summary>
-        /////// Creates a tenant-specific version of a storage container definition.
-        /////// </summary>
-        /////// <param name="tenant">The tenant for which to build the definition.</param>
-        /////// <param name="containerDefinition">The standard single-tenant version of the definition.</param>
-        /////// <returns>A container definition unique to the tenant.</returns>
-        ////private TDefinition BuildContainerDefinitionForTenant(
-        ////    ITenant tenant,
-        ////    TDefinition containerDefinition)
-        ////{
-        ////    if (tenant is null)
-        ////    {
-        ////        throw new ArgumentNullException(nameof(tenant));
-        ////    }
-
-        ////    if (containerDefinition is null)
-        ////    {
-        ////        throw new ArgumentNullException(nameof(containerDefinition));
-        ////    }
-
-        ////    return this.MakeDefinition(
-        ////        BuildTenantSpecificContainerName(tenant, this.GetContainerName(containerDefinition)),
-        ////        tenant,
-        ////        containerDefinition);
-        ////}
-
         private async Task<TStorageContext> CreateContainerAsync(
             IStorageContextScope<TConfiguration> scope,
             string contextName)
         {
             TConfiguration configuration = scope.GetConfigurationForContext(contextName);
 
-            return await this.CreateContainerAsync(scope, contextName, configuration).ConfigureAwait(false);
+            return await this.CreateContainerAsync(contextName, configuration).ConfigureAwait(false);
         }
     }
 }
