@@ -36,6 +36,7 @@ namespace Corvus.Tenancy
         private readonly ITenantBlobContainerClientFactory tenantBlobContainerClientFactory;
         private readonly JsonSerializerSettings serializerSettings;
         private readonly IPropertyBagFactory propertyBagFactory;
+        private bool checkedRootContainerExists = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantProviderBlobStore"/> class.
@@ -212,6 +213,10 @@ namespace Corvus.Tenancy
             try
             {
                 (ITenant parentTenant, BlobContainerClient blobContainerClient) = await this.GetContainerAndTenantForChildTenantsOf(parentTenantId).ConfigureAwait(false);
+                if (!this.checkedRootContainerExists && parentTenantId == this.Root.Id)
+                {
+                    await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+                }
 
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
