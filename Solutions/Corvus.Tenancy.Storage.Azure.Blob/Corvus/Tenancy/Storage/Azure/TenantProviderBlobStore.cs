@@ -120,14 +120,6 @@ namespace Corvus.Tenancy
                     : null;
                 IEnumerable<BlobItem> items = p?.Values ?? Enumerable.Empty<BlobItem>();
 
-                ////BlobResultSegment segment = await container.GetBlobsAsync(
-                ////    prefix: LiveTenantsPrefix,
-                ////    true,   // Flat
-                ////    BlobListingDetails.None,
-                ////    limit,
-                ////    blobContinuationToken,
-                ////    null,
-                ////    null).ConfigureAwait(false);
                 return new TenantCollectionResult(items.Select(s => s.Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(p?.ContinuationToken));
             }
             catch (FormatException fex)
@@ -218,14 +210,19 @@ namespace Corvus.Tenancy
                     await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
                 }
 
+                string childTenantId = parentTenantId.CreateChildId(wellKnownChildTenantGuid);
+
                 // We need to copy blob storage settings for the Tenancy container definition from the parent to the new child
                 // to support the tenant blob store provider. We would expect this to be overridden by clients that wanted to
                 // establish their own settings.
                 BlobStorageConfiguration tenancyStorageConfiguration = parentTenant.GetBlobStorageConfiguration(ContainerStorageContextName);
+                BlobStorageConfiguration storageConfigWithGeneratedContainerName = TenantedContainerNaming.MakeTenantedConfiguration(
+                    tenancyStorageConfiguration, childTenantId, ContainerStorageContextName);
+
                 IPropertyBag childProperties = this.propertyBagFactory.Create(values =>
-                    values.AddBlobStorageConfiguration(ContainerStorageContextName, tenancyStorageConfiguration));
+                    values.AddBlobStorageConfiguration(ContainerStorageContextName, storageConfigWithGeneratedContainerName));
                 var child = new Tenant(
-                    parentTenantId.CreateChildId(wellKnownChildTenantGuid),
+                    childTenantId,
                     name,
                     childProperties);
 
@@ -240,6 +237,10 @@ namespace Corvus.Tenancy
                     new BlobUploadOptions { Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All } })
                     .ConfigureAwait(false);
                 child.ETag = uploadResponse.Value.ETag.ToString("G");
+
+                // Ensure the container exists
+                BlobContainerClient childBlobContainerClient = await this.GetBlobContainerClient(child).ConfigureAwait(false);
+                await childBlobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
 
                 return child;
             }

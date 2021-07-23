@@ -22,7 +22,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// This must be the actual container name, so it must conform to the naming rules imposed
         /// by Azure, and it must unique within the storage account for this configuration, and for
         /// any other configurations referring to the same storage account. You can use
-        /// <see cref="ContainerNameBuilders.MakeUniqueSafeBlobContainerName(string, string)"/>
+        /// <see cref="TenantedContainerNaming.MakeUniqueSafeBlobContainerName(string, string)"/>
         /// to create a suitable string.
         /// </remarks>
         public string? Container { get; set; }

@@ -29,8 +29,9 @@ namespace Corvus.Azure.Storage.Tenancy
     /// </code>
     /// <para>
     /// When provisioning a new tenant, you will need to ensure that containers corresponding to
-    /// the context names you plan to use exist. You can use <see cref="ContainerNameBuilders.MakeUniqueSafeTableContainerName(ITenant, string)"/>
-    /// to determine the right names to use for these.
+    /// the context names you plan to use exist. You can use <see cref="TenantedContainerNaming.MakeUniqueSafeTableContainerName(ITenant, string)"/>
+    /// to determine the right names to use for these. Or you can obtain the reference to the CloudTable through
+    /// this interface, and then use that to ensure that the table exists.
     /// </para>
     /// <para>
     /// Now, whenever you want to obtain a table for a tenant, you simply call <see cref="ITenantedStorageContextFactory{TStorageContext}.GetContextForTenantAsync(Corvus.Tenancy.ITenant, string)"/>, passing

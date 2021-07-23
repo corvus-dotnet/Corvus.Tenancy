@@ -41,13 +41,18 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton(sp =>
             {
                 BlobStorageConfiguration rootTenantStorageConfig = getRootTenantStorageConfiguration(sp);
+                if (!string.IsNullOrWhiteSpace(rootTenantStorageConfig.Container))
+                {
+                    throw new InvalidOperationException("Tenant provider blob store configuration must not set Container, because it generates container names based on tenant IDs");
+                }
 
                 IPropertyBagFactory propertyBagFactory = sp.GetRequiredService<IPropertyBagFactory>();
                 var rootTenant = new RootTenant(propertyBagFactory);
 
+                BlobStorageConfiguration? rootTenantStorageConfigWithGeneratedContainerName = TenantedContainerNaming.MakeTenantedConfiguration(
+                    rootTenantStorageConfig, rootTenant.Id, TenantProviderBlobStore.ContainerStorageContextName);
                 rootTenant.UpdateProperties(
-                    values => values.AddBlobStorageConfiguration(
-                        TenantProviderBlobStore.ContainerStorageContextName, rootTenantStorageConfig));
+                    values => values.AddBlobStorageConfiguration(TenantProviderBlobStore.ContainerStorageContextName, rootTenantStorageConfigWithGeneratedContainerName));
 
                 ITenantBlobContainerClientFactory tenantBlobContainerClientFactory = sp.GetRequiredService<ITenantBlobContainerClientFactory>();
                 IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();

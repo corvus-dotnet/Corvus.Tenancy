@@ -141,21 +141,6 @@ namespace Corvus.Tenancy.Azure.Common
             string contextName,
             TConfiguration configuration);
 
-        private static string BuildTenantSpecificContainerName(ITenant tenant, string container)
-        {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (container is null)
-            {
-                throw new ArgumentNullException(nameof(container));
-            }
-
-            return $"{tenant.Id.ToLowerInvariant()}-{container}";
-        }
-
         private async Task<TStorageContext> CreateContainerAsync(
             IStorageContextScope<TConfiguration> scope,
             string contextName)

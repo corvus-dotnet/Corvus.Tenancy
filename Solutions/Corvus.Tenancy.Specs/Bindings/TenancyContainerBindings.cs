@@ -63,7 +63,6 @@ namespace Corvus.Tenancy.Specs.Bindings
                         {
                             var blobStorageConfiguration = new BlobStorageConfiguration();
                             config.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
-                            blobStorageConfiguration.Container = storageContextTestContext.ContextName;
                             return blobStorageConfiguration;
                         });
 
