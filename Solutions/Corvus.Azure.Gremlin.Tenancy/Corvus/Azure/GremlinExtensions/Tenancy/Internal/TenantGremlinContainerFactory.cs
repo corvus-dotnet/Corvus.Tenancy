@@ -4,6 +4,7 @@
 
 namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Corvus.Tenancy;
@@ -70,6 +71,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
         private readonly ConcurrentDictionary<object, Task<GremlinServer>> servers = new ConcurrentDictionary<object, Task<GremlinServer>>();
         private readonly ConcurrentDictionary<object, Task<GremlinClient>> clients = new ConcurrentDictionary<object, Task<GremlinClient>>();
         private readonly TenantGremlinContainerFactoryOptions options;
+        private readonly Random random = new Random();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantGremlinContainerFactory"/> class.
@@ -140,7 +142,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
         /// <remarks>
         /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
         /// </remarks>
-        public Task<GremlinClient> GetClientForTenantAsync(ITenant tenant, GremlinContainerDefinition containerDefinition)
+        public async Task<GremlinClient> GetClientForTenantAsync(ITenant tenant, GremlinContainerDefinition containerDefinition)
         {
             if (tenant is null)
             {
@@ -152,12 +154,32 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
                 throw new System.ArgumentNullException(nameof(containerDefinition));
             }
 
-            GremlinContainerDefinition tenantedBlobStorageContainerDefinition = TenantGremlinContainerFactory.GetContainerDefinitionForTenant(tenant, containerDefinition);
-            object key = GetKeyFor(tenantedBlobStorageContainerDefinition);
+            GremlinContainerDefinition tenantedContainerDefinition = TenantGremlinContainerFactory.GetContainerDefinitionForTenant(tenant, containerDefinition);
+            object key = GetKeyFor(tenantedContainerDefinition);
 
-            return this.clients.GetOrAdd(
+            Task<GremlinClient> result = this.clients.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantGremlinClient(tenant, containerDefinition, tenantedBlobStorageContainerDefinition).ConfigureAwait(false));
+                _ => this.CreateTenantGremlinClient(tenant, containerDefinition, tenantedContainerDefinition));
+
+            if (result.IsFaulted)
+            {
+                // If a task has been created in the previous statement, it won't have completed yet. Therefore if it's
+                // faulted, that means it was added as part of a previous request to this method, and subsequently
+                // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
+                // return. If removing the value fails, that's likely because it's been removed by a different thread,
+                // so we will ignore that and just attempt to create and return a new value anyway.
+                this.clients.TryRemove(key, out Task<GremlinClient> _);
+
+                // Wait for a short and random time, to reduce the potential for large numbers of spurious container
+                // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
+                await Task.Delay(this.random.Next(150, 250)).ConfigureAwait(false);
+
+                result = this.clients.GetOrAdd(
+                    key,
+                    _ => this.CreateTenantGremlinClient(tenant, containerDefinition, tenantedContainerDefinition));
+            }
+
+            return await result.ConfigureAwait(false);
         }
 
         /// <summary>
