@@ -4,6 +4,7 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Corvus.Azure.Storage.Tenancy.Internal;
@@ -70,6 +71,7 @@ namespace Corvus.Azure.Storage.Tenancy
         private readonly ConcurrentDictionary<object, Task<CloudBlobClient>> clients = new ConcurrentDictionary<object, Task<CloudBlobClient>>();
         private readonly ConcurrentDictionary<object, Task<CloudBlobContainer>> containers = new ConcurrentDictionary<object, Task<CloudBlobContainer>>();
         private readonly TenantCloudBlobContainerFactoryOptions? options;
+        private readonly Random random = new Random();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudBlobContainerFactory"/> class.
@@ -140,7 +142,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <remarks>
         /// This caches container instances to ensure that a singleton is used for all request for the same tenant and container definition.
         /// </remarks>
-        public Task<CloudBlobContainer> GetBlobContainerForTenantAsync(ITenant tenant, BlobStorageContainerDefinition containerDefinition)
+        public async Task<CloudBlobContainer> GetBlobContainerForTenantAsync(ITenant tenant, BlobStorageContainerDefinition containerDefinition)
         {
             if (tenant is null)
             {
@@ -155,9 +157,29 @@ namespace Corvus.Azure.Storage.Tenancy
             BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition = BuildBlobStorageContainerDefinitionForTenant(tenant, containerDefinition);
             object key = GetKeyFor(tenantedBlobStorageContainerDefinition);
 
-            return this.containers.GetOrAdd(
+            Task<CloudBlobContainer> result = this.containers.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantCloudBlobContainer(tenant, containerDefinition, tenantedBlobStorageContainerDefinition).ConfigureAwait(false));
+                _ => this.CreateTenantCloudBlobContainer(tenant, containerDefinition, tenantedBlobStorageContainerDefinition));
+
+            if (result.IsFaulted)
+            {
+                // If a task has been created in the previous statement, it won't have completed yet. Therefore if it's
+                // faulted, that means it was added as part of a previous request to this method, and subsequently
+                // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
+                // return. If removing the value fails, that's likely because it's been removed by a different thread,
+                // so we will ignore that and just attempt to create and return a new value anyway.
+                this.containers.TryRemove(key, out Task<CloudBlobContainer> _);
+
+                // Wait for a short and random time, to reduce the potential for large numbers of spurious container
+                // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
+                await Task.Delay(this.random.Next(150, 250)).ConfigureAwait(false);
+
+                result = this.containers.GetOrAdd(
+                    key,
+                    _ => this.CreateTenantCloudBlobContainer(tenant, containerDefinition, tenantedBlobStorageContainerDefinition));
+            }
+
+            return await result.ConfigureAwait(false);
         }
 
         /// <summary>

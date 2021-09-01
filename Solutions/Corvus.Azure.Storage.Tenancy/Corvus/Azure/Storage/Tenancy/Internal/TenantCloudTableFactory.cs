@@ -4,6 +4,7 @@
 
 namespace Corvus.Azure.Storage.Tenancy
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Corvus.Azure.Storage.Tenancy.Internal;
@@ -68,6 +69,7 @@ namespace Corvus.Azure.Storage.Tenancy
         private readonly ConcurrentDictionary<object, Task<CloudTableClient>> clients = new ConcurrentDictionary<object, Task<CloudTableClient>>();
         private readonly ConcurrentDictionary<object, Task<CloudTable>> containers = new ConcurrentDictionary<object, Task<CloudTable>>();
         private readonly TenantCloudTableFactoryOptions? options;
+        private readonly Random random = new Random();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudTableFactory"/> class.
@@ -138,7 +140,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <remarks>
         /// This caches table instances to ensure that a singleton is used for all request for the same tenant and table definition.
         /// </remarks>
-        public Task<CloudTable> GetTableForTenantAsync(ITenant tenant, TableStorageTableDefinition tableDefinition)
+        public async Task<CloudTable> GetTableForTenantAsync(ITenant tenant, TableStorageTableDefinition tableDefinition)
         {
             if (tenant is null)
             {
@@ -153,9 +155,29 @@ namespace Corvus.Azure.Storage.Tenancy
             TableStorageTableDefinition tenantedTableStorageTableDefinition = BuildTableStorageTableDefinitionForTenant(tenant, tableDefinition);
             object key = GetKeyFor(tenantedTableStorageTableDefinition);
 
-            return this.containers.GetOrAdd(
+            Task<CloudTable> result = this.containers.GetOrAdd(
                 key,
-                async _ => await this.CreateTenantCloudTable(tenant, tableDefinition, tenantedTableStorageTableDefinition).ConfigureAwait(false));
+                _ => this.CreateTenantCloudTable(tenant, tableDefinition, tenantedTableStorageTableDefinition));
+
+            if (result.IsFaulted)
+            {
+                // If a task has been created in the previous statement, it won't have completed yet. Therefore if it's
+                // faulted, that means it was added as part of a previous request to this method, and subsequently
+                // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
+                // return. If removing the value fails, that's likely because it's been removed by a different thread,
+                // so we will ignore that and just attempt to create and return a new value anyway.
+                this.containers.TryRemove(key, out Task<CloudTable> _);
+
+                // Wait for a short and random time, to reduce the potential for large numbers of spurious container
+                // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
+                await Task.Delay(this.random.Next(150, 250)).ConfigureAwait(false);
+
+                result = this.containers.GetOrAdd(
+                    key,
+                    _ => this.CreateTenantCloudTable(tenant, tableDefinition, tenantedTableStorageTableDefinition));
+            }
+
+            return await result.ConfigureAwait(false);
         }
 
         /// <summary>
