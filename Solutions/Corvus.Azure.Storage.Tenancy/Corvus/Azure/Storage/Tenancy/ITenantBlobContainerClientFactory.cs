@@ -2,6 +2,8 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
+// TODO: what's the right namespace structure?
+// For non-tenanted storage, we'd go with Corvus.Storage.Azure.Blob. So this seems odd.
 namespace Corvus.Azure.Storage.Tenancy
 {
     using Corvus.Tenancy;
