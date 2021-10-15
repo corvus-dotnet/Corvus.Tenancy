@@ -1,6 +1,6 @@
 # Corvus.Tenancy
-[![Build Status](https://dev.azure.com/endjin-labs/Corvus.Tenancy/_apis/build/status/corvus-dotnet.Corvus.Tenancy?branchName=master)](https://dev.azure.com/endjin-labs/Corvus.Tenancy/_build/latest?definitionId=4&branchName=master)
-[![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Tenancy/master/LICENSE)
+[![Build Status](https://dev.azure.com/endjin-labs/Corvus.Tenancy/_apis/build/status/corvus-dotnet.Corvus.Tenancy?branchName=main)](https://dev.azure.com/endjin-labs/Corvus.Tenancy/_build/latest?definitionId=4&branchName=main)
+[![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Tenancy/main/LICENSE)
 [![IMM](https://endimmfuncdev.azurewebsites.net/api/imm/github/corvus-dotnet/Corvus.Tenancy/total?cache=false)](https://endimmfuncdev.azurewebsites.net/api/imm/github/corvus-dotnet/Corvus.Tenancy/total?cache=false)
 
 This project provides storage isolation for multi-tenanted applications and services. It also defines a set of interfaces defining a simple model for multi-tenancy, and a means of retrieving tenant information.
@@ -48,7 +48,7 @@ The intended usage model is that the tenant storage should be a distinct service
 
 ## Licenses
 
-[![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Tenancy/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://raw.githubusercontent.com/corvus-dotnet/Corvus.Tenancy/main/LICENSE)
 
 Corvus.Tenancy is available under the Apache 2.0 open source license.
 
