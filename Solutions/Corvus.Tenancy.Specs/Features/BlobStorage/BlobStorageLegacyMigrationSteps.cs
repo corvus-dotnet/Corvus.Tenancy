@@ -53,9 +53,9 @@
         {
             this.serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
             this.testStorageOptions = this.serviceProvider.GetRequiredService<TestSettings>();
-            this.testStorageConnectionString = string.IsNullOrWhiteSpace(this.testStorageOptions.ConnectionString)
+            this.testStorageConnectionString = string.IsNullOrWhiteSpace(this.testStorageOptions.AzureStorageConnectionString)
                 ? "UseDevelopmentStorage=true"
-                : this.testStorageOptions.ConnectionString;
+                : this.testStorageOptions.AzureStorageConnectionString;
             ////this.tenantProvider = this.serviceProvider.GetRequiredService<FakeTenantProvider>();
             ////this.transitionSettings = this.serviceProvider.GetRequiredService<BlobStorageTenantLegacyTransitionSettings>();
 

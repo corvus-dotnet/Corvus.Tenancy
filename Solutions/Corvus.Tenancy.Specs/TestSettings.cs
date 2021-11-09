@@ -1,4 +1,4 @@
-﻿// <copyright file="TestBlobStorageConfigurationOptions.cs" company="Endjin Limited">
+﻿// <copyright file="TestSettings.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
