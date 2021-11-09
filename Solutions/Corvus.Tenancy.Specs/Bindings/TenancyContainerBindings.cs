@@ -50,6 +50,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                         .Build();
 
                     serviceCollection.AddSingleton(config);
+                    serviceCollection.AddSingleton(config.GetSection("TestBlobStorageConfigurationOptions").Get<TestBlobStorageConfigurationOptions>());
 
                     serviceCollection.AddRequiredTenancyServices();
 

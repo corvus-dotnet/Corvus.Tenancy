@@ -33,7 +33,8 @@
         private readonly IServiceProvider serviceProvider;
         ////private readonly FakeTenantProvider tenantProvider;
         private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
-        ////private readonly BlobStorageTenantLegacyTransitionSettings transitionSettings;
+        private readonly TestBlobStorageConfigurationOptions testStorageOptions;
+        private readonly string testStorageConnectionString;
         private readonly Azure.Storage.Tenancy.BlobStorageConfiguration legacyConfigurationInTenant = new ();
         private readonly BlobContainerConfiguration v3ConfigurationInTenant = new ();
         private readonly IPropertyBagFactory pbf;
@@ -51,6 +52,10 @@
             ScenarioContext scenarioContext)
         {
             this.serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
+            this.testStorageOptions = this.serviceProvider.GetRequiredService<TestBlobStorageConfigurationOptions>();
+            this.testStorageConnectionString = string.IsNullOrWhiteSpace(this.testStorageOptions.ConnectionString)
+                ? "UseDevelopmentStorage=true"
+                : this.testStorageOptions.ConnectionString;
             ////this.tenantProvider = this.serviceProvider.GetRequiredService<FakeTenantProvider>();
             ////this.transitionSettings = this.serviceProvider.GetRequiredService<BlobStorageTenantLegacyTransitionSettings>();
 
@@ -75,20 +80,20 @@
             }
         }
 
-        [Given("a legacy BlobStorageConfiguration with an AccountName of '([^']*)' and an AccessType of '([^']*)'")]
-        public void GivenALegacyBlobStorageConfigurationWithAnAccountNameOfAndAnAccessTypeOf(
-            string accountName, string accessType)
+        [Given("a legacy BlobStorageConfiguration with an AccountName and an AccessType of '([^']*)'")]
+        public void GivenALegacyBlobStorageConfigurationWithConnectionStringAndAnAccessTypeOf(string accessType)
         {
-            this.legacyConfigurationInTenant.AccountName = accountName;
+            // AccountName is interpreted as a connection string when there's no AccountKeySecretName
+            this.legacyConfigurationInTenant.AccountName = this.testStorageConnectionString;
             this.legacyConfigurationInTenant.AccessType = accessType == "null"
                 ? null
                 : Enum.Parse<Microsoft.Azure.Storage.Blob.BlobContainerPublicAccessType>(accessType);
         }
 
-        [Given(@"this test is using an Azure BlobServiceClient with a connection string of '(.*)'")]
-        public void GivenThisTestIsUsingAnAzureBlobServiceClientWithAConnectionStringOf(string connectionString)
+        [Given(@"this test is using an Azure BlobServiceClient with a connection string")]
+        public void GivenThisTestIsUsingAnAzureBlobServiceClientWithAConnectionStringOf()
         {
-            this.blobServiceClient = new BlobServiceClient(connectionString);
+            this.blobServiceClient = new BlobServiceClient(this.testStorageConnectionString);
         }
 
         [Given("a tenant with the property '([^']*)` set to the legacy BlobStorageConfiguration")]
@@ -119,11 +124,10 @@
             this.containersCreatedByTest.Add(hashedTenantedContainerName);
         }
 
-        [Given("a v3 BlobContainerConfiguration with a ConnectionStringPlainText of '(.*)'")]
-        public void GivenAVBlobContainerConfigurationWithAConnectionStringPlainTextOf(
-            string connectionStringPlainText)
+        [Given("a v3 BlobContainerConfiguration with a ConnectionStringPlainText")]
+        public void GivenAVBlobContainerConfigurationWithAConnectionStringPlainText()
         {
-            this.v3ConfigurationInTenant.ConnectionStringPlainText = connectionStringPlainText;
+            this.v3ConfigurationInTenant.ConnectionStringPlainText = this.testStorageConnectionString;
         }
 
         [Given("a tenant with the property '([^']*)` set to the v3 BlobContainerConfiguration")]
@@ -213,12 +217,21 @@
         public void ThenMigrateToVAsyncShouldHaveReturnedABlobContainerConfigurationWithTheseSettings(Table configurationTable)
         {
             BlobContainerConfiguration expectedConfiguration = configurationTable.CreateInstance<BlobContainerConfiguration>();
+
+            // We recognized a couple of special values in the test for this configuration where we
+            // plug in real values at runtime (because the test code can't know what the actual
+            // values should be).
             const string tenantedContainerPrefix = "tenanted-";
             if (expectedConfiguration.Container is string containerValueInTable &&
                 containerValueInTable.StartsWith(tenantedContainerPrefix))
             {
                 string containerName = containerValueInTable.Substring(tenantedContainerPrefix.Length);
                 expectedConfiguration.Container = this.GetHashedTenantedContainerName(containerName);
+            }
+
+            if (expectedConfiguration.ConnectionStringPlainText == "testAccountConnectionString")
+            {
+                expectedConfiguration.ConnectionStringPlainText = this.testStorageConnectionString;
             }
 
             this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
