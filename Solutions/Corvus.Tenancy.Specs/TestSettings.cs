@@ -7,8 +7,8 @@ namespace Corvus.Tenancy.Specs
     /// <summary>
     /// Settings used by blob storage tests.
     /// </summary>
-    public class TestBlobStorageConfigurationOptions
+    public class TestSettings
     {
-        public string? ConnectionString { get; set; }
+        public string? AzureStorageConnectionString { get; set; }
     }
 }

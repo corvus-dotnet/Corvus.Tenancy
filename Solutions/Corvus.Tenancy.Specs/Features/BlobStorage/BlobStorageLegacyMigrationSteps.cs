@@ -33,7 +33,7 @@
         private readonly IServiceProvider serviceProvider;
         ////private readonly FakeTenantProvider tenantProvider;
         private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
-        private readonly TestBlobStorageConfigurationOptions testStorageOptions;
+        private readonly TestSettings testStorageOptions;
         private readonly string testStorageConnectionString;
         private readonly Azure.Storage.Tenancy.BlobStorageConfiguration legacyConfigurationInTenant = new ();
         private readonly BlobContainerConfiguration v3ConfigurationInTenant = new ();
@@ -52,7 +52,7 @@
             ScenarioContext scenarioContext)
         {
             this.serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
-            this.testStorageOptions = this.serviceProvider.GetRequiredService<TestBlobStorageConfigurationOptions>();
+            this.testStorageOptions = this.serviceProvider.GetRequiredService<TestSettings>();
             this.testStorageConnectionString = string.IsNullOrWhiteSpace(this.testStorageOptions.ConnectionString)
                 ? "UseDevelopmentStorage=true"
                 : this.testStorageOptions.ConnectionString;
