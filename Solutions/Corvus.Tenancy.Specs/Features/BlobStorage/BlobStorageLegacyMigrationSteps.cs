@@ -90,7 +90,17 @@
                 : Enum.Parse<Microsoft.Azure.Storage.Blob.BlobContainerPublicAccessType>(accessType);
         }
 
-        [Given(@"this test is using an Azure BlobServiceClient with a connection string")]
+        [Given("a legacy BlobStorageConfiguration with a bogus AccountName and an AccessType of '([^']*)'")]
+        public void GivenALegacyBlobStorageConfigurationWithABogusAccountNameAndAnAccessTypeOf(string accessType)
+        {
+            // AccountName is interpreted as a connection string when there's no AccountKeySecretName
+            this.legacyConfigurationInTenant.AccountName = "ThisIsBogusToVerifyThatItIsNotBeUsed";
+            this.legacyConfigurationInTenant.AccessType = accessType == "null"
+                ? null
+                : Enum.Parse<Microsoft.Azure.Storage.Blob.BlobContainerPublicAccessType>(accessType);
+        }
+
+        [Given("this test is using an Azure BlobServiceClient with a connection string")]
         public void GivenThisTestIsUsingAnAzureBlobServiceClientWithAConnectionStringOf()
         {
             this.blobServiceClient = new BlobServiceClient(this.testStorageConnectionString);
@@ -213,7 +223,7 @@
         ////    Assert.IsEmpty(this.tenantProvider.TenantUpdates);
         ////}
 
-        [Then(@"MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
+        [Then("MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
         public void ThenMigrateToVAsyncShouldHaveReturnedABlobContainerConfigurationWithTheseSettings(Table configurationTable)
         {
             BlobContainerConfiguration expectedConfiguration = configurationTable.CreateInstance<BlobContainerConfiguration>();
@@ -237,7 +247,7 @@
             this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
         }
 
-        [Then(@"MigrateToV(.*)Async should have returned null")]
+        [Then("MigrateToV(.*)Async should have returned null")]
         public void ThenMigrateToVAsyncShouldHaveReturnedNull(int p0)
         {
             this.v3ConfigFromMigration.Should().BeNull();

@@ -62,7 +62,7 @@ Scenario Outline: Container exists and only v2 configuration exists in tenant pr
 #       configuration in the tenant
 Scenario: Container exists and only v2 configuration exists in tenant properties when configuration migration preparation occurs
     # AccountName is interpreted as a connection string when there's no AccountKeySecretName
-    Given a legacy BlobStorageConfiguration with an AccountName of 'UseDevelopmentStorage=true' and an AccessType of 'null'
+    Given a legacy BlobStorageConfiguration with an AccountName and an AccessType of 'null'
     And this test is using an Azure BlobServiceClient with a connection string
     And a tenant with the property 'sv2` set to the legacy BlobStorageConfiguration
     And a container with a tenant-specific name derived from 'myc' exists
@@ -75,7 +75,7 @@ Scenario: Container exists and only v2 configuration exists in tenant properties
 
 # TODO: Container name in config vs container name in argument
 Scenario: Container exists and both v2 and v3 configurations exist in tenant properties when container requested
-    Given a legacy BlobStorageConfiguration with an AccountName of 'ThisIsBogusToVerifyThatItIsNotBeUsed' and an AccessType of 'null'
+    Given a legacy BlobStorageConfiguration with a bogus AccountName and an AccessType of 'null'
     And this test is using an Azure BlobServiceClient with a connection string
     And a v3 BlobContainerConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv2` set to the legacy BlobStorageConfiguration
@@ -86,7 +86,7 @@ Scenario: Container exists and both v2 and v3 configurations exist in tenant pro
     And the BlobContainerClient should have access to the container with a tenant-specific name derived from 'myc'
 
 Scenario: Container exists and both v2 and v3 configurations exist in tenant properties when configuration migration preparation occurs
-    Given a legacy BlobStorageConfiguration with an AccountName of 'ThisIsBogusToVerifyThatItIsNotBeUsed' and an AccessType of 'null'
+    Given a legacy BlobStorageConfiguration with a bogus AccountName and an AccessType of 'null'
     And this test is using an Azure BlobServiceClient with a connection string
     And a v3 BlobContainerConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv2` set to the legacy BlobStorageConfiguration 
