@@ -1,18 +1,23 @@
 ﻿namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Corvus.Json;
     using Corvus.Tenancy;
     using Corvus.Tenancy.Exceptions;
 
+    using NUnit.Framework;
+
 #pragma warning disable IDE0060 // Unused arguments
-    internal class FakeTenantProvider : ITenantProvider
+    internal class FakeTenantProvider : ITenantStore
     {
         public FakeTenantProvider(IPropertyBagFactory propertyBagFactory)
         {
             this.Root = new RootTenant(propertyBagFactory);
         }
+
+        public List<Update> TenantUpdates { get; } = new ();
 
         public RootTenant Root { get; }
 
@@ -57,11 +62,46 @@
             return Task.FromResult<ITenant>(this.Root);
         }
 
-        public Task<ITenant> UpdateTenantAsync(ITenant tenant)
+        public Task<ITenant> UpdateTenantAsync(
+            string tenantId,
+            string? name = null,
+            IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd = null,
+            IEnumerable<string>? propertiesToRemove = null)
         {
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
-            throw new NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
+            this.TenantUpdates.Add(new Update(tenantId, name, propertiesToSetOrAdd, propertiesToRemove));
+
+            return Task.FromResult(default(ITenant) !);
+        }
+
+        ////        public Task<ITenant> UpdateTenantAsync(ITenant tenant)
+        ////        {
+        ////#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
+        ////            throw new NotImplementedException();
+        ////#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
+        ////        }
+
+        // When we're able to use C#9 or later, this would be better as a record.
+        public class Update
+        {
+            public Update(
+                string tenantId,
+                string? name,
+                IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd,
+                IEnumerable<string>? propertiesToRemove)
+            {
+                this.TenantId = tenantId;
+                this.Name = name;
+                this.PropertiesToSetOrAdd = propertiesToSetOrAdd;
+                this.PropertiesToRemove = propertiesToRemove;
+            }
+
+            public string TenantId { get; }
+
+            public string? Name { get; }
+
+            public IEnumerable<KeyValuePair<string, object>>? PropertiesToSetOrAdd { get; }
+
+            public IEnumerable<string>? PropertiesToRemove { get; }
         }
     }
 }

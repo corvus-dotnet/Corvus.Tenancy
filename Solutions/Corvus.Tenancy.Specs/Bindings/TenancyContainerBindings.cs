@@ -19,6 +19,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using TechTalk.SpecFlow;
+    using Corvus.Storage.Azure.BlobStorage.Tenancy;
 
     /// <summary>
     ///     Container related bindings to configure the service provider for features.
@@ -72,8 +73,14 @@ namespace Corvus.Tenancy.Specs.Bindings
                     }
                     else
                     {
-                        serviceCollection.AddSingleton<ITenantProvider, FakeTenantProvider>();
+                        serviceCollection.AddSingleton<FakeTenantProvider>();
+                        serviceCollection.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<FakeTenantProvider>());
                     }
+
+                    // TODO: is this the right place to do this?
+                    serviceCollection.AddAzureBlobStorageClient();
+                    serviceCollection.AddSingleton(new BlobStorageTenantLegacyTransitionSettings());
+                    serviceCollection.AddBlobContainerV2ToV3Transition();
 
                     var blobOptions = new TenantCloudBlobContainerFactoryOptions
                     {
