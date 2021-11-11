@@ -23,7 +23,6 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
     internal class BlobContainerSourceWithTenantLegacyTransition : IBlobContainerSourceWithTenantLegacyTransition
     {
         private readonly IBlobContainerSourceByConfiguration blobContainerSource;
-        private readonly BlobStorageTenantLegacyTransitionSettings transitionSettings;
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
@@ -32,19 +31,14 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         /// <param name="blobContainerSource">
         /// The underling non-legacy source.
         /// </param>
-        /// <param name="transitionSettings">
-        /// Determines transition behaviour.
-        /// </param>
         /// <param name="serviceProvider">
         /// Provides access to optional services.
         /// </param>
         public BlobContainerSourceWithTenantLegacyTransition(
             IBlobContainerSourceByConfiguration blobContainerSource,
-            BlobStorageTenantLegacyTransitionSettings transitionSettings,
             IServiceProvider serviceProvider)
         {
             this.blobContainerSource = blobContainerSource;
-            this.transitionSettings = transitionSettings;
             this.serviceProvider = serviceProvider;
         }
 
@@ -104,15 +98,6 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 if (publicAccessType.HasValue)
                 {
                     await result.CreateIfNotExistsAsync(publicAccessType.Value);
-                }
-
-                if (this.transitionSettings.ShouldCreateV3Configurations)
-                {
-                    ITenantStore tenantStore = this.serviceProvider.GetRequiredService<ITenantStore>();
-
-                    await tenantStore.UpdateTenantAsync(
-                        tenant.Id,
-                        propertiesToSetOrAdd: new Dictionary<string, object> { { v3ConfigurationKey, v3Configuration } });
                 }
             }
 
