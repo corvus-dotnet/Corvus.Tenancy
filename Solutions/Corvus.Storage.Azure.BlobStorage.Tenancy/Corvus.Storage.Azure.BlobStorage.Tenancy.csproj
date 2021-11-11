@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Corvus.Storage.Azure.BlobStorage" Version="3.0.0-1-refactor-from-tenancy.9" />
+    <PackageReference Include="Corvus.Storage.Azure.BlobStorage" Version="3.0.0-1-refactor-from-tenancy.10" />
     <PackageReference Include="Endjin.RecommendedPractices" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

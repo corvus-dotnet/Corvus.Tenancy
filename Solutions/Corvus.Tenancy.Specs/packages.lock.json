@@ -227,21 +227,21 @@
       },
       "Corvus.Storage.Azure.BlobStorage": {
         "type": "Transitive",
-        "resolved": "3.0.0-1-refactor-from-tenancy.9",
-        "contentHash": "UkmzZd1BOVniy357UgQITWUjPjgNdYzsue19bchLju7WV3KHuGm+HSGG0agLPgeskXRJZz2a1oW/aAASiHR2rw==",
+        "resolved": "3.0.0-1-refactor-from-tenancy.10",
+        "contentHash": "xzy+Z5ZzpJ4GEh2MxQ4IlufXtosjwcY1Tk0Xg8SyQ2ktVHLWbly2emkEqiESFjVLUoM3sNVqd46eqflP6eXkqw==",
         "dependencies": {
           "Azure.Storage.Blobs": "12.10.0",
-          "Corvus.Storage.Common": "3.0.0-1-refactor-from-tenancy.9"
+          "Corvus.Storage.Common": "3.0.0-1-refactor-from-tenancy.10"
         }
       },
       "Corvus.Storage.Common": {
         "type": "Transitive",
-        "resolved": "3.0.0-1-refactor-from-tenancy.9",
-        "contentHash": "ZrhxVULwbI/JMJnUsyqP8MaLVwochF4RUdjGWLaA1m1EWJCRWT0+ODv5Z+8vzDSWcaXmm63gToO9ZO4GX+uvgA==",
+        "resolved": "3.0.0-1-refactor-from-tenancy.10",
+        "contentHash": "bDirPOYtbvitnSB9efYfiwfJsc/mI9ObP6qa5zAQvwzWHxUPGqY5o82AWKRk/7ADmWw26B1kzmyZGFWF4eY8jw==",
         "dependencies": {
           "Azure.Security.KeyVault.Secrets": "4.2.0",
           "Corvus.Identity.Azure": "3.0.0-identity-configuration.3",
-          "Microsoft.Extensions.Configuration.Binder": "3.1.20"
+          "Microsoft.Extensions.Configuration.Binder": "3.1.21"
         }
       },
       "Corvus.Testing.SpecFlow": {
@@ -2343,7 +2343,7 @@
       "corvus.storage.azure.blobstorage.tenancy": {
         "type": "Project",
         "dependencies": {
-          "Corvus.Storage.Azure.BlobStorage": "3.0.0-1-refactor-from-tenancy.9",
+          "Corvus.Storage.Azure.BlobStorage": "3.0.0-1-refactor-from-tenancy.10",
           "Corvus.Tenancy.Abstractions": "1.0.0"
         }
       },
