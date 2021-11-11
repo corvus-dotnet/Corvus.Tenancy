@@ -2,9 +2,8 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Storage.Azure.BlobStorage.Tenancy
+namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 {
-    using Corvus.Storage.Azure.BlobStorage.Tenancy.Internal;
     using Corvus.Tenancy;
 
     /// <summary>

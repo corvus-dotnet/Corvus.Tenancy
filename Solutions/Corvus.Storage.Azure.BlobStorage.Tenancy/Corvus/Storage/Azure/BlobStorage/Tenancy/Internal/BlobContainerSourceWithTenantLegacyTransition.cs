@@ -72,10 +72,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             }
             else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyBlobStorageConfiguration legacyConfiguration))
             {
-                v3Configuration = new BlobContainerConfiguration
-                {
-                    ConnectionStringPlainText = legacyConfiguration.AccountName,
-                };
+                v3Configuration = LegacyConfigurationConverter.FromV2(legacyConfiguration);
                 string rawContainerName = string.IsNullOrWhiteSpace(containerName)
                     ? legacyConfiguration.Container ?? throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a {containerName}")
                     : containerName;
