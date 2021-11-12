@@ -25,6 +25,32 @@ Scenario: Plain text connection string stored in AccountName with container name
     | ConnectionStringPlainText | MyConnectionString |
     | Container                 | MyContainerName    |
 
+# A slightly questionable feature of the V2 libraries that some tests and local dev scenarios
+# depend on is that if you provide a completely empty configuration, you end up using the local
+# storage emulator.
+Scenario: All null configuration results in development storage
+	Given legacy v2 configuration with these properties
+    | PropertyName | Value              |
+	When the legacy v2 configuration is converted to the new format
+	Then the resulting BlobContainerConfiguration has these properties
+    | PropertyName              | Value                      |
+    | ConnectionStringPlainText | UseDevelopmentStorage=true |
+
+# A related slightly peculiar feature of the V2 libraries is that it detects the use of the
+# standard development storage connection string, and instead of just passing that through
+# it instead uses the standard developments storage account name. It didn't set the account
+# key but apparently it worked anyway. We're deliberately changing the behaviour and specifying
+# use of the storage emulator through the same connection string, instead of turning it into
+# the storage account name.
+Scenario: Development storage connection results in development storage
+	Given legacy v2 configuration with these properties
+    | PropertyName | Value                      |
+    | AccountName  | UseDevelopmentStorage=true |
+	When the legacy v2 configuration is converted to the new format
+	Then the resulting BlobContainerConfiguration has these properties
+    | PropertyName              | Value                      |
+    | ConnectionStringPlainText | UseDevelopmentStorage=true |
+
 Scenario: Account name with secret in key vault
 	Given legacy v2 configuration with these properties
     | PropertyName         | Value        |

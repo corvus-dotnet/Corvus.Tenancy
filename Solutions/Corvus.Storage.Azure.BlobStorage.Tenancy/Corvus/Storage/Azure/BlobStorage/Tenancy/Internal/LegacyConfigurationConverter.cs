@@ -20,6 +20,18 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         /// <returns>The converted settings.</returns>
         public static BlobContainerConfiguration FromV2(LegacyBlobStorageConfiguration legacyConfiguration)
         {
+            bool isDeveloperStorage =
+                (legacyConfiguration.AccountName == "UseDevelopmentStorage=true") ||
+                (legacyConfiguration.AccountName == null);
+
+            if (isDeveloperStorage)
+            {
+                return new BlobContainerConfiguration
+                {
+                    ConnectionStringPlainText = "UseDevelopmentStorage=true",
+                };
+            }
+
             bool connectionStringInAccountName = string.IsNullOrWhiteSpace(legacyConfiguration.KeyVaultName);
 
             return new BlobContainerConfiguration
