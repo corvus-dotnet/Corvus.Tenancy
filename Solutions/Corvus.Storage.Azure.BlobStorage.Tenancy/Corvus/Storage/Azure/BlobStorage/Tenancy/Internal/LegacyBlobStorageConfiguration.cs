@@ -19,8 +19,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         public string? AccountName { get; set; }
 
         /// <summary>
-        /// Gets or sets the container name. If set, this overrides the name specified when calling
-        /// <see cref="BlobStorageTenancyExtensions.GetBlobContainerClientFromTenantWithV2BlobStorageConfigurationAsync(IBlobContainerSourceByConfiguration, ITenant, string)"/>.
+        /// Gets or sets the container name. If set, this overrides any name specified when calling
+        /// <see cref="IBlobContainerSourceWithTenantLegacyTransition.GetBlobContainerClientFromTenantAsync"/>.
         /// </summary>
         public string? Container { get; set; }
 
