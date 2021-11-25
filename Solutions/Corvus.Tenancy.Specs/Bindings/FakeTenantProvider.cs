@@ -73,14 +73,7 @@
             return Task.FromResult(default(ITenant) !);
         }
 
-        ////        public Task<ITenant> UpdateTenantAsync(ITenant tenant)
-        ////        {
-        ////#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
-        ////            throw new NotImplementedException();
-        ////#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
-        ////        }
-
-        // When we're able to use C#9 or later, this would be better as a record.
+        // TODO: When we're able to use C#9 or later, this would be better as a record.
         public class Update
         {
             public Update(

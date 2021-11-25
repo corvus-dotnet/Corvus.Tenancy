@@ -80,7 +80,6 @@ namespace Corvus.Tenancy.Specs.Bindings
 
                     // TODO: is this the right place to do this?
                     serviceCollection.AddAzureBlobStorageClient();
-                    serviceCollection.AddSingleton(new BlobStorageTenantLegacyTransitionSettings());
                     serviceCollection.AddBlobContainerV2ToV3Transition();
 
                     var blobOptions = new TenantCloudBlobContainerFactoryOptions

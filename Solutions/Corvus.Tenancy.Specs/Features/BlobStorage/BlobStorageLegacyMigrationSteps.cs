@@ -31,7 +31,6 @@
     {
         private readonly ScenarioContext scenarioContext;
         private readonly IServiceProvider serviceProvider;
-        ////private readonly FakeTenantProvider tenantProvider;
         private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
         private readonly TestSettings testStorageOptions;
         private readonly string testStorageConnectionString;
@@ -56,8 +55,6 @@
             this.testStorageConnectionString = string.IsNullOrWhiteSpace(this.testStorageOptions.AzureStorageConnectionString)
                 ? "UseDevelopmentStorage=true"
                 : this.testStorageOptions.AzureStorageConnectionString;
-            ////this.tenantProvider = this.serviceProvider.GetRequiredService<FakeTenantProvider>();
-            ////this.transitionSettings = this.serviceProvider.GetRequiredService<BlobStorageTenantLegacyTransitionSettings>();
 
             this.pbf = this.serviceProvider.GetRequiredService<IPropertyBagFactory>();
             this.tenantProperties = this.pbf.Create(PropertyBagValues.Empty);
@@ -118,13 +115,6 @@
                 null);
         }
 
-        ////[Given(@"the BlobStorageTenantLegacyTransitionSettings\.ShouldCreateV3Configurations is '(true|false)'")]
-        ////public void GivenTheBlobStorageTenantLegacyTransition_ShouldCreateVConfigurationsIs(
-        ////    bool shouldCreateV3Configurations)
-        ////{
-        ////    this.transitionSettings.ShouldCreateV3Configurations = shouldCreateV3Configurations;
-        ////}
-
         [Given("a container with a tenant-specific name derived from '(.*)' exists")]
         public async Task GivenAContainerWithATenant_SpecificNameDerivedFromExists(string containerName)
         {
@@ -157,12 +147,6 @@
             string containerName, string v2ConfigurationKey, string v3ConfigurationKey)
         {
             ITenant tenant = this.GetTenantCreatingIfNecessary();
-
-            ////// Reset the tenant provider's update tracking at this point so that we see
-            ////// only updates after this point.
-            ////// TODO: this is problematic because the provider is currently feature-scoped. We need to clean
-            ////// up our test setup because it's currently a bit of a mess.
-            ////this.tenantProvider.TenantUpdates.Clear();
 
             // We also create the container at the last minute to enable other tests steps to
             // update the settings object.
@@ -216,12 +200,6 @@
             string hashedTenantedContainerName = this.GetHashedTenantedContainerName(containerName);
             Assert.AreEqual(hashedTenantedContainerName, this.containerClientFromTestSubject!.Name);
         }
-
-        ////[Then("the tenant should not have been updated")]
-        ////public void ThenTheTenantShouldNotHaveBeenUpdated()
-        ////{
-        ////    Assert.IsEmpty(this.tenantProvider.TenantUpdates);
-        ////}
 
         [Then("MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
         public void ThenMigrateToVAsyncShouldHaveReturnedABlobContainerConfigurationWithTheseSettings(Table configurationTable)
