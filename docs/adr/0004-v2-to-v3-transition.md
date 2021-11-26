@@ -30,7 +30,7 @@ The following sections describe the behaviour required in each of the v3 states 
 
 ### Phase 2: using v3 libraries, operating in v2 mode
 
-A node in this phase has upgraded to v3 libraries, but is using the transition support and is essentially operating in v2 mode. It will never created new v3 configuration. New tenants continue to be onboarded in the same way as with v2 libraries—the application does not pre-create containers, and expects the tenancy library to create them on demand as required. This gives applications a low-impact way in which to upgrade to v3 libraries without changing any behaviour, and also opens the path to migration towards the new style of operation.
+A node in this phase has upgraded to v3 libraries, but is using the transition support and is essentially operating in v2 mode. It will never create new v3 configuration. New tenants continue to be onboarded in the same way as with v2 libraries—the application does not pre-create containers, and expects the tenancy library to create them on demand as required. This gives applications a low-impact way in which to upgrade to v3 libraries without changing any behaviour, and also opens the path to migration towards the new style of operation.
 
 The one difference in behaviour (the reason we describe this as "mostly" v2 mode above) is that if v3 configuration is present for a particular configuration key, it has the following effects:
 
@@ -50,5 +50,3 @@ The only difference between phase 2 and phase 3 is how the application onboards 
 ### Configuration migration
 
 Once all nodes are in phase 3, a tool can be run to upgrade all v2 configuration to v3. Some aspects of this tooling are necessarily application-specific: only the application can know how to discover all of its tenants, and only the application can know what configuration it is storing, and under which keys.
-
-However, 
