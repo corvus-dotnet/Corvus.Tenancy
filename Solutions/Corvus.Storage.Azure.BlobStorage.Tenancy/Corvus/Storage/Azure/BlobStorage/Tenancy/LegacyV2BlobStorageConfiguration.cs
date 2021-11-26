@@ -1,16 +1,14 @@
-﻿// <copyright file="LegacyBlobStorageConfiguration.cs" company="Endjin Limited">
+﻿// <copyright file="LegacyV2BlobStorageConfiguration.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
+namespace Corvus.Storage.Azure.BlobStorage.Tenancy
 {
-    using Corvus.Tenancy;
-
     /// <summary>
     /// Enables this project to read configuration in the legacy v2 <c>BlobStorageConfiguration</c>
     /// format without imposing a dependency on the old v2 components.
     /// </summary>
-    internal class LegacyBlobStorageConfiguration
+    public class LegacyV2BlobStorageConfiguration
     {
         /// <summary>
         /// Gets or sets the account name.
@@ -56,7 +54,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         /// containers exist" step for each tenant.)
         /// </para>
         /// </remarks>
-        public LegacyBlobContainerPublicAccessType? AccessType { get; set; }
+        public LegacyV2BlobContainerPublicAccessType? AccessType { get; set; }
 
         /// <summary>
         /// Gets or sets the key value name.
