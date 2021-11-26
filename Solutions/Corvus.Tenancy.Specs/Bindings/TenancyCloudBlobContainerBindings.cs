@@ -26,7 +26,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         /// <param name="featureContext">The feature context.</param>
         /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
         [AfterFeature("@setupTenantedCloudBlobContainer", Order = 100000)]
-        public static Task TeardownCosmosDB(FeatureContext featureContext)
+        public static Task TeardownCloudBlobs(FeatureContext featureContext)
         {
             return featureContext.RunAndStoreExceptionsAsync(
                 async () => await featureContext.Get<CloudBlobContainer>(TenancySpecsContainer).DeleteAsync().ConfigureAwait(false));
