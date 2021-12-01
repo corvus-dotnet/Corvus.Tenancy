@@ -10,7 +10,7 @@ namespace Corvus.Tenancy.Specs
     using System.Reflection;
 
     using Corvus.Storage.Azure.BlobStorage;
-    using Corvus.Storage.Azure.BlobStorage.Tenancy.Internal;
+    using Corvus.Storage.Azure.BlobStorage.Tenancy;
 
     using FluentAssertions;
 
@@ -20,19 +20,19 @@ namespace Corvus.Tenancy.Specs
     [Binding]
     public class LegacyConfigurationTransformationStepDefinitions
     {
-        private LegacyBlobStorageConfiguration legacyConfiguration = new ();
+        private LegacyV2BlobStorageConfiguration legacyConfiguration = new ();
         private BlobContainerConfiguration? resultingConfiguration;
 
         [Given(@"legacy v2 configuration with these properties")]
         public void GivenLegacyVConfigurationWithTheseProperties(Table table)
         {
-            this.legacyConfiguration = table.CreateInstance<LegacyBlobStorageConfiguration>();
+            this.legacyConfiguration = table.CreateInstance<LegacyV2BlobStorageConfiguration>();
         }
 
         [When(@"the legacy v2 configuration is converted to the new format")]
         public void WhenTheLegacyVConfigurationIsConvertedToTheNewFormat()
         {
-            this.resultingConfiguration = LegacyConfigurationConverter.FromV2(this.legacyConfiguration);
+            this.resultingConfiguration = LegacyConfigurationConverter.FromV2ToV3(this.legacyConfiguration);
         }
 
         [Then(@"the resulting BlobContainerConfiguration has these properties")]

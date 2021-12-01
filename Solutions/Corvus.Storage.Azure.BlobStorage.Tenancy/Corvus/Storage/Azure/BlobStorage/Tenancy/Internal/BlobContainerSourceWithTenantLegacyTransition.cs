@@ -10,6 +10,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
     using System.Text;
     using System.Threading.Tasks;
 
+    using Corvus.Storage.Azure.BlobStorage.Tenancy;
     using Corvus.Tenancy;
 
     using global::Azure.Storage.Blobs;
@@ -64,9 +65,9 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                     v3Configuration = v3Configuration.ForContainer(hashedTenantedContainerName);
                 }
             }
-            else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyBlobStorageConfiguration legacyConfiguration))
+            else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
             {
-                v3Configuration = LegacyConfigurationConverter.FromV2(legacyConfiguration);
+                v3Configuration = LegacyConfigurationConverter.FromV2ToV3(legacyConfiguration);
                 string rawContainerName = string.IsNullOrWhiteSpace(containerName)
                     ? legacyConfiguration.Container ?? throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a {containerName}")
                     : containerName;
@@ -75,8 +76,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 v3Configuration = v3Configuration.ForContainer(hashedTenantedContainerName);
                 publicAccessType = legacyConfiguration.AccessType switch
                 {
-                    LegacyBlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
-                    LegacyBlobContainerPublicAccessType.Container => PublicAccessType.BlobContainer,
+                    LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
+                    LegacyV2BlobContainerPublicAccessType.Container => PublicAccessType.BlobContainer,
                     _ => PublicAccessType.None,
                 };
             }
@@ -117,7 +118,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 return null;
             }
 
-            if (!tenant.Properties.TryGet(v2ConfigurationKey, out LegacyBlobStorageConfiguration legacyConfiguration))
+            if (!tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
             {
                 throw new InvalidOperationException("Nope");
             }
@@ -145,8 +146,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 BlobContainerConfiguration thisConfig = v3Configuration.ForContainer(hashedTenantedContainerName);
                 PublicAccessType publicAccessType = legacyConfiguration.AccessType switch
                 {
-                    LegacyBlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
-                    LegacyBlobContainerPublicAccessType.Container => PublicAccessType.BlobContainer,
+                    LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
+                    LegacyV2BlobContainerPublicAccessType.Container => PublicAccessType.BlobContainer,
                     _ => PublicAccessType.None,
                 };
 

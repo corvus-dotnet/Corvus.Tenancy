@@ -2,7 +2,7 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
+namespace Corvus.Storage.Azure.BlobStorage.Tenancy
 {
     using System;
 
@@ -11,18 +11,18 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
     /// <summary>
     /// Converts legacy v2 configuration into the v3 format.
     /// </summary>
-    internal static class LegacyConfigurationConverter
+    public static class LegacyConfigurationConverter
     {
         /// <summary>
         /// Converts legacy V2-era configuration settings into the new format introduced in V3.
         /// </summary>
         /// <param name="legacyConfiguration">The old settings to convert.</param>
         /// <returns>The converted settings.</returns>
-        public static BlobContainerConfiguration FromV2(LegacyBlobStorageConfiguration legacyConfiguration)
+        public static BlobContainerConfiguration FromV2ToV3(LegacyV2BlobStorageConfiguration legacyConfiguration)
         {
             bool isDeveloperStorage =
-                (legacyConfiguration.AccountName == "UseDevelopmentStorage=true") ||
-                (legacyConfiguration.AccountName == null);
+                legacyConfiguration.AccountName == "UseDevelopmentStorage=true" ||
+                legacyConfiguration.AccountName == null;
 
             if (isDeveloperStorage)
             {
@@ -49,7 +49,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         }
 
         private static KeyVaultSecretConfiguration? GetAccessKeyInKeyVaultSecretConfigurationIfApplicable(
-            LegacyBlobStorageConfiguration legacyConfiguration)
+            LegacyV2BlobStorageConfiguration legacyConfiguration)
         {
             return legacyConfiguration.KeyVaultName is null
                 ? null
@@ -57,7 +57,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 {
                     VaultName = legacyConfiguration.KeyVaultName,
                     SecretName = legacyConfiguration.AccountKeySecretName
-                        ?? throw new InvalidOperationException($"If {nameof(LegacyBlobStorageConfiguration.KeyVaultName)} is set in legacy configuration, {nameof(LegacyBlobStorageConfiguration.AccountKeySecretName)} must also be set"),
+                        ?? throw new InvalidOperationException($"If {nameof(LegacyV2BlobStorageConfiguration.KeyVaultName)} is set in legacy configuration, {nameof(LegacyV2BlobStorageConfiguration.AccountKeySecretName)} must also be set"),
                 };
         }
     }

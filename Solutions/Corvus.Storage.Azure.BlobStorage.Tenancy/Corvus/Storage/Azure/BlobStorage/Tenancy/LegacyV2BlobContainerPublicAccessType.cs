@@ -1,8 +1,8 @@
-﻿// <copyright file="LegacyBlobContainerPublicAccessType.cs" company="Endjin Limited">
+﻿// <copyright file="LegacyV2BlobContainerPublicAccessType.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
+namespace Corvus.Storage.Azure.BlobStorage.Tenancy
 {
     /// <summary>
     /// Identical to the Azure Storage SDK v11's <c>BlobContainerPublicAccessType</c> type. This
@@ -10,7 +10,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
     /// format without imposing a dependency on the old v2 components, or on the old Azure Storage
     /// SDK.
     /// </summary>
-    internal enum LegacyBlobContainerPublicAccessType
+    public enum LegacyV2BlobContainerPublicAccessType
     {
         /// <summary>
         /// No public access. Only the account owner can read resources in this container.
