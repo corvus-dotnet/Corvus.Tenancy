@@ -1,4 +1,4 @@
-﻿@perScenarioContainer
+﻿@perFeatureContainer
 @setupTenantedCloudBlobContainer
 @withBlobStorageTenantProvider
 

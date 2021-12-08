@@ -6,6 +6,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Corvus.Azure.Storage.Tenancy;
@@ -21,15 +22,18 @@ namespace Corvus.Tenancy.Specs.Bindings
     [Binding]
     public class LegacyTenancyCloudBlobContainerBindings
     {
+        private readonly FeatureContext featureContext;
         private readonly ScenarioContext scenarioContext;
         private readonly TenancyContainerScenarioBindings tenancyContainer;
         private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = new ();
         private ITenantCloudBlobContainerFactory? containerFactory;
 
         public LegacyTenancyCloudBlobContainerBindings(
+            FeatureContext featureContext,
             ScenarioContext scenarioContext,
             TenancyContainerScenarioBindings tenancyContainer)
         {
+            this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
             this.tenancyContainer = tenancyContainer;
         }
@@ -47,23 +51,31 @@ namespace Corvus.Tenancy.Specs.Bindings
         [BeforeScenario("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
         public void InitializeContainer()
         {
-            ContainerBindings.ConfigureServices(
-                   this.scenarioContext,
-                   serviceCollection =>
-                   {
-                       var blobOptions = new TenantCloudBlobContainerFactoryOptions
-                       {
-                           AzureServicesAuthConnectionString = this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"],
-                       };
+            if (!this.featureContext.FeatureInfo.Tags.Any(t => t == "perFeatureContainer"))
+            {
+                ContainerBindings.ConfigureServices(
+                    this.scenarioContext,
+                    services => Init(services, this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"]));
+            }
+        }
 
-                       serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
-                   });
+        [BeforeFeature("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
+        public static void InitializeContainer(FeatureContext featureContext)
+        {
+            if (featureContext.FeatureInfo.Tags.Any(t => t == "perFeatureContainer"))
+            {
+                ContainerBindings.ConfigureServices(
+                    featureContext,
+                    services => Init(services, TenancyContainerScenarioBindings.StaticConfiguration["AzureServicesAuthConnectionString"]));
+            }
         }
 
         [BeforeScenario("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.ServiceProviderAvailable)]
         public void GetServices()
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.scenarioContext);
+            IServiceProvider serviceProvider = this.featureContext.FeatureInfo.Tags.Any(t => t == "perFeatureContainer")
+                ? ContainerBindings.GetServiceProvider(this.featureContext)
+                : ContainerBindings.GetServiceProvider(this.scenarioContext);
             this.containerFactory = serviceProvider.GetRequiredService<ITenantCloudBlobContainerFactory>();
         }
 
@@ -82,6 +94,16 @@ namespace Corvus.Tenancy.Specs.Bindings
                         await container.DeleteAsync().ConfigureAwait(false);
                     }
                 });
+        }
+
+        private static void Init(IServiceCollection serviceCollection, string azureServicesAuthConnectionString)
+        {
+            var blobOptions = new TenantCloudBlobContainerFactoryOptions
+            {
+                AzureServicesAuthConnectionString = azureServicesAuthConnectionString,
+            };
+
+            serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
         }
     }
 }
