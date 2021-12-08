@@ -10,6 +10,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Threading.Tasks;
 
     using Corvus.Azure.Storage.Tenancy;
+    using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Internal;
     using Corvus.Testing.SpecFlow;
 
@@ -113,10 +114,20 @@ namespace Corvus.Tenancy.Specs.Bindings
                 tenants.Add(tenantTrackingProvider.Root);
                 ITenantCloudBlobContainerFactory blobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
 
-                CloudBlobContainer[] blobContainers = await Task.WhenAll(
-                    tenants.Select(tenant => blobContainerFactory.GetBlobContainerForTenantAsync(
-                        tenant,
-                        TenantProviderBlobStore.ContainerDefinition))).ConfigureAwait(false);
+                CloudBlobContainer rootContainer = await blobContainerFactory.GetBlobContainerForTenantAsync(
+                    this.RootTenant, TenantProviderBlobStore.ContainerDefinition).ConfigureAwait(false);
+
+                IEnumerable<CloudBlobContainer> blobContainers =
+                    tenants.Select(tenant =>
+                    {
+                        // It would be easier just to ask blobContainerFactory.GetBlobContainerForTenantAsync to give
+                        // us the container, but that will attempt to create it if it doesn't exist, and in tests
+                        // where we happen already to have deleted it, that quick recreation test will then fail
+                        // because Azure doesn't like it if you do taht.
+                        string tenantedContainerName = $"{tenant.Id.ToLowerInvariant()}-{TenantProviderBlobStore.ContainerDefinition.ContainerName}";
+                        string containerName = AzureStorageNameHelper.HashAndEncodeBlobContainerName(tenantedContainerName);
+                        return rootContainer.ServiceClient.GetContainerReference(containerName);
+                    });
 
                 foreach (CloudBlobContainer container in blobContainers.Distinct(x => x.Name))
                 {
