@@ -84,6 +84,8 @@ namespace Corvus.Tenancy.Specs.Bindings
                            serviceCollection.AddSingleton<FakeTenantProvider>();
                            serviceCollection.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<FakeTenantProvider>());
                        }
+
+                       serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(this.Configuration["AzureServicesAuthConnectionString"]);
                    });
         }
 
