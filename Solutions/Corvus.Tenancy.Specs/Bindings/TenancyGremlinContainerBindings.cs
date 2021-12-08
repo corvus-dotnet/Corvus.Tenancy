@@ -5,74 +5,91 @@
 namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using Corvus.Azure.GremlinExtensions.Tenancy;
-    using Corvus.Tenancy;
     using Corvus.Testing.SpecFlow;
+
     using Gremlin.Net.Driver;
-    using Microsoft.Extensions.Configuration;
+
     using Microsoft.Extensions.DependencyInjection;
+
     using TechTalk.SpecFlow;
 
     /// <summary>
     /// Specflow bindings to support a tenanted cosmos gremlin container.
     /// </summary>
     [Binding]
-    public static class TenancyGremlinContainerBindings
+    public class TenancyGremlinContainerBindings
     {
-        /// <summary>
-        /// The key for the client in the feature context.
-        /// </summary>
-        public const string TenancyGremlinClient = "TenancyGremlinClient";
+        private readonly ScenarioContext scenarioContext;
+        private readonly TenancyContainerScenarioBindings tenancyBindings;
+        private readonly List<GremlinClient> clientsToDisposeAtTeardown = new ();
+        private ITenantGremlinContainerFactory? containerFactory;
 
-        /// <summary>
-        /// Set up a tenanted Gremlin Client for the feature.
-        /// </summary>
-        /// <param name="featureContext">The feature context.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
-        [BeforeFeature("@setupTenantedGremlinClient", Order = ContainerBeforeFeatureOrder.ServiceProviderAvailable)]
-        public static async Task SetupGremlinContainerForRootTenant(FeatureContext featureContext)
+        public TenancyGremlinContainerBindings(
+            ScenarioContext scenarioContext,
+            TenancyContainerScenarioBindings tenancyBindings)
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
-            ITenantGremlinContainerFactory factory = serviceProvider.GetRequiredService<ITenantGremlinContainerFactory>();
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
+            this.scenarioContext = scenarioContext;
+            this.tenancyBindings = tenancyBindings;
+        }
 
-            string containerBase = Guid.NewGuid().ToString();
+        public ITenantGremlinContainerFactory ContainerFactory => this.containerFactory ?? throw new InvalidOperationException("Factory has not been set up yet");
 
-            var gremlinContainerDefinition = new GremlinContainerDefinition(
-                "endjinspecssharedthroughput",
-                $"{containerBase}tenancyspecs");
-            featureContext.Set(gremlinContainerDefinition);
-
-            var gremlinConfiguration = new GremlinConfiguration();
-            config.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
-            gremlinConfiguration.DatabaseName = "endjinspecssharedthroughput";
-            gremlinConfiguration.DisableTenantIdPrefix = true;
-            tenantProvider.Root.UpdateProperties(values => values.AddGremlinConfiguration(gremlinContainerDefinition, gremlinConfiguration));
-
-            GremlinClient tenancySpecsClient = await factory.GetClientForTenantAsync(
-                tenantProvider.Root,
-                gremlinContainerDefinition).ConfigureAwait(false);
-
-            featureContext.Set(tenancySpecsClient, TenancyGremlinClient);
+        public void DisposeThisClientOnTestTeardown(GremlinClient container)
+        {
+            this.clientsToDisposeAtTeardown.Add(container);
         }
 
         /// <summary>
-        /// Tear down the tenanted Gremlin Client for the feature.
+        /// Initializes the container before each scenario runs.
         /// </summary>
-        /// <param name="featureContext">The feature context.</param>
-        /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
-        [AfterFeature("@setupTenantedGremlinContainer", Order = 100000)]
-        public static Task TeardownGremlinDB(FeatureContext featureContext)
+        [BeforeScenario("@setupTenantedGremlinClient", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
+        public void InitializeContainer()
         {
-            return featureContext.RunAndStoreExceptionsAsync(
+            ContainerBindings.ConfigureServices(
+                   this.scenarioContext,
+                   serviceCollection =>
+                   {
+                       var gremlinOptions = new TenantGremlinContainerFactoryOptions
+                       {
+                           AzureServicesAuthConnectionString = this.tenancyBindings.Configuration["AzureServicesAuthConnectionString"],
+                       };
+
+                       serviceCollection.AddTenantGremlinContainerFactory(gremlinOptions);
+                   });
+        }
+
+        /// <summary>
+        /// Set up a tenanted Gremlin Client for the scenario.
+        /// </summary>
+        /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
+        [BeforeScenario("@setupTenantedGremlinClient", Order = ContainerBeforeScenarioOrder.ServiceProviderAvailable)]
+        public void GetServices()
+        {
+            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.scenarioContext);
+            this.containerFactory = serviceProvider.GetRequiredService<ITenantGremlinContainerFactory>();
+        }
+
+        /// <summary>
+        /// Tear down the tenanted Gremlin Client for the scenario.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
+        [AfterScenario("@setupTenantedGremlinClient", Order = 100000)]
+        public async Task TeardownGremlinDB()
+        {
+            await this.scenarioContext.RunAndStoreExceptionsAsync(
                 () =>
                 {
                     // Note: the gremlin container factory doesn't currently create the container, so
                     // we don't currently have anything to delete.
-                    featureContext.Get<GremlinClient>(TenancyGremlinClient).Dispose();
+                    foreach (GremlinClient client in this.clientsToDisposeAtTeardown)
+                    {
+                        client.Dispose();
+                    }
+
                     return Task.CompletedTask;
                 });
         }

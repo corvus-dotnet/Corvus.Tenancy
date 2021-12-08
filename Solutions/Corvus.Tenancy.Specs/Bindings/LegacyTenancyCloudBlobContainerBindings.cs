@@ -1,4 +1,4 @@
-﻿// <copyright file="TenancyCloudTableBindings.cs" company="Endjin Limited">
+﻿// <copyright file="LegacyTenancyCloudBlobContainerBindings.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -10,23 +10,23 @@ namespace Corvus.Tenancy.Specs.Bindings
 
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Testing.SpecFlow;
-    using Microsoft.Azure.Cosmos.Table;
+    using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.DependencyInjection;
 
     using TechTalk.SpecFlow;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted cloud table container.
+    /// Specflow bindings to support a tenanted cloud blob container.
     /// </summary>
     [Binding]
-    public class TenancyCloudTableBindings
+    public class LegacyTenancyCloudBlobContainerBindings
     {
         private readonly ScenarioContext scenarioContext;
         private readonly TenancyContainerScenarioBindings tenancyContainer;
-        private readonly List<CloudTable> tablesToRemoveAtTeardown = new ();
-        private ITenantCloudTableFactory? connectionFactory;
+        private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = new ();
+        private ITenantCloudBlobContainerFactory? containerFactory;
 
-        public TenancyCloudTableBindings(
+        public LegacyTenancyCloudBlobContainerBindings(
             ScenarioContext scenarioContext,
             TenancyContainerScenarioBindings tenancyContainer)
         {
@@ -34,55 +34,52 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.tenancyContainer = tenancyContainer;
         }
 
-        public ITenantCloudTableFactory ConnectionFactory => this.connectionFactory ?? throw new InvalidOperationException("Factory not initialized yet");
+        public ITenantCloudBlobContainerFactory ContainerFactory => this.containerFactory ?? throw new InvalidOperationException("Factory has not been set up yet");
 
-        public void RemoveThisTableOnTestTeardown(CloudTable container)
+        public void RemoveThisContainerOnTestTeardown(CloudBlobContainer container)
         {
-            this.tablesToRemoveAtTeardown.Add(container);
+            this.containersToRemoveAtTeardown.Add(container);
         }
 
         /// <summary>
         /// Initializes the container before each scenario runs.
         /// </summary>
-        [BeforeScenario("@setupTenantedCloudTable", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
+        [BeforeScenario("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
         public void InitializeContainer()
         {
             ContainerBindings.ConfigureServices(
                    this.scenarioContext,
                    serviceCollection =>
                    {
-                       var tableOptions = new TenantCloudTableFactoryOptions
+                       var blobOptions = new TenantCloudBlobContainerFactoryOptions
                        {
                            AzureServicesAuthConnectionString = this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"],
                        };
 
-                       serviceCollection.AddTenantCloudTableFactory(tableOptions);
+                       serviceCollection.AddTenantCloudBlobContainerFactory(blobOptions);
                    });
         }
 
-        /// <summary>
-        /// Gets services from DI required during testing..
-        /// </summary>
-        [BeforeScenario("@setupTenantedCloudTable", Order = ContainerBeforeScenarioOrder.ServiceProviderAvailable)]
+        [BeforeScenario("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.ServiceProviderAvailable)]
         public void GetServices()
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.scenarioContext);
-            this.connectionFactory = serviceProvider.GetRequiredService<ITenantCloudTableFactory>();
+            this.containerFactory = serviceProvider.GetRequiredService<ITenantCloudBlobContainerFactory>();
         }
 
         /// <summary>
-        /// Tear down the tenanted Cloud Table Container for the feature.
+        /// Tear down any Cloud Blob Containers created while running the test.
         /// </summary>
         /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
-        [AfterScenario("@setupTenantedCloudTable", Order = 100000)]
-        public Task TeardownCosmosDB()
+        [AfterScenario("@setupTenantedCloudBlobContainer", Order = 100000)]
+        public Task TeardownCloudBlobs()
         {
             return this.scenarioContext.RunAndStoreExceptionsAsync(
                 async () =>
                 {
-                    foreach (CloudTable table in this.tablesToRemoveAtTeardown)
+                    foreach (CloudBlobContainer container in this.containersToRemoveAtTeardown)
                     {
-                        await table.DeleteAsync().ConfigureAwait(false);
+                        await container.DeleteAsync().ConfigureAwait(false);
                     }
                 });
         }

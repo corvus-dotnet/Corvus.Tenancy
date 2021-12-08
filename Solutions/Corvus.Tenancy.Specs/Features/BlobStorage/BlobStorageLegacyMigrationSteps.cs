@@ -29,7 +29,6 @@
     [Binding]
     public class BlobStorageLegacyMigrationSteps : IDisposable
     {
-        private readonly ScenarioContext scenarioContext;
         private readonly IServiceProvider serviceProvider;
         private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
         private readonly TestSettings testStorageOptions;
@@ -47,10 +46,9 @@
         private BlobContainerConfiguration? v3ConfigFromMigration;
 
         public BlobStorageLegacyMigrationSteps(
-            FeatureContext featureContext,
             ScenarioContext scenarioContext)
         {
-            this.serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
+            this.serviceProvider = ContainerBindings.GetServiceProvider(scenarioContext);
             this.testStorageOptions = this.serviceProvider.GetRequiredService<TestSettings>();
             this.testStorageConnectionString = string.IsNullOrWhiteSpace(this.testStorageOptions.AzureStorageConnectionString)
                 ? "UseDevelopmentStorage=true"
@@ -58,7 +56,6 @@
 
             this.pbf = this.serviceProvider.GetRequiredService<IPropertyBagFactory>();
             this.tenantProperties = this.pbf.Create(PropertyBagValues.Empty);
-            this.scenarioContext = scenarioContext;
 
             this.blobClientOptions = new BlobClientOptions();
             this.blobClientOptions.AddPolicy(this.blobClientMonitor, HttpPipelinePosition.PerCall);

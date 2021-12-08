@@ -3,7 +3,7 @@
   <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <RootNamespace>Corvus.Tenancy.Specs</RootNamespace>
@@ -68,6 +68,7 @@
     <ProjectReference Include="..\Corvus.Azure.Storage.Tenancy\Corvus.Azure.Storage.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Storage.Azure.BlobStorage.Tenancy\Corvus.Storage.Azure.BlobStorage.Tenancy.csproj" />
+    <ProjectReference Include="..\Corvus.Storage.Azure.Cosmos.Tenancy\Corvus.Storage.Azure.Cosmos.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Tenancy.Storage.Azure.Blob\Corvus.Tenancy.Storage.Azure.Blob.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -23,7 +23,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
     /// </summary>
     internal class BlobContainerSourceWithTenantLegacyTransition : IBlobContainerSourceWithTenantLegacyTransition
     {
-        private readonly IBlobContainerSourceByConfiguration blobContainerSource;
+        private readonly IBlobContainerSourceFromDynamicConfiguration blobContainerSource;
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         /// Provides access to optional services.
         /// </param>
         public BlobContainerSourceWithTenantLegacyTransition(
-            IBlobContainerSourceByConfiguration blobContainerSource,
+            IBlobContainerSourceFromDynamicConfiguration blobContainerSource,
             IServiceProvider serviceProvider)
         {
             this.blobContainerSource = blobContainerSource;

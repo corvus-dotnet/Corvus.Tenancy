@@ -37,7 +37,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// </param>
         /// <param name="blobClientOptions">
         /// Optional blob client parameters to be passed when calling the underlying
-        /// <see cref="IStorageContextSourceByConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions)"/>
+        /// <see cref="IStorageContextSourceFromDynamicConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions)"/>
         /// method to create the container client.
         /// </param>
         /// <returns>
@@ -74,7 +74,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// </param>
         /// <param name="blobClientOptions">
         /// Optional blob client parameters to be passed when calling the underlying
-        /// <see cref="IStorageContextSourceByConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions)"/>
+        /// <see cref="IStorageContextSourceFromDynamicConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions)"/>
         /// method to create the container client.
         /// </param>
         /// <returns>
