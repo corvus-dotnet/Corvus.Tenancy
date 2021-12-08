@@ -1,4 +1,4 @@
-﻿@perFeatureContainer
+﻿@perScenarioContainer
 @setupTenantedGremlinClient
 
 Feature: GremlinContainer
@@ -8,8 +8,10 @@ Feature: GremlinContainer
 
 
 Scenario: Create a gremlin client
+    Given I have added Gremlin configuration to a tenant
 	Then I should be able to get the tenanted gremlin client
 
 Scenario: Remove configuration from tenant
+    Given I have not added Gremlin configuration to a tenant
 	When I remove the Gremlin configuration from the tenant
-	Then attempting to get the Gremlin configuration from the tenant throws an ArgumentException
+	Then attempting to get the Gremlin configuration from the tenant should throw an ArgumentException

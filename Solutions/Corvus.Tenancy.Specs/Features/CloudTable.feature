@@ -1,4 +1,4 @@
-﻿@perFeatureContainer
+﻿@perScenarioContainer
 @setupTenantedCloudTable
 
 Feature: CloudTable

@@ -21,7 +21,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// stored in a tenant.
         /// </summary>
         /// <param name="blobContainerSource">
-        /// The <see cref="IBlobContainerSourceByConfiguration"/> that provides the underlying
+        /// The <see cref="IBlobContainerSourceFromDynamicConfiguration"/> that provides the underlying
         /// ability to supply a <see cref="BlobContainerClient"/> for a
         /// <see cref="BlobContainerConfiguration"/>.
         /// </param>
@@ -43,7 +43,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// A value task that produces a <see cref="BlobContainerClient"/>.
         /// </returns>
         public static async ValueTask<BlobContainerClient> GetBlobContainerClientFromTenantAsync(
-            this IBlobContainerSourceByConfiguration blobContainerSource,
+            this IBlobContainerSourceFromDynamicConfiguration blobContainerSource,
             ITenant tenant,
             string configurationKey,
             string? containerName = null)

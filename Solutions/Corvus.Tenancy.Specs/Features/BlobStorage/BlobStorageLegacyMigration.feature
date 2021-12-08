@@ -1,4 +1,5 @@
-﻿@perFeatureContainer
+﻿@perScenarioContainer
+@blobStorageLegacyMigration
 
 Feature: BlobStorageLegacyMigration
     In order to migrate from v2 to v3 of Corvus.Tenancy when using cloud blob storage for tenanted services

@@ -21,7 +21,7 @@
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
-            this.store = ContainerBindings.GetServiceProvider(this.featureContext).GetRequiredService<ITenantStore>();
+            this.store = ContainerBindings.GetServiceProvider(featureContext).GetRequiredService<ITenantStore>();
         }
 
         [Given("I get the tenant id of the tenant called \"(.*)\" and call it \"(.*)\"")]
