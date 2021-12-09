@@ -23,16 +23,13 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class LegacyTenancyCosmosContainerBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly TenancyContainerScenarioBindings tenancyContainer;
         private readonly List<Container> containersToRemoveAtTeardown = new ();
         private ITenantCosmosContainerFactory? tenantCosmosContainerFactory;
 
         public LegacyTenancyCosmosContainerBindings(
-            ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyContainer)
+            ScenarioContext scenarioContext)
         {
             this.scenarioContext = scenarioContext;
-            this.tenancyContainer = tenancyContainer;
         }
 
         public ITenantCosmosContainerFactory TenantCosmosContainerFactory => this.tenantCosmosContainerFactory ?? throw new InvalidOperationException("Factory has not been set up yet");
@@ -54,7 +51,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                    {
                        var cosmosOptions = new TenantCosmosContainerFactoryOptions
                        {
-                           AzureServicesAuthConnectionString = this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"],
+                           AzureServicesAuthConnectionString = TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"],
                        };
 
                        serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);

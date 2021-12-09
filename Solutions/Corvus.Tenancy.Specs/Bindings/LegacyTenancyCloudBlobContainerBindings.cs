@@ -24,18 +24,15 @@ namespace Corvus.Tenancy.Specs.Bindings
     {
         private readonly FeatureContext featureContext;
         private readonly ScenarioContext scenarioContext;
-        private readonly TenancyContainerScenarioBindings tenancyContainer;
         private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = new ();
         private ITenantCloudBlobContainerFactory? containerFactory;
 
         public LegacyTenancyCloudBlobContainerBindings(
             FeatureContext featureContext,
-            ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyContainer)
+            ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
-            this.tenancyContainer = tenancyContainer;
         }
 
         public ITenantCloudBlobContainerFactory ContainerFactory => this.containerFactory ?? throw new InvalidOperationException("Factory has not been set up yet");
@@ -55,7 +52,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             {
                 ContainerBindings.ConfigureServices(
                     this.scenarioContext,
-                    services => Init(services, this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"]));
+                    services => Init(services, TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"]));
             }
         }
 
@@ -66,7 +63,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             {
                 ContainerBindings.ConfigureServices(
                     featureContext,
-                    services => Init(services, TenancyContainerScenarioBindings.StaticConfiguration["AzureServicesAuthConnectionString"]));
+                    services => Init(services, TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"]));
             }
         }
 

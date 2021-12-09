@@ -24,16 +24,13 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancyGremlinContainerBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly TenancyContainerScenarioBindings tenancyBindings;
         private readonly List<GremlinClient> clientsToDisposeAtTeardown = new ();
         private ITenantGremlinContainerFactory? containerFactory;
 
         public TenancyGremlinContainerBindings(
-            ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyBindings)
+            ScenarioContext scenarioContext)
         {
             this.scenarioContext = scenarioContext;
-            this.tenancyBindings = tenancyBindings;
         }
 
         public ITenantGremlinContainerFactory ContainerFactory => this.containerFactory ?? throw new InvalidOperationException("Factory has not been set up yet");
@@ -55,7 +52,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                    {
                        var gremlinOptions = new TenantGremlinContainerFactoryOptions
                        {
-                           AzureServicesAuthConnectionString = this.tenancyBindings.Configuration["AzureServicesAuthConnectionString"],
+                           AzureServicesAuthConnectionString = TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"],
                        };
 
                        serviceCollection.AddTenantGremlinContainerFactory(gremlinOptions);
@@ -91,7 +88,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                     }
 
                     return Task.CompletedTask;
-                });
+                }).ConfigureAwait(false);
         }
     }
 }

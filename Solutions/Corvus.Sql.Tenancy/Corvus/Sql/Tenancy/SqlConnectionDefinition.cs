@@ -44,7 +44,7 @@ namespace Corvus.Sql.Tenancy
         public string Database
         {
             get => this.database ?? throw new InvalidOperationException(nameof(this.Database) + " has not been set");
-            set => this.database = value ?? throw new ArgumentNullException();
+            set => this.database = value ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

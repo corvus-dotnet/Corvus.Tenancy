@@ -67,9 +67,7 @@ public static class CosmosContainerSourceFromDynamicConfigurationExtensions
         {
             configuration = configuration with
             {
-#pragma warning disable SA1101 // Prefix local calls with this - looks like a StyleCop bug
                 Container = containerName,
-#pragma warning restore SA1101 // Prefix local calls with this
             };
         }
 

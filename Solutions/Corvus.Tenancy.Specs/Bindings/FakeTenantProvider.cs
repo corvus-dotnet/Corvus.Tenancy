@@ -1,15 +1,17 @@
-﻿namespace Corvus.Tenancy.Specs.Bindings
+﻿// <copyright file="FakeTenantProvider.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+
     using Corvus.Json;
     using Corvus.Tenancy;
     using Corvus.Tenancy.Exceptions;
 
-    using NUnit.Framework;
-
-#pragma warning disable IDE0060 // Unused arguments
     internal class FakeTenantProvider : ITenantStore
     {
         public FakeTenantProvider(IPropertyBagFactory propertyBagFactory)

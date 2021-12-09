@@ -38,10 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             Func<IServiceProvider, TenantCloudTableFactoryOptions> getOptions)
         {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+            ArgumentNullException.ThrowIfNull(services);
 
             if (services.Any(s => typeof(ITenantCloudTableFactory).IsAssignableFrom(s.ServiceType)))
             {

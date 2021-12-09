@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="LegacyCosmosContainerSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Threading.Tasks;
@@ -42,7 +46,7 @@
         public void GivenIHaveAddedLegacyCosmosConfigurationToATenant()
         {
             CosmosConfiguration cosmosConfiguration = new ();
-            this.tenancyBindings.Configuration.Bind("TESTLEGACYCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTLEGACYCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
             cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
             cosmosConfiguration.DisableTenantIdPrefix = true;
             this.tenancyBindings.RootTenant.UpdateProperties(values => values.AddCosmosConfiguration(this.containerDefinition, cosmosConfiguration));

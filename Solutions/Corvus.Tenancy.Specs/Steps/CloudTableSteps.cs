@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="CloudTableSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Threading.Tasks;
@@ -43,7 +47,7 @@
             this.tableStorageTableDefinition = new TableStorageTableDefinition($"{containerBase}tenancyspecs");
 
             var tableStorageConfiguration = new TableStorageConfiguration();
-            this.tenancyBindings.Configuration.Bind("TESTTABLESTORAGECONFIGURATIONOPTIONS", tableStorageConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTTABLESTORAGECONFIGURATIONOPTIONS", tableStorageConfiguration);
 
             string overriddenTableName = table.Rows[0]["TableName"];
             if (!string.IsNullOrEmpty(overriddenTableName))

@@ -22,16 +22,13 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancyCloudTableBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly TenancyContainerScenarioBindings tenancyContainer;
         private readonly List<CloudTable> tablesToRemoveAtTeardown = new ();
         private ITenantCloudTableFactory? connectionFactory;
 
         public TenancyCloudTableBindings(
-            ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyContainer)
+            ScenarioContext scenarioContext)
         {
             this.scenarioContext = scenarioContext;
-            this.tenancyContainer = tenancyContainer;
         }
 
         public ITenantCloudTableFactory ConnectionFactory => this.connectionFactory ?? throw new InvalidOperationException("Factory not initialized yet");
@@ -53,7 +50,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                    {
                        var tableOptions = new TenantCloudTableFactoryOptions
                        {
-                           AzureServicesAuthConnectionString = this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"],
+                           AzureServicesAuthConnectionString = TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"],
                        };
 
                        serviceCollection.AddTenantCloudTableFactory(tableOptions);

@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="LegacyCloudBlobContainerSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Threading.Tasks;
@@ -19,7 +23,7 @@
     [Binding]
     public class LegacyCloudBlobContainerSteps
     {
-        private readonly TenancyContainerScenarioBindings tenancyContainer;
+        private readonly TenancyContainerScenarioBindings tenancyBindings;
         private readonly LegacyTenancyCloudBlobContainerBindings cloudBlobContainerBindings;
         private readonly IServiceProvider serviceProvider;
         private readonly BlobStorageContainerDefinition blobStorageContainerDefinition;
@@ -27,10 +31,10 @@
 
         public LegacyCloudBlobContainerSteps(
             ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyContainer,
+            TenancyContainerScenarioBindings tenancyBindings,
             LegacyTenancyCloudBlobContainerBindings cloudBlobContainerBindings)
         {
-            this.tenancyContainer = tenancyContainer;
+            this.tenancyBindings = tenancyBindings;
             this.cloudBlobContainerBindings = cloudBlobContainerBindings;
             this.serviceProvider = ContainerBindings.GetServiceProvider(scenarioContext);
 
@@ -47,7 +51,7 @@
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
 
             var blobStorageConfiguration = new BlobStorageConfiguration();
-            this.tenancyContainer.Configuration.Bind("TESTBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
 
             blobStorageConfiguration.DisableTenantIdPrefix = bool.Parse(table.Rows[0]["DisableTenantIdPrefix"]);
             string overriddenContainerName = table.Rows[0]["Container"];
@@ -71,7 +75,7 @@
         public async Task ThenIShouldBeAbleToGetTheTenantedContainer()
         {
             this.container = await this.cloudBlobContainerBindings.ContainerFactory.GetBlobContainerForTenantAsync(
-                this.tenancyContainer.RootTenant,
+                this.tenancyBindings.RootTenant,
                 this.blobStorageContainerDefinition).ConfigureAwait(false);
 
             Assert.IsNotNull(this.container);
@@ -115,7 +119,7 @@
         [When("I remove the blob storage configuration from the tenant")]
         public void WhenIRemoveTheBlobStorageConfigurationFromTheTenant()
         {
-            this.tenancyContainer.RootTenant.UpdateProperties(
+            this.tenancyBindings.RootTenant.UpdateProperties(
                 propertiesToRemove: this.blobStorageContainerDefinition.RemoveBlobStorageConfiguration());
         }
 
@@ -124,7 +128,7 @@
         {
             try
             {
-                this.tenancyContainer.RootTenant.GetBlobStorageConfiguration(this.blobStorageContainerDefinition);
+                this.tenancyBindings.RootTenant.GetBlobStorageConfiguration(this.blobStorageContainerDefinition);
             }
             catch (ArgumentException)
             {

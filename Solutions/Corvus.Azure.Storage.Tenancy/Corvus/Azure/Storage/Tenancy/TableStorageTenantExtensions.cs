@@ -23,15 +23,8 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <remarks>This can be more efficient than trying to get the property, as it avoids a deserialization.</remarks>
         public static bool HasStorageTableConfiguration(this ITenant tenant, TableStorageTableDefinition definition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(definition);
 
             return tenant.Properties.TryGet<TableStorageConfiguration>(GetConfigurationKey(definition), out TableStorageConfiguration _);
         }
@@ -44,15 +37,8 @@ namespace Corvus.Azure.Storage.Tenancy
         /// <returns>The configuration for the storage account for this tenant.</returns>
         public static TableStorageConfiguration GetTableStorageConfiguration(this ITenant tenant, TableStorageTableDefinition definition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(definition);
 
             if (tenant.Properties.TryGet(GetConfigurationKey(definition), out TableStorageConfiguration? configuration))
             {
@@ -78,20 +64,9 @@ namespace Corvus.Azure.Storage.Tenancy
             TableStorageTableDefinition definition,
             TableStorageConfiguration configuration)
         {
-            if (values is null)
-            {
-                throw new ArgumentNullException(nameof(values));
-            }
-
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
-
-            if (configuration is null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
+            ArgumentNullException.ThrowIfNull(values);
+            ArgumentNullException.ThrowIfNull(definition);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
@@ -109,10 +84,7 @@ namespace Corvus.Azure.Storage.Tenancy
         /// </returns>
         public static IEnumerable<string> RemoveTableStorageConfiguration(this TableStorageTableDefinition definition)
         {
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
+            ArgumentNullException.ThrowIfNull(definition);
 
             return new string[] { GetConfigurationKey(definition) };
         }

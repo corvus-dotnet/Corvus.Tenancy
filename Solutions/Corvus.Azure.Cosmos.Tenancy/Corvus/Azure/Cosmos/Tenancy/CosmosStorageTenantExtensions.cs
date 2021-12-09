@@ -22,15 +22,8 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// <returns>The configuration for the Cosmos account for this tenant.</returns>
         public static CosmosConfiguration GetCosmosConfiguration(this ITenant tenant, CosmosContainerDefinition definition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(definition);
 
             // First, try the configuration specific to this instance
             if (tenant.Properties.TryGet(GetConfigurationKey(definition), out CosmosConfiguration? configuration))
@@ -57,20 +50,9 @@ namespace Corvus.Azure.Cosmos.Tenancy
             CosmosContainerDefinition definition,
             CosmosConfiguration configuration)
         {
-            if (values is null)
-            {
-                throw new ArgumentNullException(nameof(values));
-            }
-
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
-
-            if (configuration is null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
+            ArgumentNullException.ThrowIfNull(values);
+            ArgumentNullException.ThrowIfNull(definition);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             return values.Append(new KeyValuePair<string, object>(GetConfigurationKey(definition), configuration));
         }
@@ -88,10 +70,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         /// </returns>
         public static IEnumerable<string> RemoveCosmosConfiguration(this CosmosContainerDefinition definition)
         {
-            if (definition is null)
-            {
-                throw new ArgumentNullException(nameof(definition));
-            }
+            ArgumentNullException.ThrowIfNull(definition);
 
             return new string[] { GetConfigurationKey(definition) };
         }

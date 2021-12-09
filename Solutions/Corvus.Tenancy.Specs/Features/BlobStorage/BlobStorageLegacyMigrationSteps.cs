@@ -1,33 +1,36 @@
-﻿namespace Corvus.Tenancy.Specs.Features.BlobStorage
+﻿// <copyright file="BlobStorageLegacyMigrationSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Features.BlobStorage
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Azure;
-    using global::Azure.Core;
-    using global::Azure.Core.Pipeline;
-    using global::Azure.Storage.Blobs;
-    using global::Azure.Storage.Blobs.Models;
-
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Json;
+    using Corvus.Storage.Azure.BlobStorage;
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
-    using Corvus.Tenancy.Specs.Bindings;
     using Corvus.Testing.SpecFlow;
 
     using FluentAssertions;
 
+    using global::Azure;
+    using global::Azure.Core;
+    using global::Azure.Storage.Blobs;
+    using global::Azure.Storage.Blobs.Models;
+
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
-    using Corvus.Storage.Azure.BlobStorage;
     using NUnit.Framework;
+
+    using TechTalk.SpecFlow;
     using TechTalk.SpecFlow.Assist;
 
     [Binding]
-    public class BlobStorageLegacyMigrationSteps : IDisposable
+    public sealed class BlobStorageLegacyMigrationSteps : IDisposable
     {
         private readonly IServiceProvider serviceProvider;
         private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
@@ -38,7 +41,7 @@
         private readonly IPropertyBagFactory pbf;
         private readonly MonitoringPolicy blobClientMonitor = new ();
         private readonly BlobClientOptions blobClientOptions;
-        private readonly List<string> containersCreatedByTest = new List<string>();
+        private readonly List<string> containersCreatedByTest = new ();
         private IPropertyBag tenantProperties;
         private ITenant? tenant;
         private BlobServiceClient? blobServiceClient;
@@ -210,7 +213,7 @@
             if (expectedConfiguration.Container is string containerValueInTable &&
                 containerValueInTable.StartsWith(tenantedContainerPrefix))
             {
-                string containerName = containerValueInTable.Substring(tenantedContainerPrefix.Length);
+                string containerName = containerValueInTable[tenantedContainerPrefix.Length..];
                 expectedConfiguration.Container = this.GetHashedTenantedContainerName(containerName);
             }
 
@@ -222,8 +225,8 @@
             this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
         }
 
-        [Then("MigrateToV(.*)Async should have returned null")]
-        public void ThenMigrateToVAsyncShouldHaveReturnedNull(int p0)
+        [Then("MigrateToV3Async should have returned null")]
+        public void ThenMigrateToVAsyncShouldHaveReturnedNull()
         {
             this.v3ConfigFromMigration.Should().BeNull();
         }
@@ -257,23 +260,13 @@
 
             public List<string> ContainersCreated { get; } = new List<string>();
 
-            public override void Process(HttpMessage message, ReadOnlyMemory<HttpPipelinePolicy> pipeline)
-            {
-                base.Process(message, pipeline);
-            }
-
-            public override void OnSendingRequest(global::Azure.Core.HttpMessage message)
-            {
-                base.OnSendingRequest(message);
-            }
-
             public override void OnReceivedResponse(HttpMessage message)
             {
                 if (message.Request.Method.Equals(RequestMethod.Put))
                 {
                     bool isDevStorage = message.Request.Uri.Host == "127.0.0.1" && message.Request.Uri.Port == 10000;
                     string path = isDevStorage
-                        ? message.Request.Uri.Path.Substring("devstoreaccount1/".Length)
+                        ? message.Request.Uri.Path["devstoreaccount1/".Length..]
                         : message.Request.Uri.Path;
 
                     int slashPos = path.IndexOf('/');

@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="TenantStorageSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Collections.Generic;
@@ -13,13 +17,11 @@
     [Binding]
     public class TenantStorageSteps
     {
-        private readonly FeatureContext featureContext;
         private readonly ScenarioContext scenarioContext;
         private readonly ITenantStore store;
 
         public TenantStorageSteps(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
-            this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
             this.store = ContainerBindings.GetServiceProvider(featureContext).GetRequiredService<ITenantStore>();
         }
@@ -194,7 +196,7 @@
                 tenant.Id,
                 propertiesToSetOrAdd: properties).ConfigureAwait(false);
 
-            if (returnedTenantName is string)
+            if (returnedTenantName is not null)
             {
                 this.scenarioContext.Set(updatedTenant, returnedTenantName);
             }

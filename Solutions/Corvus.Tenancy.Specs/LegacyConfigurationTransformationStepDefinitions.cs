@@ -4,7 +4,6 @@
 
 namespace Corvus.Tenancy.Specs
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -23,19 +22,19 @@ namespace Corvus.Tenancy.Specs
         private LegacyV2BlobStorageConfiguration legacyConfiguration = new ();
         private BlobContainerConfiguration? resultingConfiguration;
 
-        [Given(@"legacy v2 configuration with these properties")]
+        [Given("legacy v2 configuration with these properties")]
         public void GivenLegacyVConfigurationWithTheseProperties(Table table)
         {
             this.legacyConfiguration = table.CreateInstance<LegacyV2BlobStorageConfiguration>();
         }
 
-        [When(@"the legacy v2 configuration is converted to the new format")]
+        [When("the legacy v2 configuration is converted to the new format")]
         public void WhenTheLegacyVConfigurationIsConvertedToTheNewFormat()
         {
             this.resultingConfiguration = LegacyConfigurationConverter.FromV2ToV3(this.legacyConfiguration);
         }
 
-        [Then(@"the resulting BlobContainerConfiguration has these properties")]
+        [Then("the resulting BlobContainerConfiguration has these properties")]
         public void ThenTheResultingBlobContainerConfigurationHasTheseProperties(Table table)
         {
             AssertProperties(this.resultingConfiguration, table);

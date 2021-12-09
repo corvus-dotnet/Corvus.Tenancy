@@ -68,10 +68,10 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
         private const int DevelopmentPort = 8901;
         private const string DevelopmentAuthKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
-        private readonly ConcurrentDictionary<object, Task<GremlinServer>> servers = new ConcurrentDictionary<object, Task<GremlinServer>>();
-        private readonly ConcurrentDictionary<object, Task<GremlinClient>> clients = new ConcurrentDictionary<object, Task<GremlinClient>>();
+        private readonly ConcurrentDictionary<object, Task<GremlinServer>> servers = new ();
+        private readonly ConcurrentDictionary<object, Task<GremlinClient>> clients = new ();
         private readonly TenantGremlinContainerFactoryOptions options;
-        private readonly Random random = new Random();
+        private readonly Random random = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantGremlinContainerFactory"/> class.
