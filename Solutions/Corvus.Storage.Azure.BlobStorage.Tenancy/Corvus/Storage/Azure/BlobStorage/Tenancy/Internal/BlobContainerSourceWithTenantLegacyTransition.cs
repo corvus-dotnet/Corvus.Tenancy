@@ -158,12 +158,6 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             return v3Configuration;
         }
 
-        private static string HashAndEncodeBlobContainerName(string containerName)
-        {
-            byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using var hash = new SHA1CryptoServiceProvider();
-            byte[] hashedBytes = hash.ComputeHash(byteContents);
-            return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
-        }
+        private static string HashAndEncodeBlobContainerName(string containerName) => AzureBlobStorageNameHelper.HashAndEncodeBlobContainerName(containerName);
     }
 }
