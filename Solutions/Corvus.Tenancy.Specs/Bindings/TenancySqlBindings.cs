@@ -20,15 +20,12 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancySqlBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly TenancyContainerScenarioBindings tenancyContainer;
         private ITenantSqlConnectionFactory? connectionFactory;
 
         public TenancySqlBindings(
-            ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyContainer)
+            ScenarioContext scenarioContext)
         {
             this.scenarioContext = scenarioContext;
-            this.tenancyContainer = tenancyContainer;
         }
 
         public ITenantSqlConnectionFactory ConnectionFactory => this.connectionFactory ?? throw new InvalidOperationException("Container source not initialized yet");
@@ -45,7 +42,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                    {
                        var sqlOptions = new TenantSqlConnectionFactoryOptions
                        {
-                           AzureServicesAuthConnectionString = this.tenancyContainer.Configuration["AzureServicesAuthConnectionString"],
+                           AzureServicesAuthConnectionString = TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"],
                        };
 
                        serviceCollection.AddTenantSqlConnectionFactory(sqlOptions);

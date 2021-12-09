@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="GremlinContainerSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Threading.Tasks;
@@ -18,17 +22,14 @@
     [Binding]
     public class GremlinContainerSteps
     {
-        private readonly FeatureContext featureContext;
         private readonly TenancyContainerScenarioBindings tenancyBindings;
         private readonly TenancyGremlinContainerBindings gremlinBindings;
         private readonly GremlinContainerDefinition containerDefinition;
 
         public GremlinContainerSteps(
-            FeatureContext featureContext,
             TenancyContainerScenarioBindings tenancyBindings,
             TenancyGremlinContainerBindings gremlinBindings)
         {
-            this.featureContext = featureContext;
             this.tenancyBindings = tenancyBindings;
             this.gremlinBindings = gremlinBindings;
 
@@ -42,14 +43,15 @@
         public void GivenIHaveAddedGremlinConfigurationToATenant()
         {
             var gremlinConfiguration = new GremlinConfiguration();
-            this.tenancyBindings.Configuration.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
             gremlinConfiguration.DatabaseName = "endjinspecssharedthroughput";
             gremlinConfiguration.DisableTenantIdPrefix = true;
             this.tenancyBindings.RootTenant.UpdateProperties(values =>
                 values.AddGremlinConfiguration(this.containerDefinition, gremlinConfiguration));
         }
 
-        [Given(@"I have not added Gremlin configuration to a tenant")]
+        [Given("I have not added Gremlin configuration to a tenant")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Test framework needs this to be non-static")]
         public void GivenIHaveNotAddedGremlinConfigurationToATenant()
         {
             // Nothing do to - just here so we can state the prerequisite explicitly in the step.
@@ -60,7 +62,7 @@
         {
             GremlinClient gremlinClient = await this.gremlinBindings.ContainerFactory.GetClientForTenantAsync(
                 this.tenancyBindings.RootTenant,
-                this.containerDefinition);
+                this.containerDefinition).ConfigureAwait(false);
             Assert.IsNotNull(gremlinClient);
             this.gremlinBindings.DisposeThisClientOnTestTeardown(gremlinClient);
         }

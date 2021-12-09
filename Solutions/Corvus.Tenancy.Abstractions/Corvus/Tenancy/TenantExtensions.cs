@@ -23,10 +23,7 @@ namespace Corvus.Tenancy
         /// <returns>The id of the parent of the specified tenant, or null if this is the <see cref="ITenantProvider.Root"/> tenant.</returns>
         public static string? GetParentId(this ITenant tenant)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
 
             return GetParentId(tenant.Id);
         }
@@ -44,10 +41,7 @@ namespace Corvus.Tenancy
         /// </remarks>
         public static string GetRequiredParentId(this ITenant tenant)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
 
             return GetRequiredParentId(tenant.Id);
         }
@@ -70,7 +64,7 @@ namespace Corvus.Tenancy
             Guid[] guids = DecodeGuids(parentId);
             var guidsWithChildTenantId = new Guid[guids.Length + 1];
             guids.CopyTo(guidsWithChildTenantId, 0);
-            guidsWithChildTenantId[guidsWithChildTenantId.Length - 1] = childTenantGuid.Value;
+            guidsWithChildTenantId[^1] = childTenantGuid.Value;
 
             return EncodeGuids(guidsWithChildTenantId);
         }
@@ -87,7 +81,7 @@ namespace Corvus.Tenancy
 
             for (int i = 0; i < guids.Length; ++i)
             {
-                results[i] = EncodeGuids(guids.Slice(0, i + 1));
+                results[i] = EncodeGuids(guids[..(i + 1)]);
             }
 
             return results;
@@ -100,10 +94,7 @@ namespace Corvus.Tenancy
         /// <returns>The ID of the parent of the specified tenant, or null if this is the <see cref="ITenantProvider.Root"/> tenant ID.</returns>
         public static string? GetParentId(this string tenantId)
         {
-            if (tenantId is null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
+            ArgumentNullException.ThrowIfNull(tenantId);
 
             if (tenantId == RootTenant.RootTenantId)
             {
@@ -119,7 +110,7 @@ namespace Corvus.Tenancy
                     return RootTenant.RootTenantId;
                 }
 
-                return EncodeGuids(guids.Slice(0, guids.Length - 1));
+                return EncodeGuids(guids[0..^1]);
             }
             catch (Exception ex)
             {
@@ -263,10 +254,7 @@ namespace Corvus.Tenancy
 
         private static Guid[] DecodeGuids(string encodedGuids)
         {
-            if (encodedGuids == null)
-            {
-                throw new ArgumentNullException(nameof(encodedGuids));
-            }
+            ArgumentNullException.ThrowIfNull(encodedGuids);
 
             byte[] guidBytes = HexadecimalStringToByteArray(encodedGuids);
 

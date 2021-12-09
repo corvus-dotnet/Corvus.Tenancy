@@ -34,7 +34,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 //// Add configuration value pairs here
                 ////{ "STORAGEACCOUNTCONNECTIONSTRING", "UseDevelopmentStorage=true" },
             };
-            StaticConfiguration = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(configData)
                 .AddEnvironmentVariables()
                 .AddJsonFile("local.settings.json", true, true)
@@ -49,11 +49,9 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.scenarioContext = scenarioContext;
         }
 
-        public IConfiguration Configuration => StaticConfiguration;
+        public static IConfiguration Configuration { get; }
 
         public RootTenant RootTenant => this.rootTenant ?? throw new InvalidOperationException("Tenant has not been set up yet");
-
-        public static IConfiguration StaticConfiguration { get; }
 
         // These bindings are used partly by tests that use per-feature and partly per-scenario setup.
         // (We need the tenancy store ones to be per-feature because the tear down runs into Azure Storage
@@ -67,7 +65,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         {
             ContainerBindings.ConfigureServices(
                    this.scenarioContext,
-                   serviceCollection => CommonServiceInit(this.featureContext, serviceCollection, this.Configuration));
+                   serviceCollection => CommonServiceInit(this.featureContext, serviceCollection));
         }
 
         [BeforeFeature("@perFeatureContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection)]
@@ -75,7 +73,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         {
             ContainerBindings.ConfigureServices(
                 featureContext,
-                serviceCollection => CommonServiceInit(featureContext, serviceCollection, StaticConfiguration));
+                serviceCollection => CommonServiceInit(featureContext, serviceCollection));
         }
 
         [BeforeScenario("@perScenarioContainer", Order = ContainerBeforeScenarioOrder.ServiceProviderAvailable)]
@@ -150,11 +148,10 @@ namespace Corvus.Tenancy.Specs.Bindings
 
         private static void CommonServiceInit(
             FeatureContext featureContext,
-            IServiceCollection serviceCollection,
-            IConfiguration configuration)
+            IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton(configuration);
-            serviceCollection.AddSingleton(configuration.GetSection("TestSettings").Get<TestSettings>());
+            serviceCollection.AddSingleton(Configuration);
+            serviceCollection.AddSingleton(Configuration.GetSection("TestSettings").Get<TestSettings>());
 
             serviceCollection.AddRequiredTenancyServices();
 
@@ -163,7 +160,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 serviceCollection.AddTenantProviderBlobStore(_ =>
                 {
                     var blobStorageConfiguration = new BlobStorageConfiguration();
-                    configuration.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
+                    Configuration.Bind("TENANCYBLOBSTORAGECONFIGURATIONOPTIONS", blobStorageConfiguration);
                     return blobStorageConfiguration;
                 });
 
@@ -182,7 +179,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 serviceCollection.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<FakeTenantProvider>());
             }
 
-            serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(configuration["AzureServicesAuthConnectionString"]);
+            serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(Configuration["AzureServicesAuthConnectionString"]);
         }
     }
 }

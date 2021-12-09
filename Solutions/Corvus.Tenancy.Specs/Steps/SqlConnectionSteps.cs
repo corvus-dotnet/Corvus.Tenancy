@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="SqlConnectionSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Data.SqlClient;
@@ -37,7 +41,7 @@
         public async Task ThenIShouldBeAbleToGetTheTenantedSqlConnection()
         {
             var sqlConfiguration = new SqlConfiguration();
-            this.tenancyBindings.Configuration.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
 
             // Fall back on a local database
             if (string.IsNullOrEmpty(sqlConfiguration.ConnectionString) &&

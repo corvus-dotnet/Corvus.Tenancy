@@ -4,6 +4,7 @@
 
 namespace Corvus.Azure.Storage.Tenancy.Internal
 {
+    using System;
     using System.Security.Cryptography;
     using System.Text;
     using Corvus.Tenancy;
@@ -20,6 +21,8 @@ namespace Corvus.Azure.Storage.Tenancy.Internal
     /// </remarks>
     public static class AzureStorageNameHelper
     {
+        private static readonly Lazy<SHA1> HashProvider = new (() => SHA1.Create());
+
         /// <summary>
         /// Makes a plain text name safe to use as an Azure storage table name.
         /// </summary>
@@ -28,8 +31,7 @@ namespace Corvus.Azure.Storage.Tenancy.Internal
         public static string HashAndEncodeTableName(string tableName)
         {
             byte[] byteContents = Encoding.UTF8.GetBytes(tableName);
-            using var hash = new SHA1CryptoServiceProvider();
-            byte[] hashedBytes = hash.ComputeHash(byteContents);
+            byte[] hashedBytes = HashProvider.Value.ComputeHash(byteContents);
             string hexString = TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
 
             // Table names can't start with a number, so prefix all names with a letter
@@ -44,8 +46,7 @@ namespace Corvus.Azure.Storage.Tenancy.Internal
         public static string HashAndEncodeBlobContainerName(string containerName)
         {
             byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using var hash = new SHA1CryptoServiceProvider();
-            byte[] hashedBytes = hash.ComputeHash(byteContents);
+            byte[] hashedBytes = HashProvider.Value.ComputeHash(byteContents);
             return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
         }
     }

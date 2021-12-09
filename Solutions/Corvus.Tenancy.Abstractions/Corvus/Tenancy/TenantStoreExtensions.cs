@@ -22,10 +22,7 @@ namespace Corvus.Tenancy
         /// <returns>A task that produces the specified tenants.</returns>
         public static async Task<ITenant[]> GetTenantsAsync(this ITenantProvider tenantProvider, IEnumerable<string> tenantIds)
         {
-            if (tenantIds == null)
-            {
-                throw new ArgumentNullException(nameof(tenantIds));
-            }
+            ArgumentNullException.ThrowIfNull(tenantIds);
 
             IEnumerable<Task<ITenant>> getTenantTasks = tenantIds.Select(tenantId => tenantProvider.GetTenantAsync(tenantId));
 
@@ -46,14 +43,11 @@ namespace Corvus.Tenancy
         /// </remarks>
         public static IAsyncEnumerable<string> EnumerateAllChildrenAsync(this ITenantStore tenantStore, string tenantId)
         {
-            if (tenantId == null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
+            ArgumentNullException.ThrowIfNull(tenantId);
 
             if (string.IsNullOrWhiteSpace(tenantId))
             {
-                throw new ArgumentException(nameof(tenantId));
+                throw new ArgumentException($"{nameof(tenantId)} must not be empty", nameof(tenantId));
             }
 
             return EnumerateAllChildrenInternalAsync(tenantStore, tenantId);
@@ -73,15 +67,7 @@ namespace Corvus.Tenancy
         /// </remarks>
         public static IAsyncEnumerable<ITenant> EnumerateAllChildTenantsAsync(this ITenantStore tenantStore, string tenantId)
         {
-            if (tenantId == null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
-
-            if (string.IsNullOrWhiteSpace(tenantId))
-            {
-                throw new ArgumentException(nameof(tenantId));
-            }
+            ArgumentNullException.ThrowIfNull(tenantId);
 
             return EnumerateAllChildTenantsInternalAsync(tenantStore, tenantId);
         }
@@ -134,7 +120,7 @@ namespace Corvus.Tenancy
 
                 foreach (string childTenantId in results.Tenants)
                 {
-                    yield return await tenantStore.GetTenantAsync(childTenantId);
+                    yield return await tenantStore.GetTenantAsync(childTenantId).ConfigureAwait(false);
                 }
 
                 continuationToken = results.ContinuationToken;

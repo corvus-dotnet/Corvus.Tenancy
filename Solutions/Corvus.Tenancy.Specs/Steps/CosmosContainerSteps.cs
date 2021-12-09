@@ -22,7 +22,6 @@ namespace Corvus.Tenancy.Specs.Steps
     public class CosmosContainerSteps
     {
         private const string ConfigurationKey = "TestCosmos";
-        private readonly ScenarioContext scenarioContext;
         private readonly TenancyContainerScenarioBindings tenancyBindings;
         private readonly TenancyCosmosContainerBindings cosmosBindings;
         private readonly string containerName;
@@ -30,11 +29,9 @@ namespace Corvus.Tenancy.Specs.Steps
         private Container? cosmosContainer;
 
         public CosmosContainerSteps(
-            ScenarioContext featureContext,
             TenancyContainerScenarioBindings tenancyBindings,
             TenancyCosmosContainerBindings cosmosBindings)
         {
-            this.scenarioContext = featureContext;
             this.tenancyBindings = tenancyBindings;
             this.cosmosBindings = cosmosBindings;
 
@@ -45,13 +42,14 @@ namespace Corvus.Tenancy.Specs.Steps
         public void GivenIHaveAddedCosmosConfigurationToATenant()
         {
             this.cosmosConfiguration = new ();
-            this.tenancyBindings.Configuration.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", this.cosmosConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", this.cosmosConfiguration);
             this.cosmosConfiguration.Database = "endjinspecssharedthroughput";
             this.tenancyBindings.RootTenant.UpdateProperties(values =>
                 values.AddCosmosConfiguration(ConfigurationKey, this.cosmosConfiguration));
         }
 
         [Given("I have not added cosmos configuration to a tenant")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Test framework needs this to be non-static")]
         public void GivenIHaveNotAddedCosmosConfigurationToATenant()
         {
             // Nothing to do here since this is the default - this step exists just so we

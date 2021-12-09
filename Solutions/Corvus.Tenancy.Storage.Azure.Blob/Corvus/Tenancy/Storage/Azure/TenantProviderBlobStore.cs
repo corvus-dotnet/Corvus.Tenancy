@@ -49,13 +49,13 @@ namespace Corvus.Tenancy
             ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory,
             IJsonSerializerSettingsProvider serializerSettingsProvider)
         {
-            if (serializerSettingsProvider is null)
-            {
-                throw new ArgumentNullException(nameof(serializerSettingsProvider));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(propertyBagFactory);
+            ArgumentNullException.ThrowIfNull(tenantCloudBlobContainerFactory);
+            ArgumentNullException.ThrowIfNull(serializerSettingsProvider);
 
-            this.Root = tenant ?? throw new ArgumentNullException(nameof(tenant));
-            this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory ?? throw new ArgumentNullException(nameof(tenantCloudBlobContainerFactory));
+            this.Root = tenant;
+            this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory;
             this.serializerSettings = serializerSettingsProvider.Instance;
             this.propertyBagFactory = propertyBagFactory;
         }
@@ -71,10 +71,7 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task<ITenant> GetTenantAsync(string tenantId, string? etag = null)
         {
-            if (tenantId is null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
+            ArgumentNullException.ThrowIfNull(tenantId);
 
             if (tenantId == this.Root.Id)
             {
@@ -99,10 +96,7 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string? continuationToken = null)
         {
-            if (tenantId is null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
+            ArgumentNullException.ThrowIfNull(tenantId);
 
             try
             {
@@ -111,7 +105,7 @@ namespace Corvus.Tenancy
                 BlobContinuationToken? blobContinuationToken = await GetBlobContinuationTokenAsync(continuationToken).ConfigureAwait(false);
 
                 BlobResultSegment segment = await container.ListBlobsSegmentedAsync(LiveTenantsPrefix, true, BlobListingDetails.None, limit, blobContinuationToken, null, null).ConfigureAwait(false);
-                return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name.Substring(LiveTenantsPrefix.Length)).ToList(), GenerateContinuationToken(segment.ContinuationToken));
+                return new TenantCollectionResult(segment.Results.Select(s => ((CloudBlockBlob)s).Name[LiveTenantsPrefix.Length..]).ToList(), GenerateContinuationToken(segment.ContinuationToken));
             }
             catch (FormatException fex)
             {
@@ -187,10 +181,7 @@ namespace Corvus.Tenancy
             Guid wellKnownChildTenantGuid,
             string name)
         {
-            if (parentTenantId is null)
-            {
-                throw new ArgumentNullException(nameof(parentTenantId));
-            }
+            ArgumentNullException.ThrowIfNull(parentTenantId);
 
             try
             {
@@ -248,10 +239,7 @@ namespace Corvus.Tenancy
         /// <inheritdoc/>
         public async Task DeleteTenantAsync(string tenantId)
         {
-            if (tenantId is null)
-            {
-                throw new ArgumentNullException(nameof(tenantId));
-            }
+            ArgumentNullException.ThrowIfNull(tenantId);
 
             if (tenantId == this.Root.Id)
             {

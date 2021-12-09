@@ -1,4 +1,8 @@
-﻿namespace Corvus.Tenancy.Specs.Bindings
+﻿// <copyright file="TenancyCosmosContainerBindings.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
 

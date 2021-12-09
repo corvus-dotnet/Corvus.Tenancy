@@ -5,7 +5,7 @@
 namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Linq;
+
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Tenancy.Internal;
 
@@ -38,15 +38,8 @@ namespace Microsoft.Extensions.DependencyInjection
             this IServiceCollection services,
             Func<IServiceProvider, TenantCloudBlobContainerFactoryOptions> getOptions)
         {
-            if (services is null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
-            if (services.Any(s => typeof(ITenantCloudBlobContainerFactory).IsAssignableFrom(s.ServiceType)))
-            {
-                return services;
-            }
+            ArgumentNullException.ThrowIfNull(services);
+            ArgumentNullException.ThrowIfNull(getOptions);
 
             services.AddRequiredTenancyServices();
 

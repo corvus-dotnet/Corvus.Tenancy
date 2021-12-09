@@ -44,7 +44,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         public string DatabaseName
         {
             get => this.databaseName ?? throw new InvalidOperationException(nameof(this.DatabaseName) + " has not been set");
-            set => this.databaseName = value ?? throw new ArgumentNullException();
+            set => this.databaseName = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Corvus.Azure.Cosmos.Tenancy
         public string ContainerName
         {
             get => this.containerName ?? throw new InvalidOperationException(nameof(this.ContainerName) + " has not been set");
-            set => this.containerName = value ?? throw new ArgumentNullException();
+            set => this.containerName = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

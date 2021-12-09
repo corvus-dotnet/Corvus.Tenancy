@@ -6,8 +6,6 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 {
     using System;
     using System.Collections.Generic;
-    using System.Security.Cryptography;
-    using System.Text;
     using System.Threading.Tasks;
 
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
@@ -16,15 +14,12 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
     using global::Azure.Storage.Blobs;
     using global::Azure.Storage.Blobs.Models;
 
-    using Microsoft.Extensions.DependencyInjection;
-
     /// <summary>
     /// Implementation of <see cref="IBlobContainerSourceWithTenantLegacyTransition"/>.
     /// </summary>
     internal class BlobContainerSourceWithTenantLegacyTransition : IBlobContainerSourceWithTenantLegacyTransition
     {
         private readonly IBlobContainerSourceFromDynamicConfiguration blobContainerSource;
-        private readonly IServiceProvider serviceProvider;
 
         /// <summary>
         /// Creates a <see cref="BlobContainerSourceWithTenantLegacyTransition"/>.
@@ -32,15 +27,10 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
         /// <param name="blobContainerSource">
         /// The underling non-legacy source.
         /// </param>
-        /// <param name="serviceProvider">
-        /// Provides access to optional services.
-        /// </param>
         public BlobContainerSourceWithTenantLegacyTransition(
-            IBlobContainerSourceFromDynamicConfiguration blobContainerSource,
-            IServiceProvider serviceProvider)
+            IBlobContainerSourceFromDynamicConfiguration blobContainerSource)
         {
             this.blobContainerSource = blobContainerSource;
-            this.serviceProvider = serviceProvider;
         }
 
         /// <inheritdoc/>
@@ -52,9 +42,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             BlobClientOptions? blobClientOptions)
         {
             bool v3ConfigWasAvailable = false;
-            BlobContainerConfiguration v3Configuration;
             PublicAccessType? publicAccessType = null;
-            if (tenant.Properties.TryGet(v3ConfigurationKey, out v3Configuration))
+            if (tenant.Properties.TryGet(v3ConfigurationKey, out BlobContainerConfiguration v3Configuration))
             {
                 v3ConfigWasAvailable = true;
 
@@ -86,7 +75,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 throw new InvalidOperationException("Nope");
             }
 
-            BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(v3Configuration, blobClientOptions);
+            BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(v3Configuration, blobClientOptions).ConfigureAwait(false);
 
             // If the settings say to create a new V3 config if there wasn't already one, it's important
             // that we don't do this until after successfully creating the container, because in the world
@@ -98,7 +87,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             {
                 if (publicAccessType.HasValue)
                 {
-                    await result.CreateIfNotExistsAsync(publicAccessType.Value);
+                    await result.CreateIfNotExistsAsync(publicAccessType.Value).ConfigureAwait(false);
                 }
             }
 
@@ -151,19 +140,13 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                     _ => PublicAccessType.None,
                 };
 
-                BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(thisConfig, blobClientOptions);
-                await result.CreateIfNotExistsAsync(publicAccessType);
+                BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(thisConfig, blobClientOptions).ConfigureAwait(false);
+                await result.CreateIfNotExistsAsync(publicAccessType).ConfigureAwait(false);
             }
 
             return v3Configuration;
         }
 
-        private static string HashAndEncodeBlobContainerName(string containerName)
-        {
-            byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            using var hash = new SHA1CryptoServiceProvider();
-            byte[] hashedBytes = hash.ComputeHash(byteContents);
-            return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
-        }
+        private static string HashAndEncodeBlobContainerName(string containerName) => AzureBlobStorageNameHelper.HashAndEncodeBlobContainerName(containerName);
     }
 }
