@@ -6,6 +6,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
@@ -39,7 +40,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             string v2ConfigurationKey,
             string v3ConfigurationKey,
             string? containerName,
-            BlobClientOptions? blobClientOptions)
+            BlobClientOptions? blobClientOptions,
+            CancellationToken cancellationToken)
         {
             bool v3ConfigWasAvailable = false;
             PublicAccessType? publicAccessType = null;
@@ -51,7 +53,12 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 {
                     string tenantedUnhashedContainerName = $"{tenant.Id.ToLowerInvariant()}-{containerName}";
                     string hashedTenantedContainerName = HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
-                    v3Configuration = v3Configuration.ForContainer(hashedTenantedContainerName);
+                    v3Configuration = v3Configuration with
+                    {
+#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
+                        Container = hashedTenantedContainerName,
+#pragma warning restore SA1101 // Prefix local calls with this
+                    };
                 }
             }
             else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
@@ -62,7 +69,12 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                     : containerName;
                 string tenantedUnhashedContainerName = $"{tenant.Id.ToLowerInvariant()}-{rawContainerName}";
                 string hashedTenantedContainerName = HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
-                v3Configuration = v3Configuration.ForContainer(hashedTenantedContainerName);
+                v3Configuration = v3Configuration with
+                {
+#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
+                    Container = hashedTenantedContainerName,
+#pragma warning restore SA1101 // Prefix local calls with this
+                };
                 publicAccessType = legacyConfiguration.AccessType switch
                 {
                     LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
@@ -75,7 +87,11 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 throw new InvalidOperationException("Nope");
             }
 
-            BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(v3Configuration, blobClientOptions).ConfigureAwait(false);
+            BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(
+                v3Configuration,
+                blobClientOptions,
+                cancellationToken)
+                .ConfigureAwait(false);
 
             // If the settings say to create a new V3 config if there wasn't already one, it's important
             // that we don't do this until after successfully creating the container, because in the world
@@ -87,7 +103,9 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             {
                 if (publicAccessType.HasValue)
                 {
-                    await result.CreateIfNotExistsAsync(publicAccessType.Value).ConfigureAwait(false);
+                    await result.CreateIfNotExistsAsync(
+                        publicAccessType.Value,
+                        cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -100,7 +118,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             string v2ConfigurationKey,
             string v3ConfigurationKey,
             IEnumerable<string>? containerNames,
-            BlobClientOptions? blobClientOptions = null)
+            BlobClientOptions? blobClientOptions,
+            CancellationToken cancellationToken)
         {
             if (tenant.Properties.TryGet(v3ConfigurationKey, out BlobContainerConfiguration _))
             {
@@ -132,7 +151,12 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             {
                 string tenantedUnhashedContainerName = $"{tenant.Id.ToLowerInvariant()}-{rawContainerName}";
                 string hashedTenantedContainerName = HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
-                BlobContainerConfiguration thisConfig = v3Configuration.ForContainer(hashedTenantedContainerName);
+                BlobContainerConfiguration thisConfig = v3Configuration with
+                {
+#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
+                    Container = hashedTenantedContainerName,
+#pragma warning restore SA1101 // Prefix local calls with this
+                };
                 PublicAccessType publicAccessType = legacyConfiguration.AccessType switch
                 {
                     LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
@@ -140,8 +164,15 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                     _ => PublicAccessType.None,
                 };
 
-                BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(thisConfig, blobClientOptions).ConfigureAwait(false);
-                await result.CreateIfNotExistsAsync(publicAccessType).ConfigureAwait(false);
+                BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(
+                    thisConfig,
+                    blobClientOptions,
+                    cancellationToken)
+                    .ConfigureAwait(false);
+                await result.CreateIfNotExistsAsync(
+                    publicAccessType,
+                    cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             return v3Configuration;

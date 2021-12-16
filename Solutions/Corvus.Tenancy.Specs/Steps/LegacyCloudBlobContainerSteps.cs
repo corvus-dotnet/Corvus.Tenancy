@@ -45,7 +45,7 @@ namespace Corvus.Tenancy.Specs.Steps
 
         private CloudBlobContainer Container => this.container ?? throw new InvalidOperationException("Container not created yet");
 
-        [Given("I have added blob storage configuration to the current tenant")]
+        [Given("I have added legacy blob storage configuration to the current tenant")]
         public void GivenIHaveAddedBlobStorageConfigurationToTheCurrentTenant(Table table)
         {
             ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
@@ -116,14 +116,14 @@ namespace Corvus.Tenancy.Specs.Steps
             Assert.AreEqual(expectedName, this.Container.Name);
         }
 
-        [When("I remove the blob storage configuration from the tenant")]
+        [When("I remove the legacy blob storage configuration from the tenant")]
         public void WhenIRemoveTheBlobStorageConfigurationFromTheTenant()
         {
             this.tenancyBindings.RootTenant.UpdateProperties(
                 propertiesToRemove: this.blobStorageContainerDefinition.RemoveBlobStorageConfiguration());
         }
 
-        [Then("attempting to get the blob storage configuration from the tenant throws an ArgumentException")]
+        [Then("attempting to get the legacy blob storage configuration from the tenant throws an ArgumentException")]
         public void ThenGettingTheBlobStorageConfigurationOnTheTenantThrowsArgumentException()
         {
             try
