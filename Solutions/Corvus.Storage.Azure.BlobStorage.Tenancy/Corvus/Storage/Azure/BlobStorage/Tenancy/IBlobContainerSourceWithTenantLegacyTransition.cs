@@ -5,6 +5,7 @@
 namespace Corvus.Storage.Azure.BlobStorage.Tenancy
 {
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Corvus.Tenancy;
@@ -37,8 +38,11 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// </param>
         /// <param name="blobClientOptions">
         /// Optional blob client parameters to be passed when calling the underlying
-        /// <see cref="IStorageContextSourceFromDynamicConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions)"/>
+        /// <see cref="IStorageContextSourceFromDynamicConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions, CancellationToken)"/>
         /// method to create the container client.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// May enable the operation to be cancelled.
         /// </param>
         /// <returns>
         /// A value task that produces a <see cref="BlobContainerClient"/>.
@@ -48,7 +52,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
             string v2ConfigurationKey,
             string v3ConfigurationKey,
             string? containerName = null,
-            BlobClientOptions? blobClientOptions = null);
+            BlobClientOptions? blobClientOptions = null,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Makes the necessary preparations for upgrading from v2 to v3 configuration.
@@ -74,8 +79,11 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// </param>
         /// <param name="blobClientOptions">
         /// Optional blob client parameters to be passed when calling the underlying
-        /// <see cref="IStorageContextSourceFromDynamicConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions)"/>
+        /// <see cref="IStorageContextSourceFromDynamicConfiguration{TStorageContext, TConfiguration, TConnectionOptions}.GetStorageContextAsync(TConfiguration, TConnectionOptions, CancellationToken)"/>
         /// method to create the container client.
+        /// </param>
+        /// <param name="cancellationToken">
+        /// May enable the operation to be cancelled.
         /// </param>
         /// <returns>
         /// A value task that produces null if a configuration with the key specified in
@@ -90,6 +98,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
             string v2ConfigurationKey,
             string v3ConfigurationKey,
             IEnumerable<string>? containerNames,
-            BlobClientOptions? blobClientOptions = null);
+            BlobClientOptions? blobClientOptions = null,
+            CancellationToken cancellationToken = default);
     }
 }
