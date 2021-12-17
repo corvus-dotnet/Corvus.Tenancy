@@ -51,14 +51,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 
                 if (!string.IsNullOrEmpty(containerName))
                 {
-                    string tenantedUnhashedContainerName = $"{tenant.Id.ToLowerInvariant()}-{containerName}";
-                    string hashedTenantedContainerName = HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
-                    v3Configuration = v3Configuration with
-                    {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
-                        Container = hashedTenantedContainerName,
-#pragma warning restore SA1101 // Prefix local calls with this
-                    };
+                    v3Configuration = GetConfigForContainer(tenant, containerName, v3Configuration);
                 }
             }
             else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
@@ -67,14 +60,8 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 string rawContainerName = string.IsNullOrWhiteSpace(containerName)
                     ? legacyConfiguration.Container ?? throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a {containerName}")
                     : containerName;
-                string tenantedUnhashedContainerName = $"{tenant.Id.ToLowerInvariant()}-{rawContainerName}";
-                string hashedTenantedContainerName = HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
-                v3Configuration = v3Configuration with
-                {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
-                    Container = hashedTenantedContainerName,
-#pragma warning restore SA1101 // Prefix local calls with this
-                };
+                v3Configuration = GetConfigForContainer(tenant, rawContainerName, v3Configuration);
+
                 publicAccessType = legacyConfiguration.AccessType switch
                 {
                     LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
@@ -149,14 +136,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 
             foreach (string rawContainerName in containerNames)
             {
-                string tenantedUnhashedContainerName = $"{tenant.Id.ToLowerInvariant()}-{rawContainerName}";
-                string hashedTenantedContainerName = HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
-                BlobContainerConfiguration thisConfig = v3Configuration with
-                {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
-                    Container = hashedTenantedContainerName,
-#pragma warning restore SA1101 // Prefix local calls with this
-                };
+                BlobContainerConfiguration thisConfig = GetConfigForContainer(tenant, rawContainerName, v3Configuration);
                 PublicAccessType publicAccessType = legacyConfiguration.AccessType switch
                 {
                     LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
@@ -178,6 +158,17 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             return v3Configuration;
         }
 
-        private static string HashAndEncodeBlobContainerName(string containerName) => AzureBlobStorageNameHelper.HashAndEncodeBlobContainerName(containerName);
+        private static BlobContainerConfiguration GetConfigForContainer(
+            ITenant tenant,
+            string containerName,
+            BlobContainerConfiguration v3Configuration)
+        {
+            string hashedTenantedContainerName = AzureStorageBlobTenantedContainerNaming.GetHashedTenantedBlobContainerNameFor(
+                tenant, containerName);
+            return v3Configuration with
+            {
+                Container = hashedTenantedContainerName,
+            };
+        }
     }
 }

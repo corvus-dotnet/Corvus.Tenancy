@@ -6,7 +6,6 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
 {
     using System;
     using System.Security.Cryptography;
-    using System.Text;
 
     using Corvus.Tenancy;
 
@@ -21,10 +20,9 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
     /// name and converting it into a name that's guaranteed to be safe to use. This class provides
     /// helper methods to do that.
     /// </remarks>
+    [Obsolete("This just calls AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName in the Corvus.Storage library. Use AzureStorageBlobTenantedContainerNaming if you require tenanted name generation")]
     public static class AzureBlobStorageNameHelper
     {
-        private static readonly Lazy<SHA1> HashProvider = new (() => SHA1.Create());
-
         /// <summary>
         /// Make a plain text name safe to use as an Azure storage blob container name.
         /// </summary>
@@ -32,9 +30,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// <returns>The encoded name.</returns>
         public static string HashAndEncodeBlobContainerName(string containerName)
         {
-            byte[] byteContents = Encoding.UTF8.GetBytes(containerName);
-            byte[] hashedBytes = HashProvider.Value.ComputeHash(byteContents);
-            return TenantExtensions.ByteArrayToHexViaLookup32(hashedBytes);
+            return AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(containerName);
         }
     }
 }
