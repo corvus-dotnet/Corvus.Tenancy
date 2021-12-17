@@ -63,7 +63,7 @@ namespace Corvus.Sql.Tenancy.Internal
     {
         private const string DevelopmentStorageConnectionString = "Server=(localdb)\\mssqllocaldb;Database=testtenant;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-        private readonly ConcurrentDictionary<object, Task<string>> connectionStrings = new ConcurrentDictionary<object, Task<string>>();
+        private readonly ConcurrentDictionary<object, Task<string>> connectionStrings = new ();
         private readonly TenantSqlConnectionFactoryOptions? options;
 
         /// <summary>
@@ -83,15 +83,8 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>A Sql connection definition unique to the tenant.</returns>
         public static SqlConnectionDefinition GetContainerDefinitionForTenant(ITenant tenant, SqlConnectionDefinition connectionDefinition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (connectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(connectionDefinition));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(connectionDefinition);
 
             return new SqlConnectionDefinition(BuildTenantSpecificDatabaseName(tenant, connectionDefinition.Database));
         }
@@ -103,10 +96,7 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>The cache key.</returns>
         public static object GetKeyFor(SqlConnectionDefinition tenantSqlConnectionDefinition)
         {
-            if (tenantSqlConnectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(tenantSqlConnectionDefinition));
-            }
+            ArgumentNullException.ThrowIfNull(tenantSqlConnectionDefinition);
 
             return $"{tenantSqlConnectionDefinition.Database}";
         }
@@ -118,10 +108,7 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>The cache key.</returns>
         public static object GetKeyFor(SqlConfiguration storageConfiguration)
         {
-            if (storageConfiguration is null)
-            {
-                throw new ArgumentNullException(nameof(storageConfiguration));
-            }
+            ArgumentNullException.ThrowIfNull(storageConfiguration);
 
             return string.IsNullOrEmpty(storageConfiguration.Database) ? "storageConfiguration-developmentStorage" : $"storageConfiguration-{storageConfiguration.Database}";
         }
@@ -134,15 +121,8 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>A connection instance for the tenant.</returns>
         public Task<SqlConnection> GetSqlConnectionForTenantAsync(ITenant tenant, SqlConnectionDefinition connectionDefinition)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (connectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(connectionDefinition));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(connectionDefinition);
 
             SqlConnectionDefinition tenantedSqlConnectionDefinition = GetContainerDefinitionForTenant(tenant, connectionDefinition);
             return this.CreateSqlConnectionAsync(tenant, connectionDefinition, tenantedSqlConnectionDefinition);
@@ -157,20 +137,9 @@ namespace Corvus.Sql.Tenancy.Internal
         /// <returns>A <see cref="Task"/> with completes with the instance of the document repository for the tenant.</returns>
         protected async Task<SqlConnection> CreateSqlConnectionAsync(ITenant tenant, SqlConnectionDefinition tenantedSqlConnectionDefinition, SqlConfiguration configuration)
         {
-            if (tenant is null)
-            {
-                throw new ArgumentNullException(nameof(tenant));
-            }
-
-            if (tenantedSqlConnectionDefinition is null)
-            {
-                throw new ArgumentNullException(nameof(tenantedSqlConnectionDefinition));
-            }
-
-            if (configuration is null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(tenantedSqlConnectionDefinition);
+            ArgumentNullException.ThrowIfNull(configuration);
 
             // Null forgiving operator only necessary for as long as we target .NET Standard 2.0.
             configuration.Database = string.IsNullOrWhiteSpace(configuration.Database)

@@ -1,4 +1,8 @@
 {
+  "TestSettings": {
+    "ConnectionString": ""
+    // [OR CONFIGURE A COMPLETE BLOB STORAGE CONFIGURATION INSTANCE]
+  },
   "TenancyBlobStorageConfigurationOptions": {
     "AccountName": "{ADD YOUR ACCOUNT NAME HERE, OR REMOVE ENTIRELY TO USE THE STORAGE EMULATOR}"
     // [OR CONFIGURE A COMPLETE BLOB STORAGE CONFIGURATION INSTANCE]

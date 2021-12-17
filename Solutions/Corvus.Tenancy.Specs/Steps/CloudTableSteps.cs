@@ -1,42 +1,53 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="CloudTableSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Threading.Tasks;
+
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Specs.Bindings;
-    using Corvus.Testing.SpecFlow;
+
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+
     using NUnit.Framework;
+
     using TechTalk.SpecFlow;
 
     [Binding]
     public class CloudTableSteps
     {
-        private readonly FeatureContext featureContext;
-        private readonly IServiceProvider serviceProvider;
+        private readonly TenancyContainerScenarioBindings tenancyBindings;
+        private readonly TenancyCloudTableBindings tableBindings;
+        private CloudTable? cloudTable;
+        private TableStorageTableDefinition? tableStorageTableDefinition;
 
-        public CloudTableSteps(FeatureContext featureContext)
+        public CloudTableSteps(
+            TenancyContainerScenarioBindings tenancyBindings,
+            TenancyCloudTableBindings tableBindings)
         {
-            this.featureContext = featureContext;
-            this.serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
+            this.tenancyBindings = tenancyBindings;
+            this.tableBindings = tableBindings;
         }
+
+        private CloudTable CloudTable => this.cloudTable ?? throw new InvalidOperationException("Cloud table not created");
+
+        private TableStorageTableDefinition TableStorageTableDefinition => this.tableStorageTableDefinition ?? throw new InvalidOperationException("Definition not created yet");
 
         [Given("I have added table storage configuration to the current tenant")]
         public void GivenIHaveAddedTableStorageConfigurationToTheCurrentTenant(Table table)
         {
-            ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            IConfigurationRoot config = this.serviceProvider.GetRequiredService<IConfigurationRoot>();
-
             string containerBase = Guid.NewGuid().ToString();
 
-            var tableStorageTableDefinition = new TableStorageTableDefinition($"{containerBase}tenancyspecs");
-            this.featureContext.Set(tableStorageTableDefinition);
+            this.tableStorageTableDefinition = new TableStorageTableDefinition($"{containerBase}tenancyspecs");
 
             var tableStorageConfiguration = new TableStorageConfiguration();
-            config.Bind("TESTTABLESTORAGECONFIGURATIONOPTIONS", tableStorageConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTTABLESTORAGECONFIGURATIONOPTIONS", tableStorageConfiguration);
 
             string overriddenTableName = table.Rows[0]["TableName"];
             if (!string.IsNullOrEmpty(overriddenTableName))
@@ -46,89 +57,66 @@
 
             tableStorageConfiguration.DisableTenantIdPrefix = bool.Parse(table.Rows[0]["DisableTenantIdPrefix"]);
 
-            tenantProvider.Root.UpdateProperties(values => values.AddTableStorageConfiguration(tableStorageTableDefinition, tableStorageConfiguration));
+            this.tenancyBindings.RootTenant.UpdateProperties(values =>
+                values.AddTableStorageConfiguration(this.TableStorageTableDefinition, tableStorageConfiguration));
         }
 
         [Then("I should be able to get the tenanted cloud table")]
         public async Task ThenIShouldBeAbleToGetTheTenantedContainer()
         {
-            ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            ITenantCloudTableFactory factory = this.serviceProvider.GetRequiredService<ITenantCloudTableFactory>();
+            this.cloudTable = await this.tableBindings.ConnectionFactory.GetTableForTenantAsync(
+                this.tenancyBindings.RootTenant,
+                this.TableStorageTableDefinition).ConfigureAwait(false);
 
-            TableStorageTableDefinition tableStorageTableDefinition = this.featureContext.Get<TableStorageTableDefinition>();
+            Assert.IsNotNull(this.cloudTable);
 
-            CloudTable cloudTable = await factory.GetTableForTenantAsync(
-                tenantProvider.Root,
-                tableStorageTableDefinition).ConfigureAwait(false);
-
-            Assert.IsNotNull(cloudTable);
-
-            // Add to feature context so it will be torn down after the test.
-            this.featureContext.Set(cloudTable, TenancyCloudTableBindings.TenancySpecsContainer);
+            this.tableBindings.RemoveThisTableOnTestTeardown(this.CloudTable);
         }
 
         [Then("the tenanted cloud table should be named using a hash of the tenant Id and the name specified in the table definition")]
         public void ThenTheTenantedCloudTableShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheTableDefinition()
         {
-            TableStorageTableDefinition tableDefinition = this.featureContext.Get<TableStorageTableDefinition>();
-            string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", tableDefinition.TableName);
+            string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", this.TableStorageTableDefinition.TableName);
             string expectedName = AzureStorageNameHelper.HashAndEncodeTableName(expectedNamePlain);
 
-            CloudTable table = this.featureContext.Get<CloudTable>(TenancyCloudTableBindings.TenancySpecsContainer);
-
-            Assert.AreEqual(expectedName, table.Name);
+            Assert.AreEqual(expectedName, this.CloudTable.Name);
         }
 
         [Then("the tenanted cloud table should be named using a hash of the tenant Id and the name specified in the table configuration")]
         public void ThenTheTenantedCloudTableShouldBeNamedUsingAHashOfTheTenantIdAndTheNameSpecifiedInTheTableConfiguration()
         {
-            ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            TableStorageTableDefinition tableDefinition = this.featureContext.Get<TableStorageTableDefinition>();
-            TableStorageConfiguration tableStorageConfiguration = tenantProvider.Root.GetTableStorageConfiguration(tableDefinition);
+            TableStorageConfiguration tableStorageConfiguration = this.tenancyBindings.RootTenant.GetTableStorageConfiguration(this.TableStorageTableDefinition);
 
             string expectedNamePlain = string.Concat(RootTenant.RootTenantId, "-", tableStorageConfiguration.TableName);
             string expectedName = AzureStorageNameHelper.HashAndEncodeTableName(expectedNamePlain);
 
-            CloudTable table = this.featureContext.Get<CloudTable>(TenancyCloudTableBindings.TenancySpecsContainer);
-
-            Assert.AreEqual(expectedName, table.Name);
+            Assert.AreEqual(expectedName, this.CloudTable.Name);
         }
 
         [Then("the tenanted cloud table should be named using a hash of the name specified in the blob configuration")]
         public void ThenTheTenantedCloudTableShouldBeNamedUsingAHashOfTheNameSpecifiedInTheBlobConfiguration()
         {
-            ITenantProvider tenantProvider = this.serviceProvider.GetRequiredService<ITenantProvider>();
-            TableStorageTableDefinition tableDefinition = this.featureContext.Get<TableStorageTableDefinition>();
-            TableStorageConfiguration tableStorageConfiguration = tenantProvider.Root.GetTableStorageConfiguration(tableDefinition);
+            TableStorageConfiguration tableStorageConfiguration = this.tenancyBindings.RootTenant.GetTableStorageConfiguration(this.TableStorageTableDefinition);
 
             string expectedNamePlain = tableStorageConfiguration.TableName!;
             string expectedName = AzureStorageNameHelper.HashAndEncodeTableName(expectedNamePlain);
 
-            CloudTable table = this.featureContext.Get<CloudTable>(TenancyCloudTableBindings.TenancySpecsContainer);
-
-            Assert.AreEqual(expectedName, table.Name);
+            Assert.AreEqual(expectedName, this.CloudTable.Name);
         }
 
         [When("I remove the table storage configuration from the tenant")]
         public void WhenIRemoveTheTableStorageConfigurationFromTheTenant()
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            TableStorageTableDefinition definition = this.featureContext.Get<TableStorageTableDefinition>();
-            tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveTableStorageConfiguration());
+            this.tenancyBindings.RootTenant.UpdateProperties(
+                propertiesToRemove: this.TableStorageTableDefinition.RemoveTableStorageConfiguration());
         }
 
         [Then("attempting to get the table storage configuration from the tenant throws an ArgumentException")]
         public void ThenGettingTheTableStorageConfigurationOnTheTenantThrowsArgumentException()
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            TableStorageTableDefinition definition = this.featureContext.Get<TableStorageTableDefinition>();
-
             try
             {
-                tenantProvider.Root.GetTableStorageConfiguration(definition);
+                this.tenancyBindings.RootTenant.GetTableStorageConfiguration(this.TableStorageTableDefinition);
             }
             catch (ArgumentException)
             {

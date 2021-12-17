@@ -15,7 +15,7 @@ resources:
       endpoint: corvus-dotnet-github
 
 jobs:
-- template: templates/build.and.release.yml@recommended_practices
+- template: templates/build.and.release.scripted.yml@recommended_practices
   parameters:
     vmImage: 'ubuntu-latest'
     service_connection_nuget_org: $(Endjin_Service_Connection_NuGet_Org)
@@ -24,12 +24,16 @@ jobs:
     postCustomEnvironmentVariables:
       - powershell: |
           Write-Host "##vso[task.setvariable variable=AzureServicesAuthConnectionString]$Env:ENDJIN_AZURESERVICESAUTHCONNECTIONSTRING"
+          Write-Host "##vso[task.setvariable variable=TestSettings__AzureStorageConnectionString]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
           Write-Host "##vso[task.setvariable variable=TenancyBlobStorageConfigurationOptions__AccountName]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
           Write-Host "##vso[task.setvariable variable=TestBlobStorageConfigurationOptions__AccountName]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
           Write-Host "##vso[task.setvariable variable=TestTableStorageConfigurationOptions__AccountName]$Env:ENDJIN_AZURESTORAGECONNECTIONSTRING"
           Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__AccountUri]$Env:ENDJIN_COSMOSDBACCOUNTURI"
-          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__AccountKeySecretName]$Env:ENDJIN_COSMOSACCOUNTKEYSECRETNAME"
-          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__KeyVaultName]$Env:ENDJIN_KEYVAULTNAME"
+          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__AccessKeyInKeyVault__VaultName]$Env:ENDJIN_KEYVAULTNAME"
+          Write-Host "##vso[task.setvariable variable=TestCosmosConfigurationOptions__AccessKeyInKeyVault__SecretName]$Env:ENDJIN_COSMOSACCOUNTKEYSECRETNAME"
+          Write-Host "##vso[task.setvariable variable=TestLegacyCosmosConfigurationOptions__AccountUri]$Env:ENDJIN_COSMOSDBACCOUNTURI"
+          Write-Host "##vso[task.setvariable variable=TestLegacyCosmosConfigurationOptions__AccountKeySecretName]$Env:ENDJIN_COSMOSACCOUNTKEYSECRETNAME"
+          Write-Host "##vso[task.setvariable variable=TestLegacyCosmosConfigurationOptions__KeyVaultName]$Env:ENDJIN_KEYVAULTNAME"
           Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__HostName]$Env:ENDJIN_COSMOSDBGREMLINHOSTNAME"
           Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__Port]$Env:ENDJIN_COSMOSDBGREMLINPORT"
           Write-Host "##vso[task.setvariable variable=TestGremlinConfigurationOptions__AuthKeySecretName]$Env:ENDJIN_COSMOSDBGREMLINACCOUNTKEYSECRETNAME"
@@ -41,4 +45,4 @@ jobs:
           ENDJIN_COSMOSDBACCOUNTURI: $(Endjin_CosmosDbAccountUri)
           ENDJIN_COSMOSACCOUNTKEYSECRETNAME: $(Endjin_CosmosDbKeySecretName)
           ENDJIN_KEYVAULTNAME: $(Endjin_KeyVaultName)
-    netSdkVersion: '3.x'
+    netSdkVersion: '6.x'

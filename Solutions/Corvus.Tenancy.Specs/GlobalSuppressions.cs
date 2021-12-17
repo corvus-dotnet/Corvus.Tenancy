@@ -2,12 +2,11 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "StyleCop.CSharp.OrderingRules",
-    "SA1210:Using directives should be ordered alphabetically by namespace",
-    Justification = "We need this until https://github.com/SpecFlowOSS/SpecFlow/issues/1828 is fixed")]
+using System.Diagnostics.CodeAnalysis;
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "StyleCop.CSharp.OrderingRules",
-    "SA1633:Using directives should be ordered alphabetically by namespace",
-    Justification = "We need this until https://github.com/SpecFlowOSS/SpecFlow/issues/1828 is fixed")]
+[assembly: SuppressMessage(
+    "Simplification",
+    "RCS1021:Convert lambda expression body to expression-body.",
+    Justification = "Not an improvement in readability in this case",
+    Scope = "member",
+    Target = "~M:Corvus.Tenancy.Specs.Bindings.TenancyCosmosContainerBindings.InitializeContainer")]

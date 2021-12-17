@@ -5,72 +5,50 @@
 namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
-    using System.Threading.Tasks;
-    using Corvus.Azure.Cosmos.Tenancy;
-    using Corvus.Tenancy;
+
+    using Corvus.Storage.Azure.Cosmos;
     using Corvus.Testing.SpecFlow;
-    using Microsoft.Azure.Cosmos;
-    using Microsoft.Extensions.Configuration;
+
     using Microsoft.Extensions.DependencyInjection;
+
     using TechTalk.SpecFlow;
 
-    /// <summary>
-    /// Specflow bindings to support a tenanted cloud blob container.
-    /// </summary>
     [Binding]
-    public static class TenancyCosmosContainerBindings
+    public class TenancyCosmosContainerBindings
     {
-        /// <summary>
-        /// The key for the tenancy container in the feature context.
-        /// </summary>
-        public const string TenancySpecsContainer = "TenancySpecsContainer";
+        private readonly ScenarioContext scenarioContext;
+        private ICosmosContainerSourceFromDynamicConfiguration? containerSource;
 
-        /// <summary>
-        /// Set up a tenanted Cloud Blob Container for the feature.
-        /// </summary>
-        /// <param name="featureContext">The feature context.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        /// <remarks>Note that this sets up a resource in Azure and will incur cost. Ensure the corresponding tear down operation is always run, or verify manually after a test run.</remarks>
-        [BeforeFeature("@setupTenantedCosmosContainer", Order = ContainerBeforeFeatureOrder.ServiceProviderAvailable)]
-        public static async Task SetupCosmosContainerForRootTenant(FeatureContext featureContext)
+        public TenancyCosmosContainerBindings(
+            ScenarioContext scenarioContext)
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(featureContext);
-            ITenantCosmosContainerFactory factory = serviceProvider.GetRequiredService<ITenantCosmosContainerFactory>();
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
+            this.scenarioContext = scenarioContext;
+        }
 
-            string containerBase = Guid.NewGuid().ToString();
+        public ICosmosContainerSourceFromDynamicConfiguration ContainerSource => this.containerSource ?? throw new InvalidOperationException("Container source not initialized yet");
 
-            var cosmosContainerDefinition = new CosmosContainerDefinition(
-                "endjinspecssharedthroughput",
-                $"{containerBase}tenancyspecs",
-                "/partitionKey",
-                databaseThroughput: 400);
-            featureContext.Set(cosmosContainerDefinition);
-
-            var cosmosConfiguration = new CosmosConfiguration();
-            config.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
-            cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
-            cosmosConfiguration.DisableTenantIdPrefix = true;
-            tenantProvider.Root.UpdateProperties(values => values.AddCosmosConfiguration(cosmosContainerDefinition, cosmosConfiguration));
-
-            Container tenancySpecsContainer = await factory.GetContainerForTenantAsync(
-                tenantProvider.Root,
-                cosmosContainerDefinition).ConfigureAwait(false);
-
-            featureContext.Set(tenancySpecsContainer, TenancySpecsContainer);
+        /// <summary>
+        /// Initializes the container before each scenario runs.
+        /// </summary>
+        [BeforeScenario("@setupTenantedCosmosContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection)]
+        public void InitializeContainer()
+        {
+            ContainerBindings.ConfigureServices(
+                   this.scenarioContext,
+                   serviceCollection =>
+                   {
+                       serviceCollection.AddCosmosContainerSourceFromDynamicConfiguration();
+                   });
         }
 
         /// <summary>
-        /// Tear down the tenanted Cloud Blob Container for the feature.
+        /// Gets services from DI required during testing..
         /// </summary>
-        /// <param name="featureContext">The feature context.</param>
-        /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
-        [AfterFeature("@setupTenantedCosmosContainer", Order = 100000)]
-        public static Task TeardownCosmosDB(FeatureContext featureContext)
+        [BeforeScenario("@setupTenantedCosmosContainer", Order = ContainerBeforeScenarioOrder.ServiceProviderAvailable)]
+        public void GetServices()
         {
-            return featureContext.RunAndStoreExceptionsAsync(
-                async () => await featureContext.Get<Container>(TenancySpecsContainer).DeleteContainerAsync().ConfigureAwait(false));
+            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.scenarioContext);
+            this.containerSource = serviceProvider.GetRequiredService<ICosmosContainerSourceFromDynamicConfiguration>();
         }
     }
 }

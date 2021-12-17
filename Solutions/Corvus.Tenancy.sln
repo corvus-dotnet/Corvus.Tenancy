@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29102.190
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DevOps", "DevOps", "{D29CABE7-467E-4CF6-B44B-3C58AB76145A}"
 	ProjectSection(SolutionItems) = preProject
@@ -24,6 +24,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Azure.Gremlin.Tenancy", "Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj", "{920CD7B4-7320-4892-8DDA-03C48F25F30E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Sql.Tenancy", "Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj", "{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Storage", "Storage", "{B00003E0-48B3-4593-9CAA-211A3EDCCE1E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Storage.Azure.BlobStorage.Tenancy", "Corvus.Storage.Azure.BlobStorage.Tenancy\Corvus.Storage.Azure.BlobStorage.Tenancy.csproj", "{9B7CD21D-6121-40EB-A325-2C0DE39E7A79}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Storage.Azure.Cosmos.Tenancy", "Corvus.Storage.Azure.Cosmos.Tenancy\Corvus.Storage.Azure.Cosmos.Tenancy.csproj", "{2A42EF88-20D6-437E-AB7A-930777B657AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy", "Legacy", "{1C52E37D-67F8-483F-9613-7968134B9A8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,9 +67,25 @@ Global
 		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B7CD21D-6121-40EB-A325-2C0DE39E7A79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B7CD21D-6121-40EB-A325-2C0DE39E7A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B7CD21D-6121-40EB-A325-2C0DE39E7A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B7CD21D-6121-40EB-A325-2C0DE39E7A79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5C98B408-7746-432C-B57B-7F713E6E3CFF} = {1C52E37D-67F8-483F-9613-7968134B9A8B}
+		{CC94CBE2-5347-4924-AA7C-412707CCDCEB} = {1C52E37D-67F8-483F-9613-7968134B9A8B}
+		{920CD7B4-7320-4892-8DDA-03C48F25F30E} = {1C52E37D-67F8-483F-9613-7968134B9A8B}
+		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC} = {1C52E37D-67F8-483F-9613-7968134B9A8B}
+		{9B7CD21D-6121-40EB-A325-2C0DE39E7A79} = {B00003E0-48B3-4593-9CAA-211A3EDCCE1E}
+		{2A42EF88-20D6-437E-AB7A-930777B657AB} = {B00003E0-48B3-4593-9CAA-211A3EDCCE1E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {305841D0-0331-4EAE-A693-CA0FF93733F0}

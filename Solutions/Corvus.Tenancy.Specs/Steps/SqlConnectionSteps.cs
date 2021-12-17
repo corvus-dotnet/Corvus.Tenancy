@@ -1,41 +1,47 @@
-﻿namespace Corvus.Tenancy.Specs.Steps
+﻿// <copyright file="SqlConnectionSteps.cs" company="Endjin Limited">
+// Copyright (c) Endjin Limited. All rights reserved.
+// </copyright>
+
+namespace Corvus.Tenancy.Specs.Steps
 {
     using System;
     using System.Data.SqlClient;
     using System.Threading.Tasks;
+
     using Corvus.Sql.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Tenancy.Specs.Bindings;
+
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+
     using NUnit.Framework;
+
     using TechTalk.SpecFlow;
 
     [Binding]
     public class SqlConnectionSteps
     {
-        private readonly FeatureContext featureContext;
-        private readonly ScenarioContext scenarioContext;
+        private readonly TenancyContainerScenarioBindings tenancyBindings;
+        private readonly TenancySqlBindings sqlBindings;
+        private readonly SqlConnectionDefinition sqlConnectionDefinition;
+        private SqlConfiguration? configuration;
+        private bool validationResult;
 
-        public SqlConnectionSteps(FeatureContext featureContext, ScenarioContext scenarioContext)
+        public SqlConnectionSteps(
+            TenancyContainerScenarioBindings tenancyBindings,
+            TenancySqlBindings sqlBindings)
         {
-            this.featureContext = featureContext;
-            this.scenarioContext = scenarioContext;
+            this.tenancyBindings = tenancyBindings;
+            this.sqlBindings = sqlBindings;
+            string databaseName = Guid.NewGuid().ToString();
+            this.sqlConnectionDefinition = new SqlConnectionDefinition($"{databaseName}tenancyspecs");
         }
 
         [Then("I should be able to get the tenanted SqlConnection")]
         public async Task ThenIShouldBeAbleToGetTheTenantedSqlConnection()
         {
-            string databaseName = Guid.NewGuid().ToString();
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
-            ITenantSqlConnectionFactory factory = serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            IConfigurationRoot config = serviceProvider.GetRequiredService<IConfigurationRoot>();
-
-            var sqlConnectionDefinition = new SqlConnectionDefinition($"{databaseName}tenancyspecs");
-            this.featureContext.Set(sqlConnectionDefinition);
-
             var sqlConfiguration = new SqlConfiguration();
-            config.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
+            TenancyContainerScenarioBindings.Configuration.Bind("TESTSQLCONFIGURATIONOPTIONS", sqlConfiguration);
 
             // Fall back on a local database
             if (string.IsNullOrEmpty(sqlConfiguration.ConnectionString) &&
@@ -46,11 +52,12 @@
                 sqlConfiguration.DisableTenantIdPrefix = true;
             }
 
-            tenantProvider.Root.UpdateProperties(values => values.AddSqlConfiguration(sqlConnectionDefinition, sqlConfiguration));
+            this.tenancyBindings.RootTenant.UpdateProperties(values =>
+                values.AddSqlConfiguration(this.sqlConnectionDefinition, sqlConfiguration));
 
-            using SqlConnection sqlConnection = await factory.GetSqlConnectionForTenantAsync(
-                tenantProvider.Root,
-                sqlConnectionDefinition).ConfigureAwait(false);
+            using SqlConnection sqlConnection = await this.sqlBindings.ConnectionFactory.GetSqlConnectionForTenantAsync(
+                this.tenancyBindings.RootTenant,
+                this.sqlConnectionDefinition).ConfigureAwait(false);
 
             Assert.IsNotNull(sqlConnection);
         }
@@ -59,47 +66,45 @@
         public void GivenASqlConfiguration(Table table)
         {
             Assert.AreEqual(1, table.Rows.Count);
-            this.scenarioContext.Set(new SqlConfiguration { ConnectionString = table.Rows[0]["ConnectionString"], ConnectionStringSecretName = table.Rows[0]["ConnectionStringSecretName"], KeyVaultName = table.Rows[0]["KeyVaultName"] });
+            this.configuration = new SqlConfiguration
+            {
+                ConnectionString = table.Rows[0]["ConnectionString"],
+                ConnectionStringSecretName = table.Rows[0]["ConnectionStringSecretName"],
+                KeyVaultName = table.Rows[0]["KeyVaultName"],
+            };
         }
 
         [When("I validate the configuration")]
         public void WhenIValidateTheConfiguration()
         {
-            this.scenarioContext.Set(this.scenarioContext.Get<SqlConfiguration>().Validate(), "Result");
+            this.validationResult = this.configuration!.Validate();
         }
 
         [Then("the result should be valid")]
         public void ThenTheResultShouldBeValid()
         {
-            Assert.IsTrue(this.scenarioContext.Get<bool>("Result"));
+            Assert.IsTrue(this.validationResult);
         }
 
         [Then("the result should be invalid")]
         public void ThenTheResultShouldBeInvalid()
         {
-            Assert.IsFalse(this.scenarioContext.Get<bool>("Result"));
+            Assert.IsFalse(this.validationResult);
         }
 
         [When("I remove the Sql configuration from the tenant")]
         public void WhenIRemoveTheSqlConfigurationFromTheTenant()
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
-            tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveSqlConfiguration());
+            this.tenancyBindings.RootTenant.UpdateProperties(
+                propertiesToRemove: this.sqlConnectionDefinition.RemoveSqlConfiguration());
         }
 
         [Then("attempting to get the Sql configuration from the tenant throws an ArgumentException")]
         public void ThenGettingTheSqlConfigurationOnTheTenantThrowsArgumentException()
         {
-            IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.featureContext);
-            ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-            SqlConnectionDefinition definition = this.featureContext.Get<SqlConnectionDefinition>();
-
             try
             {
-                tenantProvider.Root.GetSqlConfiguration(definition);
+                this.tenancyBindings.RootTenant.GetSqlConfiguration(this.sqlConnectionDefinition);
             }
             catch (ArgumentException)
             {
