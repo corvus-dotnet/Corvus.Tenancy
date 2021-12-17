@@ -44,9 +44,9 @@ namespace Corvus.Tenancy
         IPropertyBag Properties { get; }
 
         /// <summary>
-        /// Gets or sets the ETag of the tenant.
+        /// Gets the ETag of the tenant.
         /// </summary>
-        string? ETag { get; set; }
+        string? ETag { get; }
 
         /// <summary>
         /// Gets the content type for the <c>ContentFactory</c> pattern.
