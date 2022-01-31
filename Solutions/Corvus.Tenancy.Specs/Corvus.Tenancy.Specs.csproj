@@ -56,7 +56,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions" Version="6.3.0" />
+    <PackageReference Include="FluentAssertions" Version="6.4.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="[6.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="[6.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6.0.*,)" />
@@ -66,9 +66,9 @@
     <ProjectReference Include="..\Corvus.Azure.Cosmos.Tenancy\Corvus.Azure.Cosmos.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Azure.Gremlin.Tenancy\Corvus.Azure.Gremlin.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Azure.Storage.Tenancy\Corvus.Azure.Storage.Tenancy.csproj" />
-    <ProjectReference Include="..\Corvus.Sql.Tenancy\Corvus.Sql.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Storage.Azure.BlobStorage.Tenancy\Corvus.Storage.Azure.BlobStorage.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Storage.Azure.Cosmos.Tenancy\Corvus.Storage.Azure.Cosmos.Tenancy.csproj" />
+    <ProjectReference Include="..\Corvus.Storage.Sql.Tenancy\Corvus.Storage.Sql.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Tenancy.Storage.Azure.Blob\Corvus.Tenancy.Storage.Azure.Blob.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -80,5 +80,8 @@
     <None Update="specflow.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\SqlDatabase\" />
   </ItemGroup>
 </Project>

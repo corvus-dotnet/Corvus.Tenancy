@@ -15,15 +15,16 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class BlobStorageTenancyServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds services that enable applications that have used <c>Corvus.Tenancy</c> v2 to
-        /// migrate to v3.
+        /// Adds services that enable applications to use tenanted blob storage.
         /// </summary>
         /// <param name="services">The service collection.</param>
         /// <returns>The modified service collection.</returns>
         public static IServiceCollection AddTenantBlobContainerFactory(
             this IServiceCollection services)
         {
-            return services.AddRequiredTenancyServices();
+            return services
+                .AddRequiredTenancyServices()
+                .AddAzureBlobStorageClientSourceFromDynamicConfiguration();
         }
 
         /// <summary>

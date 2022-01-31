@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Corvus.Storage.Azure.Cosmos
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy", "Legacy", "{1C52E37D-67F8-483F-9613-7968134B9A8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvus.Storage.Sql.Tenancy", "Corvus.Storage.Sql.Tenancy\Corvus.Storage.Sql.Tenancy.csproj", "{70E7FEE1-9326-4B6C-AC45-3C54493004A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A42EF88-20D6-437E-AB7A-930777B657AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70E7FEE1-9326-4B6C-AC45-3C54493004A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70E7FEE1-9326-4B6C-AC45-3C54493004A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70E7FEE1-9326-4B6C-AC45-3C54493004A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70E7FEE1-9326-4B6C-AC45-3C54493004A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{64337D25-DBBA-494B-AC1B-A613C1ADC7FC} = {1C52E37D-67F8-483F-9613-7968134B9A8B}
 		{9B7CD21D-6121-40EB-A325-2C0DE39E7A79} = {B00003E0-48B3-4593-9CAA-211A3EDCCE1E}
 		{2A42EF88-20D6-437E-AB7A-930777B657AB} = {B00003E0-48B3-4593-9CAA-211A3EDCCE1E}
+		{70E7FEE1-9326-4B6C-AC45-3C54493004A3} = {B00003E0-48B3-4593-9CAA-211A3EDCCE1E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {305841D0-0331-4EAE-A693-CA0FF93733F0}

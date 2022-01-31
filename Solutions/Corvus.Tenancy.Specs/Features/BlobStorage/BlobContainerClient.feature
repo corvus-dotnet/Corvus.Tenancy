@@ -23,7 +23,7 @@ Scenario: Container name in configuration overridden
 Scenario: Remove configuration from tenant
     Given I have added blob storage configuration a tenant with the a container name of 'ConfiguredContainer'
 	When I remove the blob storage configuration from the tenant
-	Then attempting to get the blob storage configuration from the tenant throws an ArgumentException
+	Then attempting to get the blob storage configuration from the tenant throws an InvalidOperationException
 
 # These next two are typically used in key rotation scenarios
 

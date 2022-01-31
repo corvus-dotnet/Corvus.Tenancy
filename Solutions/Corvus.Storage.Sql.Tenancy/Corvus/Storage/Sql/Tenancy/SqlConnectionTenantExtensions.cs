@@ -1,8 +1,8 @@
-﻿// <copyright file="CosmosStorageTenantExtensions.cs" company="Endjin Limited">
+﻿// <copyright file="SqlConnectionTenantExtensions.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Storage.Azure.Cosmos.Tenancy;
+namespace Corvus.Storage.Sql.Tenancy;
 
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using Corvus.Tenancy;
 /// <summary>
 /// Extension methods for managing cosmos storage configuration in tenants.
 /// </summary>
-public static class CosmosStorageTenantExtensions
+public static class SqlConnectionTenantExtensions
 {
     /// <summary>
     /// Get the configuration for the specified Cosmos container definition for a particular tenant.
@@ -21,12 +21,12 @@ public static class CosmosStorageTenantExtensions
     /// <param name="tenant">The tenant.</param>
     /// <param name="configurationKey">The key with which the configuration is stored.</param>
     /// <returns>The configuration for the Cosmos account for this tenant.</returns>
-    public static CosmosContainerConfiguration GetCosmosConfiguration(this ITenant tenant, string configurationKey)
+    public static SqlDatabaseConfiguration GetSqlDatabaseConfiguration(this ITenant tenant, string configurationKey)
     {
         ArgumentNullException.ThrowIfNull(tenant);
         ArgumentNullException.ThrowIfNull(configurationKey);
 
-        if (tenant.Properties.TryGet(configurationKey, out CosmosContainerConfiguration? configuration))
+        if (tenant.Properties.TryGet(configurationKey, out SqlDatabaseConfiguration? configuration))
         {
             return configuration;
         }
@@ -35,7 +35,7 @@ public static class CosmosStorageTenantExtensions
     }
 
     /// <summary>
-    /// Creates Cosmos configuration for the specified container suitable for passing to
+    /// Creates SQL Database configuration for the specified database suitable for passing to
     /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
     /// </summary>
     /// <param name="values">Existing configuration values to which to append these.</param>
@@ -45,10 +45,10 @@ public static class CosmosStorageTenantExtensions
     /// Properties to pass to
     /// <see cref="ITenantStore.UpdateTenantAsync(string, string?, IEnumerable{KeyValuePair{string, object}}?, IEnumerable{string}?)"/>.
     /// </returns>
-    public static IEnumerable<KeyValuePair<string, object>> AddCosmosConfiguration(
+    public static IEnumerable<KeyValuePair<string, object>> AddSqlDatabaseConfiguration(
         this IEnumerable<KeyValuePair<string, object>> values,
         string configurationKey,
-        CosmosContainerConfiguration configuration)
+        SqlDatabaseConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(values);
         ArgumentNullException.ThrowIfNull(configurationKey);
