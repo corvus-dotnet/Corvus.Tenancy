@@ -59,7 +59,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
                 return configuration;
             }
 
-            throw new ArgumentException($"No Blob storage configuration was found for definition with key '{key}'");
+            throw new InvalidOperationException($"Tenant {tenant.Id} does not contain a property '{key}'");
         }
 
         /// <summary>
@@ -94,10 +94,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
             string configurationKey,
             string? containerName = null)
         {
-            if (!tenant.Properties.TryGet(configurationKey, out BlobContainerConfiguration? configuration))
-            {
-                throw new ArgumentException($"Tenant {tenant.Id} does not contain a property '{configurationKey}'");
-            }
+            BlobContainerConfiguration configuration = tenant.GetBlobContainerConfiguration(configurationKey);
 
             if (containerName is not null)
             {
@@ -142,10 +139,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
             string configurationKey,
             string? containerName = null)
         {
-            if (!tenant.Properties.TryGet(configurationKey, out BlobContainerConfiguration? configuration))
-            {
-                throw new ArgumentException($"Tenant {tenant.Id} does not contain a property '{configurationKey}'");
-            }
+            BlobContainerConfiguration configuration = tenant.GetBlobContainerConfiguration(configurationKey);
 
             if (containerName is not null)
             {

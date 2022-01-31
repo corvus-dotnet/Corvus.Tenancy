@@ -26,9 +26,9 @@
       },
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.2.0, )",
-        "resolved": "6.2.0",
-        "contentHash": "5YOZLB0Tay1bw+wEYZTAZlPThQ/Yntk1HSPJYluMd5PW/Xg9E8I1mRC03AKRsnuANBR0kYaHq0NX1fg7RgrGNA==",
+        "requested": "[6.4.0, )",
+        "resolved": "6.4.0",
+        "contentHash": "KOJE1UD7ndxoZAdmOraiUFLdcdGTArGQW8WYN+vwrC3mdt2G/B7gmsMOozgXKiNSh3fpD/Xp/0mhonRh8vrZKw==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -255,11 +255,20 @@
       },
       "Corvus.Storage.Common": {
         "type": "Transitive",
-        "resolved": "1.0.0",
-        "contentHash": "JF5H73X+s9MvJODJZ69ajbLBqPOUpBLaPYkEUO5SIsSvu+suRoOrkqmDnc8EKUFOutdq5jC9PsfLBbV0v6eaNw==",
+        "resolved": "1.1.0-PullRequest0026.2",
+        "contentHash": "r1h11+umVCOTGsw6IlGTtDKXbMgWK7qFy2ovkyxrp2h59Ccya8uRGjHt2UvhuxKydO3PFCpVfrhBQYDFS+6lBA==",
         "dependencies": {
           "Corvus.Identity.Azure": "3.0.0",
           "Microsoft.Extensions.Configuration.Binder": "3.1.22"
+        }
+      },
+      "Corvus.Storage.Sql": {
+        "type": "Transitive",
+        "resolved": "1.1.0-PullRequest0026.2",
+        "contentHash": "Vei6zHzZWLn21INxDWjk5rzpBxewTxx3M4z2b6GvowPfWr7Rk746bS8KYB6ei2W8aptL4a1SN1buLIq6hRSA4g==",
+        "dependencies": {
+          "Corvus.Storage.Common": "1.1.0-PullRequest0026.2",
+          "System.Data.SqlClient": "4.8.3"
         }
       },
       "Corvus.Testing.SpecFlow": {
@@ -2389,17 +2398,6 @@
           "Microsoft.Extensions.Options.ConfigurationExtensions": "6.0.0"
         }
       },
-      "corvus.sql.tenancy": {
-        "type": "Project",
-        "dependencies": {
-          "Corvus.Tenancy.Abstractions": "1.0.0",
-          "Microsoft.Azure.KeyVault": "3.0.5",
-          "Microsoft.Azure.Services.AppAuthentication": "1.6.2",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
-          "Microsoft.Extensions.Options.ConfigurationExtensions": "6.0.0",
-          "System.Data.SqlClient": "4.8.3"
-        }
-      },
       "corvus.storage.azure.blobstorage.tenancy": {
         "type": "Project",
         "dependencies": {
@@ -2411,6 +2409,13 @@
         "type": "Project",
         "dependencies": {
           "Corvus.Storage.Azure.Cosmos": "1.0.0",
+          "Corvus.Tenancy.Abstractions": "1.0.0"
+        }
+      },
+      "corvus.storage.sql.tenancy": {
+        "type": "Project",
+        "dependencies": {
+          "Corvus.Storage.Sql": "1.1.0-PullRequest0026.2",
           "Corvus.Tenancy.Abstractions": "1.0.0"
         }
       },

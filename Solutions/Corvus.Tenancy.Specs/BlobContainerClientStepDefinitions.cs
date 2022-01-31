@@ -165,14 +165,14 @@ namespace Corvus.Tenancy.Specs
             Assert.AreEqual(expectedConfiguration, this.contextsReplaced.Single().Configuration);
         }
 
-        [Then("attempting to get the blob storage configuration from the tenant throws an ArgumentException")]
-        public void ThenAttemptingToGetTheBlobStorageConfigurationFromTheTenantThrowsAnArgumentException()
+        [Then("attempting to get the blob storage configuration from the tenant throws an InvalidOperationException")]
+        public void ThenAttemptingToGetTheBlobStorageConfigurationFromTheTenantThrowsAnInvalidOperationException()
         {
             try
             {
                 this.tenant.GetBlobContainerConfiguration(TenantStoragePropertyKey);
             }
-            catch (ArgumentException)
+            catch (InvalidOperationException)
             {
                 return;
             }

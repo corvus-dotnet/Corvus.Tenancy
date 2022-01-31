@@ -56,6 +56,13 @@ namespace Corvus.Tenancy.Specs.Steps
             // can state the requirement explicitly in the feature file.
         }
 
+        [When("I remove the cosmos configuration to a tenant")]
+        public void WhenIRemoveTheCosmosConfigurationToATenant()
+        {
+            this.tenancyBindings.RootTenant.UpdateProperties(
+                propertiesToRemove: new[] { ConfigurationKey });
+        }
+
         [Then("I should be able to get the tenanted cosmos container")]
         public async Task ThenIShouldBeAbleToGetTheTenantedCosmosContainer()
         {
@@ -81,14 +88,14 @@ namespace Corvus.Tenancy.Specs.Steps
             Assert.AreEqual(this.containerName, this.cosmosContainer?.Id);
         }
 
-        [Then("attempting to get the Cosmos configuration from the tenant throws an ArgumentException")]
-        public void ThenAttemptingToGetTheCosmosConfigurationFromTheTenantThrowsAnArgumentException()
+        [Then("attempting to get the Cosmos configuration from the tenant throws an InvalidOperationException")]
+        public void ThenAttemptingToGetTheCosmosConfigurationFromTheTenantThrowsAnInvalidOperationException()
         {
             try
             {
                 this.tenancyBindings.RootTenant.GetCosmosConfiguration(ConfigurationKey);
             }
-            catch (ArgumentException)
+            catch (InvalidOperationException)
             {
                 return;
             }

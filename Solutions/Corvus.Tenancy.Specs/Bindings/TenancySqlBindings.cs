@@ -6,7 +6,7 @@ namespace Corvus.Tenancy.Specs.Bindings
 {
     using System;
 
-    using Corvus.Sql.Tenancy;
+    using Corvus.Storage.Sql;
     using Corvus.Testing.SpecFlow;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +20,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancySqlBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private ITenantSqlConnectionFactory? connectionFactory;
+        private ISqlConnectionFromDynamicConfiguration? connectionSource;
 
         public TenancySqlBindings(
             ScenarioContext scenarioContext)
@@ -28,7 +28,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.scenarioContext = scenarioContext;
         }
 
-        public ITenantSqlConnectionFactory ConnectionFactory => this.connectionFactory ?? throw new InvalidOperationException("Container source not initialized yet");
+        public ISqlConnectionFromDynamicConfiguration ConnectionSource => this.connectionSource ?? throw new InvalidOperationException("Container source not initialized yet");
 
         /// <summary>
         /// Initializes the container before each scenario runs.
@@ -38,15 +38,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         {
             ContainerBindings.ConfigureServices(
                    this.scenarioContext,
-                   serviceCollection =>
-                   {
-                       var sqlOptions = new TenantSqlConnectionFactoryOptions
-                       {
-                           AzureServicesAuthConnectionString = TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"],
-                       };
-
-                       serviceCollection.AddTenantSqlConnectionFactory(sqlOptions);
-                   });
+                   serviceCollection => serviceCollection.AddTenantSqlConnectionFactory());
         }
 
         /// <summary>
@@ -56,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         public void GetServices()
         {
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.scenarioContext);
-            this.connectionFactory = serviceProvider.GetRequiredService<ITenantSqlConnectionFactory>();
+            this.connectionSource = serviceProvider.GetRequiredService<ISqlConnectionFromDynamicConfiguration>();
         }
     }
 }
