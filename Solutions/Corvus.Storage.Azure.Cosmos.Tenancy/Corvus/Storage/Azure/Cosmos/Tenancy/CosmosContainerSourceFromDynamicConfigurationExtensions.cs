@@ -51,10 +51,7 @@ public static class CosmosContainerSourceFromDynamicConfigurationExtensions
         string? containerName = null,
         CosmosClientOptions? cosmosClientOptions = null)
     {
-        if (!tenant.Properties.TryGet(configurationKey, out CosmosContainerConfiguration configuration))
-        {
-            throw new InvalidOperationException($"Tenant {tenant.Id} does not have a '{configurationKey}' property");
-        }
+        CosmosContainerConfiguration configuration = tenant.GetCosmosConfiguration(configurationKey);
 
         if (configuration.Container == null && containerName == null)
         {
