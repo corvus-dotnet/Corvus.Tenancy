@@ -5,12 +5,13 @@
 namespace Corvus.Tenancy.Specs.Steps;
 
 using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 using Corvus.Storage.Sql;
 using Corvus.Storage.Sql.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
+
+using Microsoft.Data.SqlClient;
 
 using NUnit.Framework;
 

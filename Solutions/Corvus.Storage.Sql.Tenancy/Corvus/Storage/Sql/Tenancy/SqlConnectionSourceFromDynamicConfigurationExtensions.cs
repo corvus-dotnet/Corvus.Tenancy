@@ -4,9 +4,9 @@
 
 namespace Corvus.Storage.Sql.Tenancy;
 
-using System.Data.SqlClient;
-
 using Corvus.Tenancy;
+
+using Microsoft.Data.SqlClient;
 
 /// <summary>
 /// Defines extension methods to <see cref="ISqlConnectionFromDynamicConfiguration"/>
