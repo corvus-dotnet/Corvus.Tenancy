@@ -103,7 +103,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             this.blobServiceClient = new BlobServiceClient(this.testStorageConnectionString);
         }
 
-        [Given("a tenant with the property '([^']*)` set to the legacy BlobStorageConfiguration")]
+        [Given("a tenant with the property '([^']*)' set to the legacy BlobStorageConfiguration")]
         public void GivenATenantWithThePropertySvSetToTheLegacyBlobStorageConfiguration(string configurationKey)
         {
             this.tenantProperties = this.pbf.CreateModified(
@@ -130,7 +130,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             this.v3ConfigurationInTenant.ConnectionStringPlainText = this.testStorageConnectionString;
         }
 
-        [Given("a tenant with the property '([^']*)` set to the v3 BlobContainerConfiguration")]
+        [Given("a tenant with the property '([^']*)' set to the v3 BlobContainerConfiguration")]
         public void GivenATenantWithThePropertySvSetToTheVBlobContainerConfiguration(string configurationKey)
         {
             this.tenantProperties = this.pbf.CreateModified(
@@ -201,7 +201,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             Assert.AreEqual(hashedTenantedContainerName, this.containerClientFromTestSubject!.Name);
         }
 
-        [Then("MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
+        [Then(@"IBlobContainerSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
         public void ThenMigrateToVAsyncShouldHaveReturnedABlobContainerConfigurationWithTheseSettings(Table configurationTable)
         {
             BlobContainerConfiguration expectedConfiguration = configurationTable.CreateInstance<BlobContainerConfiguration>();
