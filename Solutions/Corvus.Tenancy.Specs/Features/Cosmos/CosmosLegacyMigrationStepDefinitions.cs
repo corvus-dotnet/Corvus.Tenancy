@@ -361,15 +361,32 @@ public class CosmosLegacyMigrationStepDefinitions
         // The v3 configuration we built up earlier in the test already looks mostly like we expect, but
         // there are a few differences in expectations around Database and Container name, depending on
         // which of the various modes this test is running in.
+        // Also, the build-in value comparison we get thanks to CosmosContainerConfiguration being
+        // a record doesn't work with key vault settings, because those aren't records so it ends
+        // up doing identity comparison. When tests run in the CI build, we're generally using
+        // key vault, so we need to handle that part specially.
         CosmosContainerConfiguration? expectedConfiguration = this.v3Configuration! with
         {
 #pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             Database = this.configReturnedFromMigration!.Database,
             Container = this.configReturnedFromMigration.Container,
+            AccessKeyInKeyVault = null,
+#pragma warning restore SA1101
+        };
+        CosmosContainerConfiguration actualConfigurationExceptKeyVault = this.configReturnedFromMigration with
+        {
+#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
+            AccessKeyInKeyVault = null,
 #pragma warning restore SA1101
         };
 
-        Assert.AreEqual(expectedConfiguration, this.configReturnedFromMigration);
+        Assert.AreEqual(expectedConfiguration, actualConfigurationExceptKeyVault);
+
+        if (expectedConfiguration.AccessKeyInKeyVault is not null)
+        {
+            Assert.AreEqual(expectedConfiguration.AccessKeyInKeyVault.VaultName, actualConfigurationExceptKeyVault.AccessKeyInKeyVault?.VaultName);
+            Assert.AreEqual(expectedConfiguration.AccessKeyInKeyVault.SecretName, actualConfigurationExceptKeyVault.AccessKeyInKeyVault?.SecretName);
+        }
     }
 
     [Then(@"ICosmosContainerSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned null")]
