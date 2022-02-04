@@ -115,7 +115,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 
             if (!tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
             {
-                throw new InvalidOperationException("Nope");
+                throw new InvalidOperationException($"Tenant did not contain storage configuration under either {v2ConfigurationKey} or {v3ConfigurationKey}");
             }
 
             var v3Configuration = new BlobContainerConfiguration

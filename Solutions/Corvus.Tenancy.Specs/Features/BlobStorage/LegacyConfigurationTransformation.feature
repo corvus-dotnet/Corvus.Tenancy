@@ -6,20 +6,20 @@
 # The V2 libraries used the non-obvious convention that if you did not specify any key vault
 # settings, the AccountName would be interpretted as a connection string.
 Scenario: Plain text connection string stored in AccountName
-	Given legacy v2 configuration with these properties
+	Given legacy v2 blob storage configuration with these properties
     | PropertyName | Value              |
     | AccountName  | MyConnectionString |
-	When the legacy v2 configuration is converted to the new format
+	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName              | Value              |
     | ConnectionStringPlainText | MyConnectionString |
 
 Scenario: Plain text connection string stored in AccountName with container name
-	Given legacy v2 configuration with these properties
+	Given legacy v2 blob storage configuration with these properties
     | PropertyName | Value              |
     | AccountName  | MyConnectionString |
     | Container    | MyContainerName    |
-	When the legacy v2 configuration is converted to the new format
+	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName              | Value              |
     | ConnectionStringPlainText | MyConnectionString |
@@ -29,9 +29,9 @@ Scenario: Plain text connection string stored in AccountName with container name
 # depend on is that if you provide a completely empty configuration, you end up using the local
 # storage emulator.
 Scenario: All null configuration results in development storage
-	Given legacy v2 configuration with these properties
+	Given legacy v2 blob storage configuration with these properties
     | PropertyName | Value              |
-	When the legacy v2 configuration is converted to the new format
+	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName              | Value                      |
     | ConnectionStringPlainText | UseDevelopmentStorage=true |
@@ -43,21 +43,21 @@ Scenario: All null configuration results in development storage
 # use of the storage emulator through the same connection string, instead of turning it into
 # the storage account name.
 Scenario: Development storage connection results in development storage
-	Given legacy v2 configuration with these properties
+	Given legacy v2 blob storage configuration with these properties
     | PropertyName | Value                      |
     | AccountName  | UseDevelopmentStorage=true |
-	When the legacy v2 configuration is converted to the new format
+	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName              | Value                      |
     | ConnectionStringPlainText | UseDevelopmentStorage=true |
 
 Scenario: Account name with secret in key vault
-	Given legacy v2 configuration with these properties
+	Given legacy v2 blob storage configuration with these properties
     | PropertyName         | Value        |
     | AccountName          | MyAccount    |
     | KeyVaultName         | MyVault      |
     | AccountKeySecretName | MySecretName |
-	When the legacy v2 configuration is converted to the new format
+	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName        | Value     |
     | AccountName         | MyAccount |
@@ -68,13 +68,13 @@ Scenario: Account name with secret in key vault
     | SecretName   | MySecretName |
 
 Scenario: Account name with secret in key vault with container name
-	Given legacy v2 configuration with these properties
+	Given legacy v2 blob storage configuration with these properties
     | PropertyName         | Value           |
     | AccountName          | MyAccount       |
     | Container            | MyContainerName |
     | KeyVaultName         | MyVault         |
     | AccountKeySecretName | MySecretName    |
-	When the legacy v2 configuration is converted to the new format
+	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName        | Value           |
     | AccountName         | MyAccount       |
