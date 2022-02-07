@@ -48,30 +48,11 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             if (tenant.Properties.TryGet(v3ConfigurationKey, out BlobContainerConfiguration v3Configuration))
             {
                 v3ConfigWasAvailable = true;
-
-                if (v3Configuration.Container is null)
-                {
-                    if (string.IsNullOrEmpty(containerName))
-                    {
-                        throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a {containerName}");
-                    }
-
-                    v3Configuration = v3Configuration with
-                    {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
-                        Container = AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(containerName),
-#pragma warning restore SA1101
-                    };
-                }
+                v3Configuration = AddContainerNameIfNotInConfig(v3Configuration, containerName);
             }
             else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
             {
-                v3Configuration = MakeV3Configuration(tenant, containerName, legacyConfiguration);
-                if (v3Configuration.Container == null)
-                {
-                    throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a {containerName}");
-                }
-
+                v3Configuration = V3ConfigurationFromLegacy(tenant, containerName, legacyConfiguration);
                 publicAccessType = legacyConfiguration.AccessType switch
                 {
                     LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
@@ -81,7 +62,12 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             }
             else
             {
-                throw new InvalidOperationException("Nope");
+                throw new InvalidOperationException("Tenant did not contain blob storage configuration under specified v2 or v3 keys");
+            }
+
+            if (v3Configuration.Container == null)
+            {
+                throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a non-null {nameof(containerName)}");
             }
 
             BlobContainerClient result = await this.blobContainerSource.GetStorageContextAsync(
@@ -125,7 +111,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
 
             if (!tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
             {
-                throw new InvalidOperationException("Nope");
+                throw new InvalidOperationException("Tenant did not contain blob storage configuration under specified v2 or v3 keys");
             }
 
             if (containerNames == null)
@@ -148,7 +134,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 logicalContainerName = rawContainerName;
 
                 // BlobContainerConfiguration thisConfig = GetConfigForContainer(tenant, rawContainerName, v3Configuration);
-                BlobContainerConfiguration thisConfig = MakeV3Configuration(tenant, rawContainerName, legacyConfiguration);
+                BlobContainerConfiguration thisConfig = V3ConfigurationFromLegacy(tenant, rawContainerName, legacyConfiguration);
                 PublicAccessType publicAccessType = legacyConfiguration.AccessType switch
                 {
                     LegacyV2BlobContainerPublicAccessType.Blob => PublicAccessType.Blob,
@@ -177,25 +163,41 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 logicalContainerName = null;
             }
 
-            return MakeV3Configuration(tenant, logicalContainerName, legacyConfiguration);
+            return V3ConfigurationFromLegacy(tenant, logicalContainerName, legacyConfiguration);
         }
 
-        private static BlobContainerConfiguration MakeV3Configuration(
+        private static BlobContainerConfiguration V3ConfigurationFromLegacy(
             ITenant tenant,
             string? containerName,
             LegacyV2BlobStorageConfiguration legacyConfiguration)
         {
-            return LegacyConfigurationConverter.FromV2ToV3(legacyConfiguration) with
+            BlobContainerConfiguration v3Configuration = LegacyConfigurationConverter.FromV2ToV3(legacyConfiguration);
+            if (legacyConfiguration.Container is not null)
             {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
-                Container = string.IsNullOrWhiteSpace(legacyConfiguration.Container)
-#pragma warning restore SA1101
+                v3Configuration = v3Configuration with
+                {
+                    Container = string.IsNullOrWhiteSpace(legacyConfiguration.Container)
                         ? containerName is null ? null : AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(containerName)
-                        : AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(
-                            legacyConfiguration.DisableTenantIdPrefix
-                            ? legacyConfiguration.Container
-                            : AzureStorageBlobTenantedContainerNaming.GetTenantedLogicalBlobContainerNameFor(tenant, legacyConfiguration.Container)),
-            };
+                            : AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(
+                                legacyConfiguration.DisableTenantIdPrefix
+                                ? legacyConfiguration.Container
+                                : AzureStorageBlobTenantedContainerNaming.GetTenantedLogicalBlobContainerNameFor(tenant, legacyConfiguration.Container)),
+                };
+            }
+
+            return AddContainerNameIfNotInConfig(v3Configuration, containerName);
+        }
+
+        private static BlobContainerConfiguration AddContainerNameIfNotInConfig(
+            BlobContainerConfiguration configuration,
+            string? containerName)
+        {
+            return configuration.Container is null && containerName is not null
+                ? configuration with
+                {
+                    Container = AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(containerName),
+                }
+                : configuration;
         }
     }
 }
