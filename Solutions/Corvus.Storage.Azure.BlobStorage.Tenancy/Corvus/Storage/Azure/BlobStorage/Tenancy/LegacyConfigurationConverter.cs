@@ -29,6 +29,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
                 return new BlobContainerConfiguration
                 {
                     ConnectionStringPlainText = "UseDevelopmentStorage=true",
+                    Container = legacyConfiguration.Container,
                 };
             }
 
