@@ -64,6 +64,10 @@ namespace Corvus.Tenancy.Specs
                     // be checked in detail elsewhere.
                     actualValue.Should().NotBeNull();
                 }
+                else if (expectedValue == "<null>")
+                {
+                    actualValue.Should().BeNull();
+                }
                 else
                 {
                     actualValue.Should().BeEquivalentTo(expectedValue);
