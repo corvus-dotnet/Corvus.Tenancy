@@ -14,6 +14,7 @@ Scenario: Plain text connection string stored in AccountName
     | PropertyName              | Value              |
     | ConnectionStringPlainText | MyConnectionString |
 
+# We do not attempt to convert the Container, because in general we don't have sufficient context to do this reliably.
 Scenario: Plain text connection string stored in AccountName with container name
 	Given legacy v2 blob storage configuration with these properties
     | PropertyName | Value              |
@@ -23,7 +24,7 @@ Scenario: Plain text connection string stored in AccountName with container name
 	Then the resulting BlobContainerConfiguration has these properties
     | PropertyName              | Value              |
     | ConnectionStringPlainText | MyConnectionString |
-    | Container                 | MyContainerName    |
+    | Container                 | <null>             |
 
 # A slightly questionable feature of the V2 libraries that some tests and local dev scenarios
 # depend on is that if you provide a completely empty configuration, you end up using the local
@@ -67,6 +68,7 @@ Scenario: Account name with secret in key vault
     | VaultName    | MyVault      |
     | SecretName   | MySecretName |
 
+# We do not attempt to convert the Container, because in general we don't have sufficient context to do this reliably.
 Scenario: Account name with secret in key vault with container name
 	Given legacy v2 blob storage configuration with these properties
     | PropertyName         | Value           |
@@ -76,10 +78,10 @@ Scenario: Account name with secret in key vault with container name
     | AccountKeySecretName | MySecretName    |
 	When the legacy v2 blob storage configuration is converted to the new format
 	Then the resulting BlobContainerConfiguration has these properties
-    | PropertyName        | Value           |
-    | AccountName         | MyAccount       |
-    | AccessKeyInKeyVault | <notnull>       |
-    | Container           | MyContainerName |
+    | PropertyName        | Value     |
+    | AccountName         | MyAccount |
+    | AccessKeyInKeyVault | <notnull> |
+    | Container           | <null>    |
     And the resulting BlobContainerConfiguration.AccessKeyInKeyVault has these properties
     | PropertyName | Value        |
     | VaultName    | MyVault      |
