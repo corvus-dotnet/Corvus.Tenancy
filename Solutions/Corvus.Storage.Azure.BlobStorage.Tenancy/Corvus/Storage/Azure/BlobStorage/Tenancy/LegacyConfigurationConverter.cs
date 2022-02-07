@@ -14,10 +14,21 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
     public static class LegacyConfigurationConverter
     {
         /// <summary>
-        /// Converts legacy V2-era configuration settings into the new format introduced in V3.
+        /// Converts legacy V2-era configuration settings into the new format introduced in V3,
+        /// except for <see cref="BlobContainerConfiguration.Container"/>.
         /// </summary>
         /// <param name="legacyConfiguration">The old settings to convert.</param>
-        /// <returns>The converted settings.</returns>
+        /// <returns>
+        /// The converted settings, except for <see cref="BlobContainerConfiguration.Container"/>.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// This always leaves <see cref="BlobContainerConfiguration.Container"/> set to null
+        /// because it cannot reliably determine the correct value for it. In cases where the
+        /// legacy configuration has <see cref="LegacyV2BlobStorageConfiguration.DisableTenantIdPrefix"/>
+        /// set to false, the real container name will be tenant-dependent.
+        /// </para>
+        /// </remarks>
         public static BlobContainerConfiguration FromV2ToV3(LegacyV2BlobStorageConfiguration legacyConfiguration)
         {
             bool isDeveloperStorage =
@@ -42,7 +53,6 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
                 ConnectionStringPlainText = connectionStringInAccountName
                     ? legacyConfiguration.AccountName
                     : null,
-                Container = legacyConfiguration.Container,
 
                 AccessKeyInKeyVault = GetAccessKeyInKeyVaultSecretConfigurationIfApplicable(legacyConfiguration),
             };
