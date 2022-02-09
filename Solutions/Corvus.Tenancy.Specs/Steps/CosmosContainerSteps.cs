@@ -7,6 +7,7 @@ namespace Corvus.Tenancy.Specs.Steps
     using System;
     using System.Threading.Tasks;
 
+    using Corvus.Azure.Cosmos.Tenancy;
     using Corvus.Storage.Azure.Cosmos;
     using Corvus.Storage.Azure.Cosmos.Tenancy;
     using Corvus.Tenancy.Specs.Bindings;

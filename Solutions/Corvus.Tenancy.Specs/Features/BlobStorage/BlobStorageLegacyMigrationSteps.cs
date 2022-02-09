@@ -260,7 +260,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             Assert.AreEqual(this.v3ConfigurationInTenant.Container, this.containerClientFromTestSubject!.Name);
         }
 
-        [Then("MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
+        [Then(@"IBlobContainerSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned a BlobContainerConfiguration with these settings")]
         public void ThenMigrateToVAsyncShouldHaveReturnedABlobContainerConfigurationWithTheseSettings(Table configurationTable)
         {
             BlobContainerConfiguration expectedConfiguration = configurationTable.CreateInstance<BlobContainerConfiguration>();

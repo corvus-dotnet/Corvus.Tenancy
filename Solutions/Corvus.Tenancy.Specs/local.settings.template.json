@@ -17,6 +17,12 @@
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",
     "AccountKeySecretName": "{ADD THE NAME OF THE KEY VAULT SECRET CONTAINING YOUR COSMOSDB KEY HERE}"
   },
+  "TestLegacyCosmosConfigurationOptions": {
+    // [REMOVE THESE SETTINGS ENTIRELY TO USE THE COSMOS EMULATOR]
+    //"AccountUri": "https://{ADD YOUR COSMOSDB ACCOUNT NAME HERE}.documents.azure.com/",
+    "KeyVaultName": "",
+    "AccountKeySecretName": ""
+  },
   "TestGremlinConfigurationOptions": {
     // [REMOVE THESE SETTINGS ENTIRELY TO USE THE COSMOS EMULATOR]
     "KeyVaultName": "{ADD YOUR KEY VAULT NAME HERE}",

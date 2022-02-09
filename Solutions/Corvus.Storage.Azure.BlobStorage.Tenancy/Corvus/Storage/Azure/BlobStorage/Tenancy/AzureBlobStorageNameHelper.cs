@@ -5,9 +5,6 @@
 namespace Corvus.Storage.Azure.BlobStorage.Tenancy
 {
     using System;
-    using System.Security.Cryptography;
-
-    using Corvus.Tenancy;
 
     /// <summary>
     /// Helpers to convert plain text names for Azure Blob Storage container into guaranteed valid

@@ -8,12 +8,16 @@ namespace Corvus.Tenancy.Specs.Steps
     using System.Threading.Tasks;
 
     using Corvus.Azure.Cosmos.Tenancy;
+    using Corvus.Storage.Azure.Cosmos.Tenancy;
     using Corvus.Tenancy.Specs.Bindings;
     using Corvus.Testing.SpecFlow;
+
     using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+
     using NUnit.Framework;
+
     using TechTalk.SpecFlow;
 
     [Binding]

@@ -5,21 +5,21 @@
 
 Scenario: Same tenant different logical names
     Given a tenant labelled 't1'
-    When I get a blob container for tenant 't1' with a logical name of 'c1' and label the result 'n1'
-    And I get a blob container for tenant 't1' with a logical name of 'c2' and label the result 'n2'
+    When I get a blob container name for tenant 't1' with a logical name of 'c1' and label the result 'n1'
+    And I get a blob container name for tenant 't1' with a logical name of 'c2' and label the result 'n2'
     Then the returned container names 'n1' and 'n2' are different
 
 Scenario: Same logical name different tenants
     Given a tenant labelled 't1'
     And a tenant labelled 't2'
-    When I get a blob container for tenant 't1' with a logical name of 'c1' and label the result 'n1'
-    And I get a blob container for tenant 't2' with a logical name of 'c1' and label the result 'n2'
+    When I get a blob container name for tenant 't1' with a logical name of 'c1' and label the result 'n1'
+    And I get a blob container name for tenant 't2' with a logical name of 'c1' and label the result 'n2'
     Then the returned container names 'n1' and 'n2' are different
 
 Scenario: Asking for the same name twice
     Given a tenant labelled 't1'
-    When I get a blob container for tenant 't1' with a logical name of 'c1' and label the result 'n1'
-    And I get a blob container for tenant 't1' with a logical name of 'c1' and label the result 'n2'
+    When I get a blob container name for tenant 't1' with a logical name of 'c1' and label the result 'n1'
+    And I get a blob container name for tenant 't1' with a logical name of 'c1' and label the result 'n2'
     Then the returned container names 'n1' and 'n2' are the same
 
 # This tests against known-good behaviour for how Marain.Tenancy stores tenant data - we are checking
@@ -27,7 +27,7 @@ Scenario: Asking for the same name twice
 # tenants.
 Scenario Outline: Well known names
     Given a tenant labelled 't1' with id '<tenantId>'
-    When I get a blob container for tenant 't1' with a logical name of '<logicalName>' and label the result 'n1'
+    When I get a blob container name for tenant 't1' with a logical name of '<logicalName>' and label the result 'n1'
     Then the name returned container name 'n1' should be '<physicalName>'
 
     Examples:
