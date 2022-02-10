@@ -1,8 +1,8 @@
-// <copyright file="LegacyConfigurationTransformationStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="LegacyBlobStorageConfigurationTransformationStepDefinitions.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Tenancy.Specs
+namespace Corvus.Tenancy.Specs.Features.BlobStorage
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -17,18 +17,18 @@ namespace Corvus.Tenancy.Specs
     using TechTalk.SpecFlow.Assist;
 
     [Binding]
-    public class LegacyConfigurationTransformationStepDefinitions
+    public class LegacyBlobStorageConfigurationTransformationStepDefinitions
     {
         private LegacyV2BlobStorageConfiguration legacyConfiguration = new ();
         private BlobContainerConfiguration? resultingConfiguration;
 
-        [Given("legacy v2 configuration with these properties")]
+        [Given("legacy v2 blob storage configuration with these properties")]
         public void GivenLegacyVConfigurationWithTheseProperties(Table table)
         {
             this.legacyConfiguration = table.CreateInstance<LegacyV2BlobStorageConfiguration>();
         }
 
-        [When("the legacy v2 configuration is converted to the new format")]
+        [When("the legacy v2 blob storage configuration is converted to the new format")]
         public void WhenTheLegacyVConfigurationIsConvertedToTheNewFormat()
         {
             this.resultingConfiguration = LegacyConfigurationConverter.FromV2ToV3(this.legacyConfiguration);
@@ -63,6 +63,10 @@ namespace Corvus.Tenancy.Specs
                     // The test expects this to be set, but it's a nested value that's going to
                     // be checked in detail elsewhere.
                     actualValue.Should().NotBeNull();
+                }
+                else if (expectedValue == "<null>")
+                {
+                    actualValue.Should().BeNull();
                 }
                 else
                 {
