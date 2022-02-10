@@ -60,7 +60,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="[6.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="[6.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6.0.*,)" />
-    <PackageReference Include="Corvus.Testing.SpecFlow.NUnit" Version="1.4.7" />
+    <PackageReference Include="Corvus.Testing.SpecFlow.NUnit" Version="1.4.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Corvus.Azure.Cosmos.Tenancy\Corvus.Azure.Cosmos.Tenancy.csproj" />
