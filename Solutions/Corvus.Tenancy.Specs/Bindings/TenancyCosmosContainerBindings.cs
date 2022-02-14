@@ -66,7 +66,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                    this.scenarioContext,
                    serviceCollection =>
                    {
-                       serviceCollection.AddCosmosContainerSourceFromDynamicConfiguration();
+                       serviceCollection.AddTenantCosmosContainerFactory();
                        serviceCollection.AddCosmosContainerV2ToV3Transition();
                    });
         }
@@ -82,7 +82,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         }
 
         /// <summary>
-        /// Tear down the tenanted Cloud Blob Container for the scenario.
+        /// Tear down the tenanted Azure Container for the scenario.
         /// </summary>
         /// <returns>A <see cref="Task"/> which completes once the operation has completed.</returns>
         [AfterScenario("@setupTenantedCosmosContainer", Order = 100000)]

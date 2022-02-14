@@ -9,14 +9,12 @@ using Corvus.Storage.Azure.Cosmos.Tenancy.Internal;
 using Corvus.Tenancy.Internal;
 
 /// <summary>
-/// DI service configuration applications with stores implemented on top of tenanted blob
-/// storage.
+/// DI service configuration applications with stores implemented on top of tenanted Cosmos DB.
 /// </summary>
 public static class CosmosTenancyServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds services that enable applications that have used <c>Corvus.Tenancy</c> v2 to
-    /// migrate to v3.
+    /// Adds services that enable applications to use tenanted Cosmos DB storage.
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <returns>The modified service collection.</returns>

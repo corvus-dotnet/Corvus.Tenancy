@@ -47,7 +47,7 @@ Scenario Outline: Container does not yet exist and only v2 configuration with Co
     And this test is using an Azure BlobServiceClient with a connection string
     And a tenant with the property 'sv2' set to the legacy BlobStorageConfiguration
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
     | ConnectionStringPlainText   | Container             |
     | testAccountConnectionString | DerivedFromConfigured |
     And a new container with a name derived from the legacy configuration Container should have been created with public access of '<ExpectedAccessType>'
@@ -68,7 +68,7 @@ Scenario Outline: Container does not yet exist and only v2 configuration without
     And this test is using an Azure BlobServiceClient with a connection string
     And a tenant with the property 'sv2' set to the legacy BlobStorageConfiguration
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
     | ConnectionStringPlainText   | Container             |
     | testAccountConnectionString | DerivedFromLogical |
     And a new container with a name derived from the logical container name should have been created with public access of '<ExpectedAccessType>'
@@ -131,7 +131,7 @@ Scenario Outline: Container exists and only v2 configuration with Container exis
     And a tenant with the property 'sv2' set to the legacy BlobStorageConfiguration
     And a container with a tenant-specific name derived from the configured Container exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
     | ConnectionStringPlainText   | Container             |
     | testAccountConnectionString | DerivedFromConfigured |
     And no new container should have been created
@@ -148,7 +148,7 @@ Scenario: Container exists and only v2 configuration without Container exists in
     And a tenant with the property 'sv2' set to the legacy BlobStorageConfiguration
     And a container with a name derived from the logical container name exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a BlobContainerConfiguration with these settings
     | ConnectionStringPlainText   | Container          |
     | testAccountConnectionString | DerivedFromLogical |
     And no new container should have been created

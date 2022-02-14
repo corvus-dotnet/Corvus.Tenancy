@@ -1,5 +1,12 @@
 # Release notes for Corvus.Tenancy v3.
 
+## v3.1
+
+Adds support for SQL Databases.
+
+Adds missing DI initialization method for tenanted Cosmos DB storage. (Applications could previously call `AddCosmosContainerSourceFromDynamicConfiguration` but there's now an `AddTenantCosmosConnectionFactory` method similar to `AddTenantBlobContainerFactory` and `AddTenantSqlConnectionFactory`.)
+
+
 ## v3.0
 
 Targets .NET 6.0 only.

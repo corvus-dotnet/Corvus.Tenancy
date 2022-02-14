@@ -14,5 +14,10 @@ Scenario: Get a cosmos container
     And the tenanted cosmos container name should match the configuration
 
 Scenario: Remove configuration from tenant
+    Given I have added Cosmos configuration to a tenant
+    When I remove the cosmos configuration to a tenant
+	Then attempting to get the Cosmos configuration from the tenant throws an InvalidOperationException
+
+Scenario: Remove non-existent configuration from tenant
     Given I have not added cosmos configuration to a tenant
-	Then attempting to get the Cosmos configuration from the tenant throws an ArgumentException
+	Then attempting to get the Cosmos configuration from the tenant throws an InvalidOperationException
