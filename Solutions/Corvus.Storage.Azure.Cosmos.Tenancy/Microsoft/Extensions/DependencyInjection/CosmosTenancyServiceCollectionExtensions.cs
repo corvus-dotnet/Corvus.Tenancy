@@ -18,7 +18,7 @@ public static class CosmosTenancyServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection.</param>
     /// <returns>The modified service collection.</returns>
-    public static IServiceCollection AddTenantCosmosConnectionFactory(
+    public static IServiceCollection AddTenantCosmosContainerFactory(
         this IServiceCollection services)
     {
         return services

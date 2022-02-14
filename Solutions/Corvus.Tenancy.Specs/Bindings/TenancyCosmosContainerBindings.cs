@@ -66,7 +66,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                    this.scenarioContext,
                    serviceCollection =>
                    {
-                       serviceCollection.AddTenantCosmosConnectionFactory();
+                       serviceCollection.AddTenantCosmosContainerFactory();
                        serviceCollection.AddCosmosContainerV2ToV3Transition();
                    });
         }
