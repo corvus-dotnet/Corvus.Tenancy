@@ -72,24 +72,20 @@ internal class CosmosContainerSourceWithTenantLegacyTransition : ICosmosContaine
 
         if (databaseName is not null)
         {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             v3Configuration = v3Configuration with
             {
                 Database = CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(
-                        tenant, databaseName)
+                        tenant, databaseName),
             };
-#pragma warning restore SA1101
         }
 
         if (containerName is not null)
         {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             v3Configuration = v3Configuration with
             {
                 Container = CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(
-                        tenant, containerName)
+                        tenant, containerName),
             };
-#pragma warning restore SA1101
         }
 
         Container result = await this.cosmosContainerSource.GetStorageContextAsync(
@@ -160,14 +156,12 @@ internal class CosmosContainerSourceWithTenantLegacyTransition : ICosmosContaine
 
         foreach (string databaseName in databaseNames ?? new[] { v3Configuration.Database })
         {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             CosmosContainerConfiguration v3ConfigForThisDb = v3Configuration with
             {
                 Database = legacyConfiguration.DisableTenantIdPrefix
                     ? databaseName
                     : CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, databaseName),
             };
-#pragma warning restore SA1101
 
             // We need to ensure the database exists first. We need a CosmosClient to do that, and the
             // most straightforward way to get one with correctly configured credentials is to build
@@ -175,9 +169,7 @@ internal class CosmosContainerSourceWithTenantLegacyTransition : ICosmosContaine
             // so we build a modified config with a fake container name. That container is never used.
             // It's just a way to get to the CosmosClient so we can create the database.
             Container contextForDb = await this.cosmosContainerSource.GetStorageContextAsync(
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
                 v3ConfigForThisDb with { Container = "fakecontainername" },
-#pragma warning restore SA1101
                 cosmosClientOptions,
                 cancellationToken)
                 .ConfigureAwait(false);
@@ -195,9 +187,7 @@ internal class CosmosContainerSourceWithTenantLegacyTransition : ICosmosContaine
                     : CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(tenant, rawContainerName);
                 CosmosContainerConfiguration configForContainer = v3ConfigForThisDb with
                 {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
                     Container = containerName,
-#pragma warning restore SA1101
                 };
 
                 await contextForDb.Database.CreateContainerIfNotExistsAsync(

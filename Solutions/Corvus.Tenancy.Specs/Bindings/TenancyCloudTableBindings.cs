@@ -22,7 +22,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancyCloudTableBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly List<CloudTable> tablesToRemoveAtTeardown = new ();
+        private readonly List<CloudTable> tablesToRemoveAtTeardown = new();
         private ITenantCloudTableFactory? connectionFactory;
 
         public TenancyCloudTableBindings(

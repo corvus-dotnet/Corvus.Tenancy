@@ -24,7 +24,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     {
         private readonly FeatureContext featureContext;
         private readonly ScenarioContext scenarioContext;
-        private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = new ();
+        private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = new();
         private ITenantCloudBlobContainerFactory? containerFactory;
 
         public LegacyTenancyCloudBlobContainerBindings(

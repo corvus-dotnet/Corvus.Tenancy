@@ -24,7 +24,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancyGremlinContainerBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly List<GremlinClient> clientsToDisposeAtTeardown = new ();
+        private readonly List<GremlinClient> clientsToDisposeAtTeardown = new();
         private ITenantGremlinContainerFactory? containerFactory;
 
         public TenancyGremlinContainerBindings(

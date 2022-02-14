@@ -319,7 +319,7 @@ namespace Corvus.Tenancy
         /// </summary>
         /// <param name="tenantId">The id of the parent tenant.</param>
         /// <returns>The parent tenant, and a blob container containing the child tenants of that parent tenant.</returns>
-        private async Task<(ITenant, CloudBlobContainer)> GetContainerAndTenantForChildTenantsOf(string tenantId)
+        private async Task<(ITenant ParentTenant, CloudBlobContainer Container)> GetContainerAndTenantForChildTenantsOf(string tenantId)
         {
             ITenant currentTenant = this.Root;
 

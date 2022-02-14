@@ -19,7 +19,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     [Binding]
     public class LegacyBlobStorageConfigurationTransformationStepDefinitions
     {
-        private LegacyV2BlobStorageConfiguration legacyConfiguration = new ();
+        private LegacyV2BlobStorageConfiguration legacyConfiguration = new();
         private BlobContainerConfiguration? resultingConfiguration;
 
         [Given("legacy v2 blob storage configuration with these properties")]
@@ -51,12 +51,12 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             IEnumerable<(string, string)> expectedProperties = table.CreateSet(
                 row => (row["PropertyName"], row["Value"]));
 
-            HashSet<string> propertiesNotExpectedToBeNull = new ();
+            HashSet<string> propertiesNotExpectedToBeNull = new();
             foreach ((string name, string expectedValue) in expectedProperties)
             {
                 propertiesNotExpectedToBeNull.Add(name);
 
-                PropertyInfo pi = typeof(T).GetProperty(name) !;
+                PropertyInfo pi = typeof(T).GetProperty(name)!;
                 object? actualValue = pi.GetValue(value);
                 if (expectedValue == "<notnull>")
                 {

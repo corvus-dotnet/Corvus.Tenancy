@@ -23,7 +23,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class TenancyCosmosContainerBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly List<Database> databasesToRemoveAtTeardown = new ();
+        private readonly List<Database> databasesToRemoveAtTeardown = new();
         private ICosmosContainerSourceFromDynamicConfiguration? containerSource;
 
         public TenancyCosmosContainerBindings(

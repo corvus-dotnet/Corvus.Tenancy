@@ -23,7 +23,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     public class LegacyTenancyCosmosContainerBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly List<Container> containersToRemoveAtTeardown = new ();
+        private readonly List<Container> containersToRemoveAtTeardown = new();
         private ITenantCosmosContainerFactory? tenantCosmosContainerFactory;
 
         public LegacyTenancyCosmosContainerBindings(

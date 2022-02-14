@@ -63,7 +63,7 @@ namespace Corvus.Sql.Tenancy.Internal
     {
         private const string DevelopmentStorageConnectionString = "Server=(localdb)\\mssqllocaldb;Database=testtenant;Trusted_Connection=True;MultipleActiveResultSets=true";
 
-        private readonly ConcurrentDictionary<object, Task<string>> connectionStrings = new ();
+        private readonly ConcurrentDictionary<object, Task<string>> connectionStrings = new();
         private readonly TenantSqlConnectionFactoryOptions? options;
 
         /// <summary>

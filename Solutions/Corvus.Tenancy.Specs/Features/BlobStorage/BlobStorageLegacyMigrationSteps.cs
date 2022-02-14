@@ -37,12 +37,12 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         private readonly string logicalContainerName = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
         private readonly TestSettings testStorageOptions;
         private readonly string testStorageConnectionString;
-        private readonly Azure.Storage.Tenancy.BlobStorageConfiguration legacyConfigurationInTenant = new ();
-        private readonly BlobContainerConfiguration v3ConfigurationInTenant = new ();
+        private readonly Azure.Storage.Tenancy.BlobStorageConfiguration legacyConfigurationInTenant = new();
+        private readonly BlobContainerConfiguration v3ConfigurationInTenant = new();
         private readonly IPropertyBagFactory pbf;
-        private readonly MonitoringPolicy blobClientMonitor = new ();
+        private readonly MonitoringPolicy blobClientMonitor = new();
         private readonly BlobClientOptions blobClientOptions;
-        private readonly List<string> containersCreatedByTest = new ();
+        private readonly List<string> containersCreatedByTest = new();
         private IPropertyBag tenantProperties;
         private ITenant? tenant;
         private BlobServiceClient? blobServiceClient;

@@ -51,7 +51,7 @@ public class CosmosLegacyConfigurationTransformationSteps
         IEnumerable<(string, string)> expectedProperties = table.CreateSet(
             row => (row["PropertyName"], row["Value"]));
 
-        HashSet<string> propertiesNotExpectedToBeNull = new ();
+        HashSet<string> propertiesNotExpectedToBeNull = new();
         foreach ((string name, string expectedValue) in expectedProperties)
         {
             propertiesNotExpectedToBeNull.Add(name);
@@ -60,7 +60,7 @@ public class CosmosLegacyConfigurationTransformationSteps
                 ? "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
                 : expectedValue;
 
-            PropertyInfo pi = typeof(T).GetProperty(name) !;
+            PropertyInfo pi = typeof(T).GetProperty(name)!;
             object? actualValue = pi.GetValue(value);
             if (effectiveExpectedValue == "<notnull>")
             {

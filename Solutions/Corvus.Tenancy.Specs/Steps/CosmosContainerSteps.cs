@@ -41,7 +41,7 @@ namespace Corvus.Tenancy.Specs.Steps
         [Given("I have added Cosmos configuration to a tenant")]
         public void GivenIHaveAddedCosmosConfigurationToATenant()
         {
-            this.cosmosConfiguration = new ();
+            this.cosmosConfiguration = new();
             TenancyContainerScenarioBindings.Configuration.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", this.cosmosConfiguration);
             this.cosmosConfiguration.Database = "endjinspecssharedthroughput";
             this.tenancyBindings.RootTenant.UpdateProperties(values =>
