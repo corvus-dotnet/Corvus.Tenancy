@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Corvus.Storage.Azure.BlobStorage" Version="1.1.1" />
-    <PackageReference Include="Endjin.RecommendedPractices" Version="1.3.0-PullRequest0026.3">
+    <PackageReference Include="Endjin.RecommendedPractices" Version="2.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
