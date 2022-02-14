@@ -21,7 +21,7 @@ namespace Corvus.Azure.Storage.Tenancy.Internal
     /// </remarks>
     public static class AzureStorageNameHelper
     {
-        private static readonly Lazy<SHA1> HashProvider = new (() => SHA1.Create());
+        private static readonly Lazy<SHA1> HashProvider = new(() => SHA1.Create());
 
         /// <summary>
         /// Makes a plain text name safe to use as an Azure storage table name.

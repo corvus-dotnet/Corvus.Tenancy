@@ -19,14 +19,14 @@ using TechTalk.SpecFlow;
 [Binding]
 public sealed class TenantedNameBindings : IDisposable
 {
-    private readonly Dictionary<string, ITenant> tenants = new ();
-    private readonly Dictionary<string, string> physicalContainerNames = new ();
+    private readonly Dictionary<string, ITenant> tenants = new();
+    private readonly Dictionary<string, string> physicalContainerNames = new();
     private readonly ServiceProvider serviceProvider;
     private readonly IPropertyBagFactory propertyBagFactory;
 
     public TenantedNameBindings()
     {
-        ServiceCollection services = new ();
+        ServiceCollection services = new();
         services.AddRequiredTenancyServices();
         this.serviceProvider = services.BuildServiceProvider();
 

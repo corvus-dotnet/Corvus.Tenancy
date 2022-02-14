@@ -19,15 +19,13 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.Root = new RootTenant(propertyBagFactory);
         }
 
-        public List<Update> TenantUpdates { get; } = new ();
+        public List<Update> TenantUpdates { get; } = new();
 
         public RootTenant Root { get; }
 
         public Task<ITenant> CreateChildTenantAsync(string parentTenantId, string name)
         {
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
         public Task<ITenant> CreateWellKnownChildTenantAsync(
@@ -35,23 +33,17 @@ namespace Corvus.Tenancy.Specs.Bindings
             Guid wellKnownChildTenantGuid,
             string name)
         {
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
         public Task DeleteTenantAsync(string tenantId)
         {
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
         public Task<TenantCollectionResult> GetChildrenAsync(string tenantId, int limit = 20, string? continuationToken = null)
         {
-#pragma warning disable RCS1079 // Throwing of new NotImplementedException.
             throw new NotImplementedException();
-#pragma warning restore RCS1079 // Throwing of new NotImplementedException.
         }
 
         public Task<ITenant> GetTenantAsync(string tenantId, string? etag = null)
@@ -72,31 +64,13 @@ namespace Corvus.Tenancy.Specs.Bindings
         {
             this.TenantUpdates.Add(new Update(tenantId, name, propertiesToSetOrAdd, propertiesToRemove));
 
-            return Task.FromResult(default(ITenant) !);
+            return Task.FromResult(default(ITenant)!);
         }
 
-        // TODO: When we're able to use C#9 or later, this would be better as a record.
-        public class Update
-        {
-            public Update(
-                string tenantId,
-                string? name,
-                IEnumerable<KeyValuePair<string, object>>? propertiesToSetOrAdd,
-                IEnumerable<string>? propertiesToRemove)
-            {
-                this.TenantId = tenantId;
-                this.Name = name;
-                this.PropertiesToSetOrAdd = propertiesToSetOrAdd;
-                this.PropertiesToRemove = propertiesToRemove;
-            }
-
-            public string TenantId { get; }
-
-            public string? Name { get; }
-
-            public IEnumerable<KeyValuePair<string, object>>? PropertiesToSetOrAdd { get; }
-
-            public IEnumerable<string>? PropertiesToRemove { get; }
-        }
+        public record Update(
+            string TenantId,
+            string? Name,
+            IEnumerable<KeyValuePair<string, object>>? PropertiesToSetOrAdd,
+            IEnumerable<string>? PropertiesToRemove);
     }
 }

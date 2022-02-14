@@ -66,10 +66,10 @@ namespace Corvus.Azure.Storage.Tenancy
     {
         private const string DevelopmentStorageConnectionString = "UseDevelopmentStorage=true";
 
-        private readonly ConcurrentDictionary<object, Task<CloudTableClient>> clients = new ();
-        private readonly ConcurrentDictionary<object, Task<CloudTable>> containers = new ();
+        private readonly ConcurrentDictionary<object, Task<CloudTableClient>> clients = new();
+        private readonly ConcurrentDictionary<object, Task<CloudTable>> containers = new();
         private readonly TenantCloudTableFactoryOptions? options;
-        private readonly Random random = new ();
+        private readonly Random random = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudTableFactory"/> class.

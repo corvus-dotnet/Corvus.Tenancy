@@ -28,8 +28,8 @@ namespace Corvus.Tenancy.Specs
     {
         private const string TenantStoragePropertyKey = "MyStorageSettings";
         private const string StorageAccountName = "myaccount";
-        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsRequested = new ();
-        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsReplaced = new ();
+        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsRequested = new();
+        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsReplaced = new();
         private readonly ServiceProvider serviceProvider;
         private readonly RootTenant tenant;
         private readonly IBlobContainerSourceFromDynamicConfiguration containerSourceSource;
@@ -137,9 +137,7 @@ namespace Corvus.Tenancy.Specs
         {
             BlobContainerConfiguration? expectedConfiguration = this.configuration! with
             {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
                 Container = containerName,
-#pragma warning restore SA1101 // Prefix local calls with this
             };
 
             Assert.AreEqual(expectedConfiguration, this.contextsRequested.Single().Configuration);
@@ -157,9 +155,7 @@ namespace Corvus.Tenancy.Specs
         {
             BlobContainerConfiguration? expectedConfiguration = this.configuration! with
             {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop doesn't understand record types yet
                 Container = containerName,
-#pragma warning restore SA1101 // Prefix local calls with this
             };
 
             Assert.AreEqual(expectedConfiguration, this.contextsReplaced.Single().Configuration);

@@ -63,11 +63,11 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     {
         private const string DevelopmentStorageConnectionString = "AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
 
-        private readonly ConcurrentDictionary<object, Task<CosmosClient>> clients = new ();
-        private readonly ConcurrentDictionary<object, Task<Container>> containers = new ();
+        private readonly ConcurrentDictionary<object, Task<CosmosClient>> clients = new();
+        private readonly ConcurrentDictionary<object, Task<Container>> containers = new();
         private readonly TenantCosmosContainerFactoryOptions? options;
         private readonly ICosmosClientBuilderFactory cosmosClientBuilderFactory;
-        private readonly Random random = new ();
+        private readonly Random random = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCosmosContainerFactory"/> class.

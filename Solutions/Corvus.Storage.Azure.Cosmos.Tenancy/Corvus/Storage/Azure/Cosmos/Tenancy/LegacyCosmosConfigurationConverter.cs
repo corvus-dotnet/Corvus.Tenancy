@@ -22,7 +22,7 @@ public static class LegacyCosmosConfigurationConverter
     /// <returns>The converted settings.</returns>
     public static CosmosContainerConfiguration FromV2ToV3(LegacyV2CosmosContainerConfiguration legacyConfiguration)
     {
-        CosmosContainerConfiguration result = new ();
+        CosmosContainerConfiguration result = new();
         if (string.IsNullOrEmpty(legacyConfiguration.AccountUri) || legacyConfiguration.AccountUri.Equals(DevelopmentStorageConnectionString))
         {
             result.ConnectionStringPlainText = DevelopmentStorageConnectionString;

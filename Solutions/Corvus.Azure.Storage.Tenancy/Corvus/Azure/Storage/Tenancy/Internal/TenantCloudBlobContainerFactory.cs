@@ -68,10 +68,10 @@ namespace Corvus.Azure.Storage.Tenancy
     {
         private const string DevelopmentStorageConnectionString = "UseDevelopmentStorage=true";
 
-        private readonly ConcurrentDictionary<object, Task<CloudBlobClient>> clients = new ();
-        private readonly ConcurrentDictionary<object, Task<CloudBlobContainer>> containers = new ();
+        private readonly ConcurrentDictionary<object, Task<CloudBlobClient>> clients = new();
+        private readonly ConcurrentDictionary<object, Task<CloudBlobContainer>> containers = new();
         private readonly TenantCloudBlobContainerFactoryOptions? options;
-        private readonly Random random = new ();
+        private readonly Random random = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantCloudBlobContainerFactory"/> class.

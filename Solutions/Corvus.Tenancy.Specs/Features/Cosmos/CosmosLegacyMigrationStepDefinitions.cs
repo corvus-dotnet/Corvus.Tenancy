@@ -164,10 +164,8 @@ public class CosmosLegacyMigrationStepDefinitions
         }
 
         this.v3ConfigurationWithContainer = this.v3Configuration.Container is null
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             ? this.v3Configuration with { Container = autoTenantSpecificNamesEnabled ? autoTenantedContainerName : logicalContainerName }
             : this.v3Configuration;
-#pragma warning restore SA1101
     }
 
     [Given("the Cosmos database already exists with throughput of (.*)")]
@@ -207,7 +205,7 @@ public class CosmosLegacyMigrationStepDefinitions
     [Given("the tenant has the property '([^']*)' set to a bogus legacy CosmosConfiguration")]
     public void GivenTheTenantHasThePropertySvSetToABogusLegacyCosmosConfiguration(string configurationKey)
     {
-        LegacyV2CosmosContainerConfiguration bogusConfiguration = new ()
+        LegacyV2CosmosContainerConfiguration bogusConfiguration = new()
         {
             AccountUri = "Well this is all wrong",
             KeyVaultName = "It's a good thing this should not be used during this test",
@@ -293,16 +291,14 @@ public class CosmosLegacyMigrationStepDefinitions
             // different valid configurations.
             CosmosContainerConfiguration configReturnedWithDatabaseAndContainer = this.configReturnedFromMigration with
             {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
                 Database = this.configReturnedFromMigration.Database ??
                     (this.legacyConfiguration!.DisableTenantIdPrefix
                         ? this.databaseNameArgument!
                         : CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.databaseNameArgument!)),
                 Container = this.configReturnedFromMigration.Container ??
-#pragma warning restore SA1101
                 (this.legacyConfiguration!.DisableTenantIdPrefix
                             ? this.containerNameArgument!
-                            : CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.containerNameArgument!))
+                            : CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.containerNameArgument!)),
             };
             Container cosmosContainer = await this.containerSource.GetStorageContextAsync(configReturnedWithDatabaseAndContainer).ConfigureAwait(false);
             this.cosmosBindings.RemoveThisDatabaseOnTestTeardown(cosmosContainer.Database);
@@ -367,17 +363,13 @@ public class CosmosLegacyMigrationStepDefinitions
         // key vault, so we need to handle that part specially.
         CosmosContainerConfiguration? expectedConfiguration = this.v3Configuration! with
         {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             Database = this.configReturnedFromMigration!.Database,
             Container = this.configReturnedFromMigration.Container,
             AccessKeyInKeyVault = null,
-#pragma warning restore SA1101
         };
         CosmosContainerConfiguration actualConfigurationExceptKeyVault = this.configReturnedFromMigration with
         {
-#pragma warning disable SA1101 // Prefix local calls with this - StyleCop is confused
             AccessKeyInKeyVault = null,
-#pragma warning restore SA1101
         };
 
         Assert.AreEqual(expectedConfiguration, actualConfigurationExceptKeyVault);

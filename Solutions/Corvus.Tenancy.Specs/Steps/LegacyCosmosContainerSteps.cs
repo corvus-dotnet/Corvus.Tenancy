@@ -49,7 +49,7 @@ namespace Corvus.Tenancy.Specs.Steps
         [Given("I have added legacy Cosmos configuration to a tenant")]
         public void GivenIHaveAddedLegacyCosmosConfigurationToATenant()
         {
-            CosmosConfiguration cosmosConfiguration = new ();
+            CosmosConfiguration cosmosConfiguration = new();
             TenancyContainerScenarioBindings.Configuration.Bind("TESTLEGACYCOSMOSCONFIGURATIONOPTIONS", cosmosConfiguration);
             cosmosConfiguration.DatabaseName = "endjinspecssharedthroughput";
             cosmosConfiguration.DisableTenantIdPrefix = true;
