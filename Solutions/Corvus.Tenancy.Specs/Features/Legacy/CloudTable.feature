@@ -31,5 +31,5 @@ Scenario: Remove configuration from tenant
 	Given I have added table storage configuration to the current tenant
 	| TableName | DisableTenantIdPrefix |
 	|           | false                 |
-	When I remove the table storage configuration from the tenant
+	When I remove the legacy table storage configuration from the tenant
 	Then attempting to get the table storage configuration from the tenant throws an ArgumentException

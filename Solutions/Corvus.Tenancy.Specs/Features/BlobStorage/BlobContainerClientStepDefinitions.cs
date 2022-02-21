@@ -2,7 +2,7 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Tenancy.Specs
+namespace Corvus.Tenancy.Specs.Features.BlobStorage
 {
     using System;
     using System.Collections.Generic;
@@ -32,13 +32,13 @@ namespace Corvus.Tenancy.Specs
         private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsReplaced = new();
         private readonly ServiceProvider serviceProvider;
         private readonly RootTenant tenant;
-        private readonly IBlobContainerSourceFromDynamicConfiguration containerSourceSource;
+        private readonly IBlobContainerSourceFromDynamicConfiguration containerSource;
 
         private BlobContainerConfiguration? configuration;
 
         public BlobContainerClientStepDefinitions()
         {
-            this.containerSourceSource = new FakeBlobContainerSourceFromDynamicConfiguration(
+            this.containerSource = new FakeBlobContainerSourceFromDynamicConfiguration(
                 this.contextsRequested,
                 this.contextsReplaced);
             var services = new ServiceCollection();
@@ -53,7 +53,7 @@ namespace Corvus.Tenancy.Specs
             this.serviceProvider.Dispose();
         }
 
-        [Given("I have added blob storage configuration a tenant with the a container name of '([^']*)'")]
+        [Given("I have added blob storage configuration to a tenant with a container name of '([^']*)'")]
         public void GivenIHaveAddedBlobStorageConfigurationATenantWithTheAContainerNameOf(string containerName)
         {
             this.configuration = new BlobContainerConfiguration
@@ -66,7 +66,7 @@ namespace Corvus.Tenancy.Specs
                 values.AddBlobStorageConfiguration(TenantStoragePropertyKey, this.configuration));
         }
 
-        [Given("I have added blob storage configuration a tenant without a container name")]
+        [Given("I have added blob storage configuration to a tenant without a container name")]
         public void GivenIHaveAddedBlobStorageConfigurationATenantWithoutAContainerName()
         {
             this.configuration = new BlobContainerConfiguration
@@ -82,7 +82,7 @@ namespace Corvus.Tenancy.Specs
         [When("I get a BlobContainerClient for the tenant without specifying a container name")]
         public async Task WhenIGetABlobContainerClientForTheTenantWithoutSpecifyingAContainerName()
         {
-            await this.containerSourceSource.GetBlobContainerClientFromTenantAsync(
+            await this.containerSource.GetBlobContainerClientFromTenantAsync(
                 this.tenant,
                 TenantStoragePropertyKey)
                 .ConfigureAwait(false);
@@ -92,7 +92,7 @@ namespace Corvus.Tenancy.Specs
         [When("I get a BlobContainerClient for the tenant specifying a container name of '([^']*)'")]
         public async Task WhenIGetABlobContainerClientForTheTenantSpecifyingAContainerNameOf(string containerName)
         {
-            await this.containerSourceSource.GetBlobContainerClientFromTenantAsync(
+            await this.containerSource.GetBlobContainerClientFromTenantAsync(
                 this.tenant,
                 TenantStoragePropertyKey,
                 containerName)
@@ -102,7 +102,7 @@ namespace Corvus.Tenancy.Specs
         [When("I get a replacement BlobContainerClient for the tenant without specifying a container name")]
         public async Task WhenIGetAReplacementBlobContainerClientForTheTenantWithoutSpecifyingAContainerName()
         {
-            await this.containerSourceSource.GetReplacementForFailedBlobContainerClientFromTenantAsync(
+            await this.containerSource.GetReplacementForFailedBlobContainerClientFromTenantAsync(
                 this.tenant,
                 TenantStoragePropertyKey)
                 .ConfigureAwait(false);
@@ -111,7 +111,7 @@ namespace Corvus.Tenancy.Specs
         [When("I get a replacement BlobContainerClient for the tenant specifying a container name of '([^']*)'")]
         public async Task WhenIGetAReplacementBlobContainerClientForTheTenantSpecifyingAContainerNameOfAsync(string containerName)
         {
-            await this.containerSourceSource.GetReplacementForFailedBlobContainerClientFromTenantAsync(
+            await this.containerSource.GetReplacementForFailedBlobContainerClientFromTenantAsync(
                 this.tenant,
                 TenantStoragePropertyKey,
                 containerName)

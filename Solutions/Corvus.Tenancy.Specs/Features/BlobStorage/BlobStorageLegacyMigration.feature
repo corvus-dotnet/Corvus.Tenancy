@@ -209,7 +209,7 @@ Scenario: Container exists and both v2 and v3 configurations with Container exis
     And a tenant with the property 'sv3' set to the v3 BlobContainerConfiguration
     And a container with the name in the V3 configuration exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned null
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new container should have been created
 
     Examples:
@@ -225,7 +225,7 @@ Scenario: Container exists and both v2 and v3 configurations without Container e
     And a tenant with the property 'sv3' set to the v3 BlobContainerConfiguration
     And a container with a name derived from the logical container name exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned null
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new container should have been created
 
 Scenario: Container exists and both v2 configuration without container and v3 configuration with Container exist in tenant properties when configuration migration preparation occurs
@@ -236,7 +236,7 @@ Scenario: Container exists and both v2 configuration without container and v3 co
     And a tenant with the property 'sv3' set to the v3 BlobContainerConfiguration
     And a container with the name in the V3 configuration exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned null
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new container should have been created
 
 
@@ -266,16 +266,16 @@ Scenario: Container exists and only v3 configuration with Container exists in te
     And a tenant with the property 'sv3' set to the v3 BlobContainerConfiguration
     And a container with the name in the V3 configuration exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned null
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new container should have been created
 
 Scenario: Container exists and only v3 configuration without Container exists in tenant properties when configuration migration preparation occurs
     Given this test is using an Azure BlobServiceClient with a connection string
-    And a v3 BlobContainerConfiguration with a ConnectionStringPlainText and a Container name
+    And a v3 BlobContainerConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv3' set to the v3 BlobContainerConfiguration
-    And a container with the name in the V3 configuration exists
+    And a container with a name derived from the logical container name exists
     When IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
-    Then MigrateToV3Async should have returned null
+    Then IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new container should have been created
 
 # TODO: neither v2 nor v3 present (for both GetBlobContainerClientFromTenantAsync and MigrateToV3Async)

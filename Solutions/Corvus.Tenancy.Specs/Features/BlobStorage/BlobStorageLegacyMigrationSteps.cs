@@ -92,6 +92,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             string accessType, bool disableTenantIdPrefix)
         {
             this.GivenALegacyBlobStorageConfigurationWithConnectionStringAndAnAccessTypeOf(accessType);
+            this.legacyConfigurationInTenant.AccountName = "nonsense";
             this.legacyConfigurationInTenant.Container = AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(Guid.NewGuid().ToString());
             this.legacyConfigurationInTenant.DisableTenantIdPrefix = disableTenantIdPrefix;
         }
@@ -157,7 +158,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         }
 
         [Given("a container with the name in the V3 configuration exists")]
-        public async Task GivenAContainerWithTheNameInTheVConfigurationExists()
+        public async Task GivenAContainerWithTheNameInTheV3ConfigurationExists()
         {
             BlobContainerClient blobContainerClient = this.blobServiceClient!.GetBlobContainerClient(this.v3ConfigurationInTenant!.Container!);
             await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
@@ -285,7 +286,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
         }
 
-        [Then("MigrateToV3Async should have returned null")]
+        [Then("IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null")]
         public void ThenMigrateToVAsyncShouldHaveReturnedNull()
         {
             this.v3ConfigFromMigration.Should().BeNull();
