@@ -94,6 +94,9 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
             string configurationKey,
             string? containerName = null)
         {
+            ArgumentNullException.ThrowIfNull(tenant);
+            ArgumentNullException.ThrowIfNull(configurationKey);
+
             BlobContainerConfiguration configuration = tenant.GetBlobContainerConfiguration(configurationKey);
 
             if (containerName is not null)
