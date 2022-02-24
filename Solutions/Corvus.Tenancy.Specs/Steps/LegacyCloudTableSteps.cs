@@ -1,4 +1,4 @@
-﻿// <copyright file="CloudTableSteps.cs" company="Endjin Limited">
+﻿// <copyright file="LegacyCloudTableSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -20,14 +20,14 @@ namespace Corvus.Tenancy.Specs.Steps
     using TechTalk.SpecFlow;
 
     [Binding]
-    public class CloudTableSteps
+    public class LegacyCloudTableSteps
     {
         private readonly TenancyContainerScenarioBindings tenancyBindings;
         private readonly TenancyCloudTableBindings tableBindings;
         private CloudTable? cloudTable;
         private TableStorageTableDefinition? tableStorageTableDefinition;
 
-        public CloudTableSteps(
+        public LegacyCloudTableSteps(
             TenancyContainerScenarioBindings tenancyBindings,
             TenancyCloudTableBindings tableBindings)
         {
@@ -104,7 +104,7 @@ namespace Corvus.Tenancy.Specs.Steps
             Assert.AreEqual(expectedName, this.CloudTable.Name);
         }
 
-        [When("I remove the table storage configuration from the tenant")]
+        [When("I remove the legacy table storage configuration from the tenant")]
         public void WhenIRemoveTheTableStorageConfigurationFromTheTenant()
         {
             this.tenancyBindings.RootTenant.UpdateProperties(

@@ -48,7 +48,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
             if (tenant.Properties.TryGet(v3ConfigurationKey, out BlobContainerConfiguration v3Configuration))
             {
                 v3ConfigWasAvailable = true;
-                v3Configuration = AddContainerNameIfNotInConfig(v3Configuration, containerName);
+                v3Configuration = AddContainerNameIfNotInConfig(v3Configuration, tenant, containerName);
             }
             else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2BlobStorageConfiguration legacyConfiguration))
             {
@@ -185,17 +185,20 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 };
             }
 
-            return AddContainerNameIfNotInConfig(v3Configuration, containerName);
+            return AddContainerNameIfNotInConfig(v3Configuration, tenant, containerName);
         }
 
         private static BlobContainerConfiguration AddContainerNameIfNotInConfig(
             BlobContainerConfiguration configuration,
+            ITenant tenant,
             string? containerName)
         {
             return configuration.Container is null && containerName is not null
                 ? configuration with
                 {
-                    Container = AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(containerName),
+                    Container = AzureStorageBlobTenantedContainerNaming.GetHashedTenantedBlobContainerNameFor(
+                    tenant,
+                    containerName ?? throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a non-null logical container name")),
                 }
                 : configuration;
         }
