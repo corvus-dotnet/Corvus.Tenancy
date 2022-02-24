@@ -46,7 +46,7 @@ internal class TableSourceWithTenantLegacyTransition : ITableSourceWithTenantLeg
         if (tenant.Properties.TryGet(v3ConfigurationKey, out TableConfiguration v3Configuration))
         {
             v3ConfigWasAvailable = true;
-            v3Configuration = AddTableNameIfNotInConfig(v3Configuration, tableName);
+            v3Configuration = AddTableNameIfNotInConfig(v3Configuration, tenant, tableName);
         }
         else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2TableConfiguration legacyConfiguration))
         {
@@ -110,16 +110,16 @@ internal class TableSourceWithTenantLegacyTransition : ITableSourceWithTenantLeg
             }
             else
             {
-                throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a non-null {nameof(tableNames)}");
+                throw new InvalidOperationException($"When the configuration does not specify a TableName, you must supply a non-null {nameof(tableNames)}");
             }
         }
 
-        string? logicalContainerName = null;
-        int containerCount = 0;
+        string? logicalTableName = null;
+        int tableCount = 0;
         foreach (string rawTableName in tableNames)
         {
-            containerCount += 1;
-            logicalContainerName = rawTableName;
+            tableCount += 1;
+            logicalTableName = rawTableName;
 
             TableConfiguration thisConfig = V3ConfigurationFromLegacy(tenant, rawTableName, legacyConfiguration);
 
@@ -133,22 +133,22 @@ internal class TableSourceWithTenantLegacyTransition : ITableSourceWithTenantLeg
                 .ConfigureAwait(false);
         }
 
-        // In cases where the legacy configuration had no Container property, and we were
-        // passed a containerNames containing exactly one name, we can set the Container
-        // in the V3 config. But if there were multiple logical container names, we don't
-        // want to set the Container in the V3 config because the application is likely
-        // plugging in specific container names at runtime.
-        if (containerCount > 1)
+        // In cases where the legacy configuration had no TableName property, and we were
+        // passed a tableNames containing exactly one name, we can set the TableName
+        // in the V3 config. But if there were multiple logical table names, we don't
+        // want to set the TableName in the V3 config because the application is likely
+        // plugging in specific table names at runtime.
+        if (tableCount > 1)
         {
-            logicalContainerName = null;
+            logicalTableName = null;
         }
 
-        return V3ConfigurationFromLegacy(tenant, logicalContainerName, legacyConfiguration);
+        return V3ConfigurationFromLegacy(tenant, logicalTableName, legacyConfiguration);
     }
 
     private static TableConfiguration V3ConfigurationFromLegacy(
         ITenant tenant,
-        string? containerName,
+        string? tableName,
         LegacyV2TableConfiguration legacyConfiguration)
     {
         TableConfiguration v3Configuration = LegacyTableConfigurationConverter.FromV2ToV3(legacyConfiguration);
@@ -157,25 +157,31 @@ internal class TableSourceWithTenantLegacyTransition : ITableSourceWithTenantLeg
             v3Configuration = v3Configuration with
             {
                 TableName = string.IsNullOrWhiteSpace(legacyConfiguration.TableName)
-                    ? containerName is null ? null : AzureTableNaming.HashAndEncodeTableName(containerName)
+                    ? tableName is null ? null : AzureTableNaming.HashAndEncodeTableName(tableName)
                         : AzureTableNaming.HashAndEncodeTableName(
                             legacyConfiguration.DisableTenantIdPrefix
                             ? legacyConfiguration.TableName
-                            : AzureTablesTenantedContainerNaming.GetTenantedLogicalTableNameFor(tenant, legacyConfiguration.TableName)),
+                            : AzureTablesTenantedNaming.GetTenantedLogicalTableNameFor(tenant, legacyConfiguration.TableName)),
             };
         }
 
-        return AddTableNameIfNotInConfig(v3Configuration, containerName);
+        return AddTableNameIfNotInConfig(
+            v3Configuration,
+            tenant,
+            tableName);
     }
 
     private static TableConfiguration AddTableNameIfNotInConfig(
         TableConfiguration configuration,
+        ITenant tenant,
         string? tableName)
     {
         return configuration.TableName is null && tableName is not null
             ? configuration with
             {
-                TableName = AzureTableNaming.HashAndEncodeTableName(tableName),
+                TableName = AzureTablesTenantedNaming.GetHashedTenantedTableNameFor(
+                    tenant,
+                    tableName ?? throw new InvalidOperationException("When the configuration does not specify a TableName, you must supply a non-null logical table name")),
             }
             : configuration;
     }

@@ -149,9 +149,18 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         }
 
         [Given("a container with a tenant-specific name derived from the configured Container exists")]
-        public async Task GivenAContainerWithATenant_SpecificNameDerivedFromTheConfiguredContainerExists()
+        public async Task GivenAContainerWithATenant_SpecificNameDerivedFromTheConfiguredContainerExistsTenanted()
         {
-            string containerName = this.ContainerNameFromLegacyConfiguration();
+            string containerName = this.TenantedContainerNameFromLegacyConfiguration();
+            BlobContainerClient blobContainerClient = this.blobServiceClient!.GetBlobContainerClient(containerName);
+            await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+            this.containersCreatedByTest.Add(containerName);
+        }
+
+        [Given("a container with a non-tenant-specific name derived from the configured Container exists")]
+        public async Task GivenAContainerWithATenant_SpecificNameDerivedFromTheConfiguredContainerExistsUntenanted()
+        {
+            string containerName = this.UntenantedContainerNameFromLegacyConfiguration();
             BlobContainerClient blobContainerClient = this.blobServiceClient!.GetBlobContainerClient(containerName);
             await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
             this.containersCreatedByTest.Add(containerName);
@@ -165,10 +174,10 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             this.containersCreatedByTest.Add(this.v3ConfigurationInTenant!.Container!);
         }
 
-        [Given("a container with a name derived from the logical container name exists")]
-        public async Task GivenAContainerWithANameDerivedFromTheLogicalContainerNameExists()
+        [Given("a container with a tenanted name derived from the logical container name exists")]
+        public async Task GivenAContainerWithANameDerivedFromTheLogicalContainerNameExistsTenanted()
         {
-            string hashedTenantedContainerName = this.ContainerNameFromLogicalName();
+            string hashedTenantedContainerName = this.TenantedContainerNameFromLogicalName();
             BlobContainerClient blobContainerClient = this.blobServiceClient!.GetBlobContainerClient(hashedTenantedContainerName);
             await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
             this.containersCreatedByTest.Add(hashedTenantedContainerName);
@@ -226,32 +235,47 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 .ConfigureAwait(false);
         }
 
-        [Then("a new container with a name derived from the logical container name should have been created with public access of '([^']*)'")]
+        [Then("a new container with a tenanted name derived from the logical container name should have been created with public access of '([^']*)'")]
         public async Task ThenANewContainerWithANameDerivedFromTheLogicalContainerNameShouldHaveBeenCreatedWithPublicAccessOf(
             PublicAccessType publicAccessType)
         {
-            await this.CheckContainerExists(this.ContainerNameFromLogicalName(), publicAccessType).ConfigureAwait(false);
+            await this.CheckContainerExists(this.TenantedContainerNameFromLogicalName(), publicAccessType).ConfigureAwait(false);
         }
 
-        [Then("a new container with a name derived from the legacy configuration Container should have been created with public access of '([^']*)'")]
-        public async Task ThenANewContainerWithATenant_SpecificNameDerivedFromTheConfiguredContainerShouldHaveBeenCreatedWithPublicAccessOf(
+        [Then("a new container with a tenanted name derived from the legacy configuration Container should have been created with public access of '([^']*)'")]
+        public async Task ThenANewContainerWithATenant_SpecificNameDerivedFromTheConfiguredContainerShouldHaveBeenCreatedWithPublicAccessOfTenanted(
             PublicAccessType publicAccessType)
         {
-            string expectedContainerName = this.ContainerNameFromLegacyConfiguration();
+            string expectedContainerName = this.TenantedContainerNameFromLegacyConfiguration();
             await this.CheckContainerExists(expectedContainerName, publicAccessType).ConfigureAwait(false);
         }
 
-        [Then("the BlobContainerClient should have access to the container with a name derived from the logical container name")]
-        public void ThenTheBlobContainerClientShouldHaveAccessToTheContainerWithANameDerivedFromTheLogicalContainerName()
+        [Then("a new container with a non-tenant-specific name derived from the legacy configuration Container should have been created with public access of '([^']*)'")]
+        public async Task ThenANewContainerWithATenant_SpecificNameDerivedFromTheConfiguredContainerShouldHaveBeenCreatedWithPublicAccessOfUntenanted(
+            PublicAccessType publicAccessType)
         {
-            string expectedContainerName = this.ContainerNameFromLogicalName();
+            string expectedContainerName = this.UntenantedContainerNameFromLegacyConfiguration();
+            await this.CheckContainerExists(expectedContainerName, publicAccessType).ConfigureAwait(false);
+        }
+
+        [Then("the BlobContainerClient should have access to the container with a tenanted name derived from the logical container name")]
+        public void ThenTheBlobContainerClientShouldHaveAccessToTheContainerWithANameDerivedFromTheLogicalContainerNameTenanted()
+        {
+            string expectedContainerName = this.TenantedContainerNameFromLogicalName();
             Assert.AreEqual(expectedContainerName, this.containerClientFromTestSubject!.Name);
         }
 
-        [Then("the BlobContainerClient should have access to the container with a name derived from the legacy configuration Container")]
-        public void ThenTheBlobContainerClientShouldHaveAccessToTheContainerWithANameDerivedFromTheConfiguredContainer()
+        [Then("the BlobContainerClient should have access to the container with a tenanted name derived from the legacy configuration Container")]
+        public void ThenTheBlobContainerClientShouldHaveAccessToTheContainerWithANameDerivedFromTheConfiguredContainerTenanted()
         {
-            string expectedContainerName = this.ContainerNameFromLegacyConfiguration();
+            string expectedContainerName = this.TenantedContainerNameFromLegacyConfiguration();
+            Assert.AreEqual(expectedContainerName, this.containerClientFromTestSubject!.Name);
+        }
+
+        [Then("the BlobContainerClient should have access to the container with a non-tenant-specific name derived from the legacy configuration Container")]
+        public void ThenTheBlobContainerClientShouldHaveAccessToTheContainerWithANameDerivedFromTheConfiguredContainerUntenanted()
+        {
+            string expectedContainerName = this.UntenantedContainerNameFromLegacyConfiguration();
             Assert.AreEqual(expectedContainerName, this.containerClientFromTestSubject!.Name);
         }
 
@@ -266,17 +290,16 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         {
             BlobContainerConfiguration expectedConfiguration = configurationTable.CreateInstance<BlobContainerConfiguration>();
 
-            // We recognized a couple of special values in the test for this configuration where we
+            // We recognized some special values in the test for this configuration where we
             // plug in real values at runtime (because the test code can't know what the actual
             // values should be).
-            if (expectedConfiguration.Container == "DerivedFromConfigured")
+            expectedConfiguration.Container = expectedConfiguration.Container switch
             {
-                expectedConfiguration.Container = this.ContainerNameFromLegacyConfiguration();
-            }
-            else if (expectedConfiguration.Container == "DerivedFromLogical")
-            {
-                expectedConfiguration.Container = this.ContainerNameFromLogicalName();
-            }
+                "DerivedFromConfiguredTenanted" => this.TenantedContainerNameFromLegacyConfiguration(),
+                "DerivedFromConfiguredUntenanted" => this.UntenantedContainerNameFromLegacyConfiguration(),
+                "DerivedFromLogicalTenanted" => this.TenantedContainerNameFromLogicalName(),
+                _ => expectedConfiguration.Container,
+            };
 
             if (expectedConfiguration.ConnectionStringPlainText == "testAccountConnectionString")
             {
@@ -316,18 +339,24 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             Assert.AreEqual(publicAccessType, response.Value.BlobPublicAccess);
         }
 
-        private string ContainerNameFromLogicalName()
+        private string TenantedContainerNameFromLogicalName()
         {
-            return AzureStorageNameHelper.HashAndEncodeBlobContainerName(this.logicalContainerName);
+            return AzureStorageNameHelper.HashAndEncodeBlobContainerName(
+                AzureStorageBlobTenantedContainerNaming.GetTenantedLogicalBlobContainerNameFor(
+                    this.GetTenantCreatingIfNecessary(), this.logicalContainerName));
         }
 
-        private string ContainerNameFromLegacyConfiguration()
+        private string TenantedContainerNameFromLegacyConfiguration()
         {
             string baseName = this.legacyConfigurationInTenant!.Container ?? throw new InvalidOperationException("this.legacyConfigurationInTenant.Container should not be null at this point in the test");
-            string unhashedName = this.legacyConfigurationInTenant.DisableTenantIdPrefix
-                ? baseName
-                : $"{this.tenantId.ToLowerInvariant()}-{baseName}";
+            string unhashedName =  $"{this.tenantId.ToLowerInvariant()}-{baseName}";
             return AzureStorageNameHelper.HashAndEncodeBlobContainerName(unhashedName);
+        }
+
+        private string UntenantedContainerNameFromLegacyConfiguration()
+        {
+            string baseName = this.legacyConfigurationInTenant!.Container ?? throw new InvalidOperationException("this.legacyConfigurationInTenant.Container should not be null at this point in the test");
+            return AzureStorageNameHelper.HashAndEncodeBlobContainerName(baseName);
         }
 
         private class MonitoringPolicy : global::Azure.Core.Pipeline.HttpPipelineSynchronousPolicy

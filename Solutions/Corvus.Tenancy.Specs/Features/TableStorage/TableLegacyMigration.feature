@@ -8,41 +8,49 @@ Feature: TableLegacyMigration
 
 # --- V2 config, Table doesn't exist yet ---
 
-Scenario Outline: Table does not yet exist and only v2 configuration with TableName exists in tenant properties when table requested
-    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of <DisableTenantIdPrefix>
+Scenario: Table does not yet exist and only v2 configuration with TableName and tenant prefix enabled exists in tenant properties when table requested
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of false
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
     When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
-    Then the TableClient should have access to the table with a name derived from the legacy configuration TableName
-    And a new table with a name derived from the legacy configuration TableName should have been created
+    Then the TableClient should have access to the table with a tenanted name derived from the legacy configuration TableName
+    And a new table with a tenanted name derived from the legacy configuration TableName should have been created
 
-    Examples:
-    | DisableTenantIdPrefix |
-    | true                  |
-    | false                 |
+Scenario: Table does not yet exist and only v2 configuration with TableName and tenant prefix disnabled exists in tenant properties when table requested
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of true
+    And this test is using an Azure TableClient with a connection string
+    And a tenant with the property 'sv2' set to the legacy TableConfiguration
+    When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
+    Then the TableClient should have access to the table with a non-tenant-specific name derived from the legacy configuration TableName
+    And a new table with a non-tenant-specific name derived from the legacy configuration TableName should have been created
 
 Scenario: Table does not yet exist and only v2 configuration without TableName exists in tenant properties when table requested
     Given a legacy TableConfiguration with an AccountName
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
     When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
-    Then the TableClient should have access to the table with a name derived from the logical table name
-    And a new table with a name derived from the logical table name should have been created
+    Then the TableClient should have access to the table with a tenanted name derived from the logical table name
+    And a new table with a tenanted name derived from the logical table name should have been created
 
-Scenario Outline: Table does not yet exist and only v2 configuration with TableName exists in tenant properties when configuration migration preparation occurs
-    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of <DisableTenantIdPrefix>
+Scenario: Table does not yet exist and only v2 configuration with TableName and tenant prefix enabled exists in tenant properties when configuration migration preparation occurs
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of false
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
     When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
     Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a TableConfiguration with these settings
-    | ConnectionStringPlainText   | TableName             |
-    | testAccountConnectionString | DerivedFromConfigured |
-    And a new table with a name derived from the legacy configuration TableName should have been created
+    | ConnectionStringPlainText   | TableName                     |
+    | testAccountConnectionString | DerivedFromConfiguredTenanted |
+    And a new table with a tenanted name derived from the legacy configuration TableName should have been created
 
-    Examples:
-    | DisableTenantIdPrefix |
-    | true                  |
-    | false                 |
+Scenario: Table does not yet exist and only v2 configuration with TableName and tenant prefix disabled exists in tenant properties when configuration migration preparation occurs
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of true
+    And this test is using an Azure TableClient with a connection string
+    And a tenant with the property 'sv2' set to the legacy TableConfiguration
+    When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
+    Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a TableConfiguration with these settings
+    | ConnectionStringPlainText   | TableName                       |
+    | testAccountConnectionString | DerivedFromConfiguredUntenanted |
+    And a new table with a non-tenant-specific name derived from the legacy configuration TableName should have been created
 
 Scenario: Table does not yet exist and only v2 configuration without TableName exists in tenant properties when configuration migration preparation occurs
     Given a legacy TableConfiguration with an AccountName
@@ -50,68 +58,79 @@ Scenario: Table does not yet exist and only v2 configuration without TableName e
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
     When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
     Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a TableConfiguration with these settings
-    | ConnectionStringPlainText   | TableName             |
-    | testAccountConnectionString | DerivedFromLogical |
-    And a new table with a name derived from the logical table name should have been created
+    | ConnectionStringPlainText   | TableName                  |
+    | testAccountConnectionString | DerivedFromLogicalTenanted |
+    And a new table with a tenanted name derived from the logical table name should have been created
 
 # TODO: multiple tables
 
 # --- V2 config, Table does exist ---
 
-Scenario Outline: Table exists and only v2 configuration with TableName exists in tenant properties when table requested
-    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of <DisableTenantIdPrefix>
+Scenario: Table exists and only v2 configuration with TableName and tenant prefix enabled exists in tenant properties when table requested
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of false
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
-    And a table with a tenant-specific name derived from the configured TableName exists
+    And a table with a name derived from a tenanted version of the legacy configuration TableName exists
     When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
-    Then the TableClient should have access to the table with a name derived from the legacy configuration TableName
+    Then the TableClient should have access to the table with a tenanted name derived from the legacy configuration TableName
     And no new table should have been created
 
-    Examples:
-    | DisableTenantIdPrefix |
-    | true                  |
-    | false                 |
+Scenario: Table exists and only v2 configuration with TableName and tenant prefix disabled exists in tenant properties when table requested
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of true
+    And this test is using an Azure TableClient with a connection string
+    And a tenant with the property 'sv2' set to the legacy TableConfiguration
+    And a table with a non-tenant-specific name derived from the legacy configuration TableName exists
+    When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
+    Then the TableClient should have access to the table with a non-tenant-specific name derived from the legacy configuration TableName
+    And no new table should have been created
 
-Scenario Outline: Table exists and only v2 configuration without TableName exists in tenant properties when table requested
+Scenario: Table exists and only v2 configuration without TableName exists in tenant properties when table requested
     Given a legacy TableConfiguration with an AccountName
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
-    And a table with a name derived from the logical table name exists
+    And a table with a tenanted name derived from the logical table name exists
     When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
-    Then the TableClient should have access to the table with a name derived from the logical table name
+    Then the TableClient should have access to the table with a tenanted name derived from the logical table name
     And no new table should have been created
 
 # This covers two scenarios:
 #   The table was created through normal use of the v2 libraries before we upgraded to v3
 #   We manage to create the new table and then crash before storing the relevant new-form
 #       configuration in the tenant
-Scenario Outline: Table exists and only v2 configuration with TableName exists in tenant properties when configuration migration preparation occurs
+Scenario: Table exists and only v2 configuration with TableName and tenant prefix enabled exists in tenant properties when configuration migration preparation occurs
     # AccountName is interpreted as a connection string when there's no AccountKeySecretName
-    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of <DisableTenantIdPrefix>
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of false
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
-    And a table with a tenant-specific name derived from the configured TableName exists
+    And a table with a name derived from a tenanted version of the legacy configuration TableName exists
     When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
     Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a TableConfiguration with these settings
-    | ConnectionStringPlainText   | TableName             |
-    | testAccountConnectionString | DerivedFromConfigured |
+    | ConnectionStringPlainText   | TableName                     |
+    | testAccountConnectionString | DerivedFromConfiguredTenanted |
     And no new table should have been created
 
-    Examples:
-    | DisableTenantIdPrefix |
-    | true                  |
-    | false                 |
+Scenario: Table exists and only v2 configuration with TableName and tenant prefix disabled exists in tenant properties when configuration migration preparation occurs
+    # AccountName is interpreted as a connection string when there's no AccountKeySecretName
+    Given a legacy TableConfiguration with an AccountName and a TableName with DisableTenantIdPrefix of true
+    And this test is using an Azure TableClient with a connection string
+    And a tenant with the property 'sv2' set to the legacy TableConfiguration
+    And a table with a non-tenant-specific name derived from the legacy configuration TableName exists
+    When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
+    Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a TableConfiguration with these settings
+    | ConnectionStringPlainText   | TableName                       |
+    | testAccountConnectionString | DerivedFromConfiguredUntenanted |
+    And no new table should have been created
 
 Scenario: Table exists and only v2 configuration without TableName exists in tenant properties when configuration migration preparation occurs
     # AccountName is interpreted as a connection string when there's no AccountKeySecretName
     Given a legacy TableConfiguration with an AccountName
     And this test is using an Azure TableClient with a connection string
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
-    And a table with a name derived from the logical table name exists
+    And a table with a tenanted name derived from the logical table name exists
     When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
     Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned a TableConfiguration with these settings
-    | ConnectionStringPlainText   | TableName          |
-    | testAccountConnectionString | DerivedFromLogical |
+    | ConnectionStringPlainText   | TableName                  |
+    | testAccountConnectionString | DerivedFromLogicalTenanted |
     And no new table should have been created
 
 
@@ -141,9 +160,9 @@ Scenario: Table exists and both v2 and v3 configurations without TableName exist
     And a v3 TableConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
     And a tenant with the property 'sv3' set to the v3 TableConfiguration
-    And a table with a name derived from the logical table name exists
+    And a table with a tenanted name derived from the logical table name exists
     When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
-    Then the TableClient should have access to the table with a name derived from the logical table name
+    Then the TableClient should have access to the table with a tenanted name derived from the logical table name
     And no new table should have been created
 
 Scenario Outline: Table exists and both v2 configuration without table and v3 configuration with TableName exist in tenant properties when table requested
@@ -162,7 +181,7 @@ Scenario Outline: Table exists and both v2 configuration without table and v3 co
     | true                  |
     | false                 |
 
-Scenario: Table exists and both v2 and v3 configurations with TableName exist in tenant properties when configuration migration preparation occurs
+Scenario Outline: Table exists and both v2 and v3 configurations with TableName exist in tenant properties when configuration migration preparation occurs
     Given a legacy TableConfiguration with a bogus AccountName and a TableName with DisableTenantIdPrefix of <DisableTenantIdPrefix>
     And this test is using an Azure TableClient with a connection string
     And a v3 TableConfiguration with a ConnectionStringPlainText and a TableName
@@ -181,10 +200,10 @@ Scenario: Table exists and both v2 and v3 configurations with TableName exist in
 Scenario: Table exists and both v2 and v3 configurations without TableName exist in tenant properties when configuration migration preparation occurs
     Given a legacy TableConfiguration with a bogus AccountName
     And this test is using an Azure TableClient with a connection string
-    And a v3 TableConfiguration with a ConnectionStringPlainText and a TableName
+    And a v3 TableConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv2' set to the legacy TableConfiguration
     And a tenant with the property 'sv3' set to the v3 TableConfiguration
-    And a table with a name derived from the logical table name exists
+    And a table with a tenanted name derived from the logical table name exists
     When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
     Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new table should have been created
@@ -216,9 +235,9 @@ Scenario: Table exists and only v3 configuration without TableName exists in ten
     Given this test is using an Azure TableClient with a connection string
     And a v3 TableConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv3' set to the v3 TableConfiguration
-    And a table with a name derived from the logical table name exists
+    And a table with a tenanted name derived from the logical table name exists
     When ITableSourceWithTenantLegacyTransition.GetTableClientFromTenantAsync is called with configuration keys of 'sv2' and 'sv3'
-    Then the TableClient should have access to the table with a name derived from the logical table name
+    Then the TableClient should have access to the table with a tenanted name derived from the logical table name
     And no new table should have been created
 
 Scenario: Table exists and only v3 configuration with TableName exists in tenant properties when configuration migration preparation occurs
@@ -234,7 +253,7 @@ Scenario: Table exists and only v3 configuration without TableName exists in ten
     Given this test is using an Azure TableClient with a connection string
     And a v3 TableConfiguration with a ConnectionStringPlainText
     And a tenant with the property 'sv3' set to the v3 TableConfiguration
-    And a table with a name derived from the logical table name exists
+    And a table with a tenanted name derived from the logical table name exists
     When ITableSourceWithTenantLegacyTransition.MigrateToV3Async is called with configuration keys of 'sv2' and 'sv3'
     Then ITableSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null
     And no new table should have been created

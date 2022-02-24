@@ -27,6 +27,6 @@ public sealed class TableNamingStepDefinitions
         ITenant tenant = this.tenantedNameBindings.Tenants[tenantLabel];
         this.tenantedNameBindings.AddTenantedContainerName(
             resultLabel,
-            AzureTablesTenantedContainerNaming.GetHashedTenantedTableNameFor(tenant, logicalTableName));
+            AzureTablesTenantedNaming.GetHashedTenantedTableNameFor(tenant, logicalTableName));
     }
 }

@@ -156,19 +156,28 @@ public sealed class TableLegacyMigrationSteps : IDisposable
         this.v3ConfigurationInTenant.ConnectionStringPlainText = this.testStorageConnectionString;
     }
 
-    [Given("a table with a tenant-specific name derived from the configured TableName exists")]
-    public async Task GivenATableWithATenant_SpecificNameDerivedFromTheConfiguredTableNameExistsAsync()
+    [Given("a table with a name derived from a tenanted version of the legacy configuration TableName exists")]
+    public async Task GivenATableWithATenant_NameDerivedFromTheConfiguredTableNameExistsTenantedAsync()
     {
-        string tableName = this.ContainerNameFromLegacyConfiguration();
+        string tableName = this.TenantedContainerNameFromLegacyConfiguration();
         TableClient blobContainerClient = this.tableServiceClient!.GetTableClient(tableName);
         await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
         this.tablesCreatedByTest.Add(tableName);
     }
 
-    [Given("a table with a name derived from the logical table name exists")]
-    public async Task GivenATableWithANameDerivedFromTheLogicalTableNameExistsAsync()
+    [Given("a table with a non-tenant-specific name derived from the legacy configuration TableName exists")]
+    public async Task GivenATableWithATenant_NameDerivedFromTheConfiguredTableNameExistsUntenantedAsync()
     {
-        string hashedTenantedContainerName = this.ContainerNameFromLogicalName();
+        string tableName = this.UntenantedContainerNameFromLegacyConfiguration();
+        TableClient blobContainerClient = this.tableServiceClient!.GetTableClient(tableName);
+        await blobContainerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+        this.tablesCreatedByTest.Add(tableName);
+    }
+
+    [Given("a table with a tenanted name derived from the logical table name exists")]
+    public async Task GivenATableWithANameDerivedFromTheLogicalTableNameExistsTenantedAsync()
+    {
+        string hashedTenantedContainerName = this.TenantedContainerNameFromLogicalName();
         TableClient tableClient = this.tableServiceClient!.GetTableClient(hashedTenantedContainerName);
         await tableClient.CreateIfNotExistsAsync().ConfigureAwait(false);
         this.tablesCreatedByTest.Add(hashedTenantedContainerName);
@@ -222,17 +231,24 @@ public sealed class TableLegacyMigrationSteps : IDisposable
             .ConfigureAwait(false);
     }
 
-    [Then("the TableClient should have access to the table with a name derived from the legacy configuration TableName")]
-    public void ThenTheTableClientShouldHaveAccessToTheTableWithANameDerivedFromTheLegacyConfigurationTableName()
+    [Then("the TableClient should have access to the table with a tenanted name derived from the legacy configuration TableName")]
+    public void ThenTheTableClientShouldHaveAccessToTheTableWithANameDerivedFromTheLegacyConfigurationTableNameTenanted()
     {
-        string expectedContainerName = this.ContainerNameFromLegacyConfiguration();
+        string expectedContainerName = this.TenantedContainerNameFromLegacyConfiguration();
         Assert.AreEqual(expectedContainerName, this.tableClientFromTestSubject!.Name);
     }
 
-    [Then("the TableClient should have access to the table with a name derived from the logical table name")]
-    public void ThenTheTableClientShouldHaveAccessToTheTableWithANameDerivedFromTheLogicalContainerName()
+    [Then("the TableClient should have access to the table with a non-tenant-specific name derived from the legacy configuration TableName")]
+    public void ThenTheTableClientShouldHaveAccessToTheTableWithANameDerivedFromTheLegacyConfigurationTableNameNotTenanted()
     {
-        string expectedContainerName = this.ContainerNameFromLogicalName();
+        string expectedContainerName = this.UntenantedContainerNameFromLegacyConfiguration();
+        Assert.AreEqual(expectedContainerName, this.tableClientFromTestSubject!.Name);
+    }
+
+    [Then("the TableClient should have access to the table with a tenanted name derived from the logical table name")]
+    public void ThenTheTableClientShouldHaveAccessToTheTableWithANameDerivedFromTheLogicalContainerNameTenanted()
+    {
+        string expectedContainerName = this.TenantedContainerNameFromLogicalName();
         Assert.AreEqual(expectedContainerName, this.tableClientFromTestSubject!.Name);
     }
 
@@ -248,17 +264,16 @@ public sealed class TableLegacyMigrationSteps : IDisposable
     {
         TableConfiguration expectedConfiguration = configurationTable.CreateInstance<TableConfiguration>();
 
-        // We recognized a couple of special values in the test for this configuration where we
+        // We recognized some special values in the test for this configuration where we
         // plug in real values at runtime (because the test code can't know what the actual
         // values should be).
-        if (expectedConfiguration.TableName == "DerivedFromConfigured")
+        expectedConfiguration.TableName = expectedConfiguration.TableName switch
         {
-            expectedConfiguration.TableName = this.ContainerNameFromLegacyConfiguration();
-        }
-        else if (expectedConfiguration.TableName == "DerivedFromLogical")
-        {
-            expectedConfiguration.TableName = this.ContainerNameFromLogicalName();
-        }
+            "DerivedFromConfiguredTenanted" => this.TenantedContainerNameFromLegacyConfiguration(),
+            "DerivedFromConfiguredUntenanted" => this.UntenantedContainerNameFromLegacyConfiguration(),
+            "DerivedFromLogicalTenanted" => this.TenantedContainerNameFromLogicalName(),
+            _ => expectedConfiguration.TableName,
+        };
 
         if (expectedConfiguration.ConnectionStringPlainText == "testAccountConnectionString")
         {
@@ -280,17 +295,24 @@ public sealed class TableLegacyMigrationSteps : IDisposable
         Assert.IsEmpty(this.tableClientMonitor.TablesCreated);
     }
 
-    [Then("a new table with a name derived from the legacy configuration TableName should have been created")]
-    public async Task ThenANewTableWithANameDerivedFromTheLegacyConfigurationTableNameShouldHaveBeenCreatedAsync()
+    [Then("a new table with a tenanted name derived from the legacy configuration TableName should have been created")]
+    public async Task ThenANewTableWithANameDerivedFromTheLegacyConfigurationTableNameShouldHaveBeenCreatedTenantedAsync()
     {
-        string expectedContainerName = this.ContainerNameFromLegacyConfiguration();
+        string expectedContainerName = this.TenantedContainerNameFromLegacyConfiguration();
         await this.CheckTableExists(expectedContainerName).ConfigureAwait(false);
     }
 
-    [Then("a new table with a name derived from the logical table name should have been created")]
-    public async Task ThenANewTableWithANameDerivedFromTheLogicalTableNameShouldHaveBeenCreatedAsync()
+    [Then("a new table with a non-tenant-specific name derived from the legacy configuration TableName should have been created")]
+    public async Task ThenANewTableWithANameDerivedFromTheLegacyConfigurationTableNameShouldHaveBeenCreatedUntenantedAsync()
     {
-        await this.CheckTableExists(this.ContainerNameFromLogicalName()).ConfigureAwait(false);
+        string expectedContainerName = this.UntenantedContainerNameFromLegacyConfiguration();
+        await this.CheckTableExists(expectedContainerName).ConfigureAwait(false);
+    }
+
+    [Then("a new table with a tenanted name derived from the logical table name should have been created")]
+    public async Task ThenANewTableWithANameDerivedFromTheLogicalTableNameShouldHaveBeenCreatedTenantedAsync()
+    {
+        await this.CheckTableExists(this.TenantedContainerNameFromLogicalName()).ConfigureAwait(false);
     }
 
     private ITenant GetTenantCreatingIfNecessary()
@@ -311,15 +333,19 @@ public sealed class TableLegacyMigrationSteps : IDisposable
         Assert.IsTrue(tableExists, $"Table {tableName} exists");
     }
 
-    private string ContainerNameFromLogicalName() =>
-        AzureTableNaming.HashAndEncodeTableName(this.logicalTableName);
+    private string TenantedContainerNameFromLogicalName() =>
+        AzureTablesTenantedNaming.GetHashedTenantedTableNameFor(this.GetTenantCreatingIfNecessary(), this.logicalTableName);
 
-    private string ContainerNameFromLegacyConfiguration()
+    private string UntenantedContainerNameFromLegacyConfiguration()
     {
         string baseName = this.legacyConfigurationInTenant!.TableName ?? throw new InvalidOperationException("this.legacyConfigurationInTenant.TableName should not be null at this point in the test");
-        string unhashedName = this.legacyConfigurationInTenant.DisableTenantIdPrefix
-            ? baseName
-            : $"{this.tenantId.ToLowerInvariant()}-{baseName}";
+        return AzureTableNaming.HashAndEncodeTableName(baseName);
+    }
+
+    private string TenantedContainerNameFromLegacyConfiguration()
+    {
+        string baseName = this.legacyConfigurationInTenant!.TableName ?? throw new InvalidOperationException("this.legacyConfigurationInTenant.TableName should not be null at this point in the test");
+        string unhashedName = $"{this.tenantId.ToLowerInvariant()}-{baseName}";
         return AzureTableNaming.HashAndEncodeTableName(unhashedName);
     }
 

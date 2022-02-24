@@ -1,4 +1,4 @@
-﻿// <copyright file="AzureTablesTenantedContainerNaming.cs" company="Endjin Limited">
+﻿// <copyright file="AzureTablesTenantedNaming.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -26,7 +26,7 @@ using Corvus.Tenancy;
 /// in Cosmos DB.
 /// </para>
 /// </remarks>
-public static class AzureTablesTenantedContainerNaming
+public static class AzureTablesTenantedNaming
 {
     /// <summary>
     /// Make a container name safe to use as an Azure Storage table name, and which is unique for
