@@ -61,6 +61,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="[6.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="[6.0.*,)" />
     <PackageReference Include="Corvus.Testing.SpecFlow.NUnit" Version="1.4.9" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Corvus.Azure.Cosmos.Tenancy\Corvus.Azure.Cosmos.Tenancy.csproj" />
@@ -68,13 +69,9 @@
     <ProjectReference Include="..\Corvus.Azure.Storage.Tenancy\Corvus.Azure.Storage.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Storage.Azure.BlobStorage.Tenancy\Corvus.Storage.Azure.BlobStorage.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Storage.Azure.Cosmos.Tenancy\Corvus.Storage.Azure.Cosmos.Tenancy.csproj" />
+    <ProjectReference Include="..\Corvus.Storage.Azure.TableStorage.Tenancy\Corvus.Storage.Azure.TableStorage.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Storage.Sql.Tenancy\Corvus.Storage.Sql.Tenancy.csproj" />
     <ProjectReference Include="..\Corvus.Tenancy.Storage.Azure.Blob\Corvus.Tenancy.Storage.Azure.Blob.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Features\CloudTable.feature.cs">
-      <DependentUpon>CloudTable.feature</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="local.settings.json">

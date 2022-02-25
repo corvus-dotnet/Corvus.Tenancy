@@ -2,7 +2,7 @@
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
-namespace Corvus.Tenancy.Specs.Steps;
+namespace Corvus.Tenancy.Specs.Features.SqlDatabase;
 
 using System;
 using System.Threading.Tasks;

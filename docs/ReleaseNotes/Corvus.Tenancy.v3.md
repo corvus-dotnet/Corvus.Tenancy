@@ -1,5 +1,9 @@
 # Release notes for Corvus.Tenancy v3.
 
+## v3.2
+
+Adds support for Azure Tables.
+
 ## v3.1
 
 Adds support for SQL Databases.
