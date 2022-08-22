@@ -23,6 +23,8 @@ using NUnit.Framework;
 
 using TechTalk.SpecFlow;
 
+using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationStepDefinitions;
+
 [Binding]
 public class CosmosLegacyMigrationStepDefinitions
 {
@@ -37,28 +39,30 @@ public class CosmosLegacyMigrationStepDefinitions
     /// <summary>
     /// The V2-style configuration in the form expected in tenant properties.
     /// </summary>
-    private LegacyV2CosmosContainerConfiguration? legacyConfiguration;
+    private LegacyV2CosmosContainerConfiguration? legacyConfigurationSupplied;
 
     /// <summary>
-    /// V3-style configuration equivalent to <see cref="legacyConfiguration"/> in the form expected
+    /// V3-style configuration equivalent to <see cref="legacyConfigurationSupplied"/> in the form expected
     /// in tenant properties. Note that this won't necessarily include a container, because
     /// applications might want to store a single per-database config, but use multiple containers
     /// within that.
     /// </summary>
-    private CosmosContainerConfiguration? v3Configuration;
+    private CosmosContainerConfiguration? v3ConfigurationSupplied;
 
-    /// <summary>
-    /// V3-style configuration that always has a container name even if <see cref="v3Configuration"/>
-    /// does not. Useful for when we want to obtain a CosmosClient from Corvus.Storage, which will
-    /// complain if there's no container. (Nonetheless if's valid for a tenant to contains
-    /// config with no container because the app may always plug in a specific one at runtime.)
-    /// </summary>
-    private CosmosContainerConfiguration? v3ConfigurationWithContainer;
+    private CosmosContainerConfiguration? v3ConfigurationEquivalentToLegacyWithContainer;
+
+    private CosmosContainerConfiguration? v3ConfigurationEquivalentToV3WithContainer;
+
     private CosmosContainerConfiguration? configReturnedFromMigration;
+    private string? logicalDatabaseNameForLegacy;
+    private string? logicalContainerNameForLegacy;
+    private string? databaseNameForV3;
+    private string? containerNameForV3;
     private string? databaseNameArgument;
     private string? containerNameArgument;
 
     private Container? cosmosContainer;
+    private CosmosContainerConfiguration? configToUseForTest;
 
     public CosmosLegacyMigrationStepDefinitions(
         ScenarioContext scenarioContext,
@@ -78,14 +82,25 @@ public class CosmosLegacyMigrationStepDefinitions
     {
         Config,
         Args,
+        ConfigAndArgs,
         DbInConfigContainerInArg,
+        DbInConfigContainerInConfigAndArg,
+    }
+
+    public enum ExpectedSources
+    {
+        LogicalNameExact,
+        LogicalNameTenanted,
+        V2ConfigExact,
+        V2ConfigTenanted,
+        V3ConfigExact,
     }
 
     [Given("Cosmos database and container names set in (.*) with tenant-specific names set to '([^']*)'")]
-    public void GivenComosDatabaseAndContainerNamesSetInConfig(
+    public void GivenCosmosDatabaseAndContainerNamesSetIn(
         NameLocations nameLocation, bool autoTenantSpecificNamesEnabled)
     {
-        if (!autoTenantSpecificNamesEnabled && nameLocation != NameLocations.Config)
+        if (!autoTenantSpecificNamesEnabled && nameLocation == NameLocations.Args)
         {
             // With the old V2 factory, when database or container names were not in config, they
             // would be derived from the CosmosContainerDefinition, and the
@@ -93,85 +108,84 @@ public class CosmosLegacyMigrationStepDefinitions
             // only situation in which you could avoid tenant prefix generation was to put the
             // database and container names in configuration, and set DisableTenantIdPrefix to
             // true.
-            throw new NotSupportedException("Automatic tenant-specific names can only be disabled with NameLocations.Config");
+            throw new NotSupportedException("Automatic tenant-specific names can only be disabled when at least one name is stored in configuration");
         }
 
         ITenant tenant = this.GetTenant();
 
-        this.legacyConfiguration = this.cosmosBindings.TestLegacyCosmosConfiguration;
-        this.legacyConfiguration!.DisableTenantIdPrefix = !autoTenantSpecificNamesEnabled;
-        this.v3Configuration = LegacyCosmosConfigurationConverter.FromV2ToV3(this.legacyConfiguration);
+        this.legacyConfigurationSupplied = this.cosmosBindings.TestLegacyCosmosConfiguration;
+        this.legacyConfigurationSupplied!.DisableTenantIdPrefix = !autoTenantSpecificNamesEnabled;
+        this.v3ConfigurationSupplied = LegacyCosmosConfigurationConverter.FromV2ToV3(this.legacyConfigurationSupplied);
 
         // The database and container names as a V2 app would specify them in the
         // CosmosContainerDefinition.
-        string logicalDatabaseName = $"test-corvustenancy-{DateTime.UtcNow:yyyyMMddHHmmss}";
-        string logicalContainerName = $"legacymigration-{Guid.NewGuid()}";
+        this.logicalDatabaseNameForLegacy = $"test-corvustenancy-{DateTime.UtcNow:yyyyMMddHHmmss}";
+        this.logicalContainerNameForLegacy = $"legacymigration-{Guid.NewGuid()}";
+
+        // We use different names in V3 config so we can tell which config was used
+        this.databaseNameForV3 = $"test-corvustenancy-v3-{DateTime.UtcNow:yyyyMMddHHmmss}";
+        this.containerNameForV3 = $"legacymigration-v3-{Guid.NewGuid()}";
 
         // Tenant-specific database and container names in the form that the V2 libraries
         // would generate them either if they are being derived from the logical names
         // because the config doesn't specify them, or they are specified in the config
         // but IsTenend
-        string autoTenantedDatabaseName = CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, logicalDatabaseName);
-        string autoTenantedContainerName = CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, logicalContainerName);
+        string autoTenantedDatabaseName = CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(
+            tenant, this.logicalDatabaseNameForLegacy);
+        string autoTenantedContainerName = CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(
+            tenant, this.logicalContainerNameForLegacy);
 
-        // In V2, the configuration might not contain the database and/or container name, and in
-        // these cases, they are basd on the "tenanted container definition". In the V2 modes, the
-        // app always passes a "container definition", which encapsulates both logical names, and
-        // these get turned into tenant-specific names.
-        // If the configuration does contain a database name and/or container name, then the name from
-        // configuration is used, but may or may not be converted into a tenant-specific name first,
-        // depending on the DisableTenantIdPrefix setting.
-        switch (nameLocation)
+        (this.databaseNameArgument, this.containerNameArgument) = nameLocation switch
         {
-            case NameLocations.Config:
-                // In this case, the V2 config does contain the database name. The V3 config
-                // always contains the physical database name. If DisableTenantIdPrefix is
-                // false (autoTenantSpecificNamesEnabled is true), those names in the V2
-                // config become the actual physical names, and so we put the logical names
-                // into both V2 and V3 config here. But if the V2 config says to generate
-                // tenanted names, we put the logical name in V2 and the generated name in
-                // V3.
-                this.legacyConfiguration.DatabaseName = logicalDatabaseName;
-                this.v3Configuration.Database = autoTenantSpecificNamesEnabled
-                    ? autoTenantedDatabaseName : logicalDatabaseName;
-                this.legacyConfiguration.ContainerName = logicalContainerName;
-                this.v3Configuration.Container = autoTenantSpecificNamesEnabled
-                    ? autoTenantedContainerName : logicalContainerName;
-                break;
+            NameLocations.Args or
+            NameLocations.ConfigAndArgs => (this.logicalDatabaseNameForLegacy, this.logicalContainerNameForLegacy),
+            NameLocations.DbInConfigContainerInArg or
+            NameLocations.DbInConfigContainerInConfigAndArg => (null, this.logicalContainerNameForLegacy),
+            _ => (null, null),
+        };
 
-            case NameLocations.Args:
-                // In this case, the V2 config contains no names. In the V2 world, the names
-                // would always be generated as tenanted versions of the logical names from
-                // the definitions. Since the V3 config always represents the actual database
-                // name, we just set that.
-                this.v3Configuration.Database = autoTenantedDatabaseName;
+        this.legacyConfigurationSupplied.DatabaseName = nameLocation switch
+        {
+            NameLocations.Args => null,
+            _ => this.logicalDatabaseNameForLegacy,
+        };
+        this.legacyConfigurationSupplied.ContainerName = nameLocation switch
+        {
+            NameLocations.Config or
+            NameLocations.ConfigAndArgs or
+            NameLocations.DbInConfigContainerInConfigAndArg => this.logicalContainerNameForLegacy,
+            _ => null,
+        };
 
-                this.databaseNameArgument = logicalDatabaseName;
-                this.containerNameArgument = logicalContainerName;
-                break;
+        this.v3ConfigurationEquivalentToLegacyWithContainer = LegacyCosmosConfigurationConverter.FromV2ToV3(this.legacyConfigurationSupplied) with
+        {
+            Database = autoTenantSpecificNamesEnabled ? autoTenantedDatabaseName : this.logicalDatabaseNameForLegacy,
+            Container = autoTenantSpecificNamesEnabled ? autoTenantedContainerName : this.logicalContainerNameForLegacy,
+        };
 
-            case NameLocations.DbInConfigContainerInArg:
-                // This is a hybrid of the previous two. The database name is in the V2
-                // configuration, so the same DisableTenantIdPrefix considerations apply
-                // as for the Config case above, but the container name would always have
-                // been derived as a tenanted version of the logical name.
-                this.legacyConfiguration.DatabaseName = logicalDatabaseName;
-                this.v3Configuration.Database = autoTenantSpecificNamesEnabled
-                    ? autoTenantedDatabaseName : logicalDatabaseName;
+        // When V3 configuration is used, the names are always exact - it's the job of whoever sets
+        // up tenant-specific config to choose database and container names.
+        this.v3ConfigurationSupplied.Database = nameLocation switch
+        {
+            NameLocations.Args => null!,
+            _ => this.databaseNameForV3,
+        };
+        this.v3ConfigurationSupplied.Container = nameLocation switch
+        {
+            NameLocations.Args or
+            NameLocations.DbInConfigContainerInArg => null,
+            _ => this.containerNameForV3,
+        };
 
-                this.containerNameArgument = logicalContainerName;
-                break;
-        }
-
-        this.v3ConfigurationWithContainer = this.v3Configuration.Container is null
-            ? this.v3Configuration with { Container = autoTenantSpecificNamesEnabled ? autoTenantedContainerName : logicalContainerName }
-            : this.v3Configuration;
+        this.v3ConfigurationEquivalentToV3WithContainer = this.v3ConfigurationSupplied.Container is null
+            ? this.v3ConfigurationSupplied with { Container = this.containerNameForV3 }
+            : this.v3ConfigurationSupplied;
     }
 
-    [Given("the Cosmos database already exists with throughput of (.*)")]
-    public async Task GivenTheCosmosDatabaseAlreadyExistsWithThroughputOf(int? databaseThroughput)
+    [Given("the Cosmos database specified in v2 configuration already exists with throughput of (.*)")]
+    public async Task GivenTheCosmosDatabaseV2AlreadyExistsWithThroughputOf(int? databaseThroughput)
     {
-        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationWithContainer!).ConfigureAwait(false);
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationEquivalentToLegacyWithContainer!).ConfigureAwait(false);
         await cosmosContainer.Database.Client.CreateDatabaseAsync(
             cosmosContainer.Database.Id,
             databaseThroughput)
@@ -180,10 +194,32 @@ public class CosmosLegacyMigrationStepDefinitions
         this.cosmosBindings.RemoveThisDatabaseOnTestTeardown(cosmosContainer.Database);
     }
 
-    [Given("the Cosmos container already exists with per-database throughput")]
-    public async Task GivenTheCosmosContainerAlreadyExistsWithPer_DatabaseThroughput()
+    [Given("the Cosmos database specified in v3 configuration already exists with throughput of (.*)")]
+    public async Task GivenTheCosmosDatabaseV3AlreadyExistsWithThroughputOf(int? databaseThroughput)
     {
-        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationWithContainer!).ConfigureAwait(false);
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationEquivalentToV3WithContainer!).ConfigureAwait(false);
+        await cosmosContainer.Database.Client.CreateDatabaseAsync(
+            cosmosContainer.Database.Id,
+            databaseThroughput)
+            .ConfigureAwait(false);
+
+        this.cosmosBindings.RemoveThisDatabaseOnTestTeardown(cosmosContainer.Database);
+    }
+
+    [Given("the Cosmos container specified in v2 configuration already exists with per-database throughput")]
+    public async Task GivenTheCosmosContainerV2AlreadyExistsWithPer_DatabaseThroughput()
+    {
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationEquivalentToLegacyWithContainer!).ConfigureAwait(false);
+        await cosmosContainer.Database.CreateContainerAsync(
+            cosmosContainer.Id,
+            PartitionKeyPath)
+            .ConfigureAwait(false);
+    }
+
+    [Given("the Cosmos container specified in v3 configuration already exists with per-database throughput")]
+    public async Task GivenTheCosmosContainerV3AlreadyExistsWithPer_DatabaseThroughput()
+    {
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationEquivalentToV3WithContainer!).ConfigureAwait(false);
         await cosmosContainer.Database.CreateContainerAsync(
             cosmosContainer.Id,
             PartitionKeyPath)
@@ -197,7 +233,7 @@ public class CosmosLegacyMigrationStepDefinitions
             this.tenantProperties,
             new Dictionary<string, object>
             {
-                { configurationKey, this.legacyConfiguration ?? throw new InvalidOperationException("This test step should not be invoked when this.legacyConfiguration is null") },
+                { configurationKey, this.legacyConfigurationSupplied ?? throw new InvalidOperationException("This test step should not be invoked when this.legacyConfiguration is null") },
             },
             null);
     }
@@ -227,7 +263,7 @@ public class CosmosLegacyMigrationStepDefinitions
             this.tenantProperties,
             new Dictionary<string, object>
             {
-                { configurationKey, this.v3Configuration ?? throw new InvalidOperationException("This test step should not be invoked when this.configuration is null") },
+                { configurationKey, this.v3ConfigurationSupplied ?? throw new InvalidOperationException("This test step should not be invoked when this.configuration is null") },
             },
             null);
     }
@@ -265,10 +301,10 @@ public class CosmosLegacyMigrationStepDefinitions
     {
         ITenant tenant = this.GetTenant();
 
-        IEnumerable<string>? databaseNames = this.legacyConfiguration!.DatabaseName is null
+        IEnumerable<string>? databaseNames = this.legacyConfigurationSupplied!.DatabaseName is null
             ? new[] { this.databaseNameArgument! }
             : null;
-        IEnumerable<(string, string)>? containerNamesAndPartitionKeys = this.legacyConfiguration.ContainerName is null
+        IEnumerable<(string, string)>? containerNamesAndPartitionKeys = this.legacyConfigurationSupplied.ContainerName is null
             ? new[] { (this.containerNameArgument!, PartitionKeyPath) }
             : null;
         this.configReturnedFromMigration = await this.legacyTransitionContainerSource.MigrateToV3Async(
@@ -292,11 +328,11 @@ public class CosmosLegacyMigrationStepDefinitions
             CosmosContainerConfiguration configReturnedWithDatabaseAndContainer = this.configReturnedFromMigration with
             {
                 Database = this.configReturnedFromMigration.Database ??
-                    (this.legacyConfiguration!.DisableTenantIdPrefix
+                    (this.legacyConfigurationSupplied!.DisableTenantIdPrefix
                         ? this.databaseNameArgument!
                         : CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.databaseNameArgument!)),
                 Container = this.configReturnedFromMigration.Container ??
-                (this.legacyConfiguration!.DisableTenantIdPrefix
+                (this.legacyConfigurationSupplied!.DisableTenantIdPrefix
                             ? this.containerNameArgument!
                             : CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.containerNameArgument!)),
             };
@@ -305,50 +341,61 @@ public class CosmosLegacyMigrationStepDefinitions
         }
     }
 
-    [Then("a new Cosmos database with the specified name should have been created")]
-    public async Task ThenANewCosmosDatabaseWithTheSpecifiedNameShouldHaveBeenCreated()
+    [Then(@"under the db with the name from '([^']*)' a new container with the name from '([^']*)' should have been created")]
+    [Then(@"a new Cosmos database and container with names from '([^']*)' and '([^']*)' should have been created")]
+    public async Task ThenANewCosmosDatabaseAndContainerWithNamesFromVConfigExactAndShouldHaveBeenCreatedAsync(
+        ExpectedSources dbNameFrom, ExpectedSources containerNameFrom)
     {
+        ITenant tenant = this.GetTenant();
+        string databaseName = this.GetDbNameForSource(dbNameFrom, tenant);
+        string containerName = this.GetContainerNameForSource(containerNameFrom, tenant);
+
         // The easiest way for us to get a client object with which we can inspect the database
         // is to ask Corvus.Tenancy for a Container based on the configuration.
-        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationWithContainer!).ConfigureAwait(false);
+        this.configToUseForTest = this.v3ConfigurationSupplied! with
+        {
+            Database = databaseName,
+            Container = containerName,
+        };
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.configToUseForTest).ConfigureAwait(false);
         await cosmosContainer.Database.ReadAsync().ConfigureAwait(false);
+        await cosmosContainer.ReadContainerAsync().ConfigureAwait(false);
     }
 
     [Then("the Cosmos database throughput should match the specified (.*)")]
     public async Task ThenTheCosmosDatabaseThroughputShouldMatchTheSpecifiedThroughput(int? expectedDatabaseThroughput)
     {
-        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationWithContainer!).ConfigureAwait(false);
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.configToUseForTest!).ConfigureAwait(false);
         int? reportedDatabaseThroughput = await cosmosContainer.Database.ReadThroughputAsync().ConfigureAwait(false);
 
         Assert.AreEqual(expectedDatabaseThroughput, reportedDatabaseThroughput);
     }
 
-    [Then("a new Cosmos container with the specified name should have been created")]
-    public async Task ThenANewCosmosContainerTheSpecifiedNameShouldHaveBeenCreated()
-    {
-        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationWithContainer!).ConfigureAwait(false);
-        await cosmosContainer.ReadContainerAsync().ConfigureAwait(false);
-    }
-
     [Then("the Cosmos container throughput should match the specified (.*)")]
     public async Task ThenTheCosmosContainerThroughputShouldMatchTheSpecifiedThroughput(int? expectedContainerThroughput)
     {
-        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.v3ConfigurationWithContainer!).ConfigureAwait(false);
+        Container cosmosContainer = await this.containerSource.GetStorageContextAsync(this.configToUseForTest!).ConfigureAwait(false);
         int? reportedContainerThroughput = await cosmosContainer.ReadThroughputAsync().ConfigureAwait(false);
 
         Assert.AreEqual(expectedContainerThroughput, reportedContainerThroughput);
     }
 
-    [Then("the Cosmos Container object returned should refer to the database")]
-    public void ThenTheCosmosContainerObjectReturnedShouldReferToTheDatabase()
+    [Then("the Cosmos Container object returned should refer to the database with the name from '([^']*)'")]
+    public void ThenTheCosmosContainerObjectReturnedShouldReferToTheDatabaseWithTheNameFrom(ExpectedSources dbNameFrom)
     {
-        Assert.AreEqual(this.v3Configuration!.Database, this.cosmosContainer!.Database.Id);
+        ITenant tenant = this.GetTenant();
+        string databaseName = this.GetDbNameForSource(dbNameFrom, tenant);
+
+        Assert.AreEqual(databaseName, this.cosmosContainer!.Database.Id);
     }
 
-    [Then("the Cosmos Container object returned should refer to the container")]
-    public void ThenTheCosmosContainerObjectReturnedShouldReferToTheContainer()
+    [Then(@"the Cosmos Container object returned should refer to the container with the name from '([^']*)'")]
+    public void ThenTheCosmosContainerObjectReturnedShouldReferToTheContainerWithTheNameFrom(ExpectedSources containerNameFrom)
     {
-        Assert.AreEqual(this.v3ConfigurationWithContainer!.Container, this.cosmosContainer!.Id);
+        ITenant tenant = this.GetTenant();
+        string containerName = this.GetContainerNameForSource(containerNameFrom, tenant);
+
+        Assert.AreEqual(containerName, this.cosmosContainer!.Id);
     }
 
     [Then("MigrateToV3Async should have returned a CosmosContainerConfiguration with settings matching the legacy CosmosConfiguration")]
@@ -361,7 +408,7 @@ public class CosmosLegacyMigrationStepDefinitions
         // a record doesn't work with key vault settings, because those aren't records so it ends
         // up doing identity comparison. When tests run in the CI build, we're generally using
         // key vault, so we need to handle that part specially.
-        CosmosContainerConfiguration? expectedConfiguration = this.v3Configuration! with
+        CosmosContainerConfiguration? expectedConfiguration = this.v3ConfigurationSupplied! with
         {
             Database = this.configReturnedFromMigration!.Database,
             Container = this.configReturnedFromMigration.Container,
@@ -395,5 +442,31 @@ public class CosmosLegacyMigrationStepDefinitions
             this.tenantId,
             "MyTestTenant",
             this.tenantProperties);
+    }
+
+    private string GetDbNameForSource(ExpectedSources dbNameFrom, ITenant tenant)
+    {
+        return dbNameFrom switch
+        {
+            ExpectedSources.LogicalNameExact => this.databaseNameArgument ?? throw new InvalidOperationException($"Database name source cannot be {ExpectedSources.LogicalNameExact} when the logical name is not being passed as an argument"),
+            ExpectedSources.LogicalNameTenanted => CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.logicalDatabaseNameForLegacy!),
+            ExpectedSources.V2ConfigExact => this.legacyConfigurationSupplied?.DatabaseName ?? throw new InvalidOperationException($"Database name source cannot be {ExpectedSources.V2ConfigExact} when V2 config does not specify a database"),
+            ExpectedSources.V2ConfigTenanted => CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.legacyConfigurationSupplied?.DatabaseName ?? throw new InvalidOperationException($"Database name source cannot be {ExpectedSources.V2ConfigExact} when V2 config does not specify a database")),
+            ExpectedSources.V3ConfigExact => this.v3ConfigurationSupplied!.Database! ?? throw new InvalidOperationException($"Database name source cannot be {ExpectedSources.V3ConfigExact} when V3 config does not specify a database"),
+            _ => throw new InvalidOperationException($"Unexpected database name source: {dbNameFrom}"),
+        };
+    }
+
+    private string GetContainerNameForSource(ExpectedSources dbNameFrom, ITenant tenant)
+    {
+        return dbNameFrom switch
+        {
+            ExpectedSources.LogicalNameExact => this.containerNameArgument ?? throw new InvalidOperationException($"Container name source cannot be {ExpectedSources.LogicalNameExact} when the logical name is not being passed as an argument"),
+            ExpectedSources.LogicalNameTenanted => CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.containerNameArgument ?? throw new InvalidOperationException($"Container name source cannot be {ExpectedSources.LogicalNameTenanted} when the logical name is not being passed as an argument")),
+            ExpectedSources.V2ConfigExact => this.legacyConfigurationSupplied?.ContainerName ?? throw new InvalidOperationException($"Container name source cannot be {ExpectedSources.V2ConfigExact} when V2 config does not specify a container"),
+            ExpectedSources.V2ConfigTenanted => CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, this.legacyConfigurationSupplied?.ContainerName ?? throw new InvalidOperationException($"Database name source cannot be {ExpectedSources.V2ConfigExact} when V2 config does not specify a container")),
+            ExpectedSources.V3ConfigExact => this.v3ConfigurationSupplied!.Container ?? throw new InvalidOperationException($"Container name source cannot be {ExpectedSources.V3ConfigExact} when V3 config does not specify a container"),
+            _ => throw new InvalidOperationException($"Unexpected database name source: {dbNameFrom}"),
+        };
     }
 }
