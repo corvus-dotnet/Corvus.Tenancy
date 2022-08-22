@@ -49,43 +49,49 @@ internal class CosmosContainerSourceWithTenantLegacyTransition : ICosmosContaine
         if (tenant.Properties.TryGet(v3ConfigurationKey, out CosmosContainerConfiguration v3Configuration))
         {
             v3ConfigWasAvailable = true;
+
+            if (v3Configuration.Database is null && databaseName is not null)
+            {
+                v3Configuration = v3Configuration with { Database = databaseName };
+            }
+
+            if (v3Configuration.Container is null && containerName is not null)
+            {
+                v3Configuration = v3Configuration with { Container = containerName };
+            }
         }
         else if (tenant.Properties.TryGet(v2ConfigurationKey, out LegacyV2CosmosContainerConfiguration legacyConfiguration))
         {
             v3Configuration = LegacyCosmosConfigurationConverter.FromV2ToV3(legacyConfiguration);
 
+            string? logicalDatabaseName = v3Configuration.Database ?? databaseName;
+            string? logicalContainerName = v3Configuration.Container ?? containerName;
             if (!legacyConfiguration.DisableTenantIdPrefix)
             {
-                if (legacyConfiguration.DatabaseName is not null)
+                if (logicalDatabaseName is not null)
                 {
                     v3Configuration.Database = CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(
-                        tenant, legacyConfiguration.DatabaseName);
+                        tenant, logicalDatabaseName);
                 }
 
-                if (legacyConfiguration.ContainerName is not null)
+                if (logicalContainerName is not null)
                 {
                     v3Configuration.Container = CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(
-                        tenant, legacyConfiguration.ContainerName);
+                        tenant, logicalContainerName);
                 }
             }
-        }
-
-        if (databaseName is not null)
-        {
-            v3Configuration = v3Configuration with
+            else
             {
-                Database = CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(
-                        tenant, databaseName),
-            };
-        }
+                if (v3Configuration.Database is null && logicalDatabaseName is not null)
+                {
+                    v3Configuration.Database = logicalDatabaseName;
+                }
 
-        if (containerName is not null)
-        {
-            v3Configuration = v3Configuration with
-            {
-                Container = CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(
-                        tenant, containerName),
-            };
+                if (v3Configuration.Container is null && logicalContainerName is not null)
+                {
+                    v3Configuration.Container = logicalContainerName;
+                }
+            }
         }
 
         Container result = await this.cosmosContainerSource.GetStorageContextAsync(
