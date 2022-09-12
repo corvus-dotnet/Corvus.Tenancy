@@ -30,6 +30,15 @@ public class CosmosTenantSpecificNamesStepDefinitions
             CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenant, logicalDatabaseName));
     }
 
+    [When("I get a Cosmos database name for tenantId '([^']*)' with a logical name of '([^']*)' and label the result '([^']*)'")]
+    public void WhenIGetACosmosDatabaseNameForTenantIdWithALogicalNameOfAndLabelTheResult(
+        string tenantId, string logicalDatabaseName, string resultLabel)
+    {
+        this.tenantedNameBindings.AddTenantedContainerName(
+            resultLabel,
+            CosmosTenantedContainerNaming.GetTenantSpecificDatabaseNameFor(tenantId, logicalDatabaseName));
+    }
+
     [When("I get a Cosmos container name for tenant '([^']*)' with a logical name of '([^']*)' and label the result '([^']*)'")]
     public void WhenIGetACosmosContainerNameForTenantWithALogicalNameOfAndLabelTheResult(
         string tenantLabel, string logicalContainerName, string resultLabel)
@@ -38,5 +47,14 @@ public class CosmosTenantSpecificNamesStepDefinitions
         this.tenantedNameBindings.AddTenantedContainerName(
             resultLabel,
             CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(tenant, logicalContainerName));
+    }
+
+    [When("I get a Cosmos container name for tenantId '([^']*)' with a logical name of '([^']*)' and label the result '([^']*)'")]
+    public void WhenIGetACosmosContainerNameForTenantIdWithALogicalNameOfAndLabelTheResult(
+        string tenantId, string logicalContainerName, string resultLabel)
+    {
+        this.tenantedNameBindings.AddTenantedContainerName(
+            resultLabel,
+            CosmosTenantedContainerNaming.GetTenantSpecificContainerNameFor(tenantId, logicalContainerName));
     }
 }

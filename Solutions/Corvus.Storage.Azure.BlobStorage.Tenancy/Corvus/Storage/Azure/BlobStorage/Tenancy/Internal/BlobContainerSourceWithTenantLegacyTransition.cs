@@ -198,7 +198,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy.Internal
                 {
                     Container = AzureStorageBlobTenantedContainerNaming.GetHashedTenantedBlobContainerNameFor(
                     tenant,
-                    containerName ?? throw new InvalidOperationException($"When the configuration does not specify a Container, you must supply a non-null logical container name")),
+                    containerName ?? throw new InvalidOperationException("When the configuration does not specify a Container, you must supply a non-null logical container name")),
                 }
                 : configuration;
         }
