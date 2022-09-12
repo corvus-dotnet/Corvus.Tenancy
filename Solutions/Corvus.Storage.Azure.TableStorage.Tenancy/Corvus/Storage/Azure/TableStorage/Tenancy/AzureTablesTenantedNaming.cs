@@ -36,8 +36,18 @@ public static class AzureTablesTenantedNaming
     /// <param name="tableName">The plain text name for the table.</param>
     /// <returns>The encoded name.</returns>
     public static string GetHashedTenantedTableNameFor(ITenant tenant, string tableName)
+        => GetHashedTenantedTableNameFor(tenant.Id, tableName);
+
+    /// <summary>
+    /// Make a container name safe to use as an Azure Storage table name, and which is unique for
+    /// this combination of tenant and logical container name.
+    /// </summary>
+    /// <param name="tenantId">The id of the tenant for which to generate a name.</param>
+    /// <param name="tableName">The plain text name for the table.</param>
+    /// <returns>The encoded name.</returns>
+    public static string GetHashedTenantedTableNameFor(string tenantId, string tableName)
     {
-        string tenantedUnhashedContainerName = GetTenantedLogicalTableNameFor(tenant, tableName);
+        string tenantedUnhashedContainerName = GetTenantedLogicalTableNameFor(tenantId, tableName);
         return AzureTableNaming.HashAndEncodeTableName(tenantedUnhashedContainerName);
     }
 
@@ -48,5 +58,14 @@ public static class AzureTablesTenantedNaming
     /// <param name="tableName">The plain text name for the table.</param>
     /// <returns>The encoded name.</returns>
     public static string GetTenantedLogicalTableNameFor(ITenant tenant, string tableName)
-        => $"{tenant.Id.ToLowerInvariant()}-{tableName}";
+        => GetTenantedLogicalTableNameFor(tenant.Id, tableName);
+
+    /// <summary>
+    /// Create a tenant-specific logical name for an Azure storage blob container name.
+    /// </summary>
+    /// <param name="tenantId">The id of the tenant for which to generate a name.</param>
+    /// <param name="tableName">The plain text name for the table.</param>
+    /// <returns>The encoded name.</returns>
+    public static string GetTenantedLogicalTableNameFor(string tenantId, string tableName)
+        => $"{tenantId.ToLowerInvariant()}-{tableName}";
 }

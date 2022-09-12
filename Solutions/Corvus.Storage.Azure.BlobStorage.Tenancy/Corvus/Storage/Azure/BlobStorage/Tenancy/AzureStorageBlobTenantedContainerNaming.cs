@@ -28,8 +28,18 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// <param name="containerName">The plain text name for the blob container.</param>
         /// <returns>The encoded name.</returns>
         public static string GetHashedTenantedBlobContainerNameFor(ITenant tenant, string containerName)
+            => GetHashedTenantedBlobContainerNameFor(tenant.Id, containerName);
+
+        /// <summary>
+        /// Make a container name safe to use as an Azure storage blob container name, and which
+        /// is unique for this combination of tenant and logical container name.
+        /// </summary>
+        /// <param name="tenantId">The id of the tenant for which to generate a name.</param>
+        /// <param name="containerName">The plain text name for the blob container.</param>
+        /// <returns>The encoded name.</returns>
+        public static string GetHashedTenantedBlobContainerNameFor(string tenantId, string containerName)
         {
-            string tenantedUnhashedContainerName = GetTenantedLogicalBlobContainerNameFor(tenant, containerName);
+            string tenantedUnhashedContainerName = GetTenantedLogicalBlobContainerNameFor(tenantId, containerName);
             return AzureStorageBlobContainerNaming.HashAndEncodeBlobContainerName(tenantedUnhashedContainerName);
         }
 
@@ -40,6 +50,15 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         /// <param name="containerName">The plain text name for the blob container.</param>
         /// <returns>The encoded name.</returns>
         public static string GetTenantedLogicalBlobContainerNameFor(ITenant tenant, string containerName)
-            => $"{tenant.Id.ToLowerInvariant()}-{containerName}";
+            => GetTenantedLogicalBlobContainerNameFor(tenant.Id, containerName);
+
+        /// <summary>
+        /// Create a tenant-specific logical name for an Azure storage blob container name.
+        /// </summary>
+        /// <param name="tenantId">The id of the tenant for which to generate a name.</param>
+        /// <param name="containerName">The plain text name for the blob container.</param>
+        /// <returns>The encoded name.</returns>
+        public static string GetTenantedLogicalBlobContainerNameFor(string tenantId, string containerName)
+            => $"{tenantId.ToLowerInvariant()}-{containerName}";
     }
 }

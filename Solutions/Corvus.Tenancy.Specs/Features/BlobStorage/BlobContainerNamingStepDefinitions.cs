@@ -29,5 +29,14 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 resultLabel,
                 AzureStorageBlobTenantedContainerNaming.GetHashedTenantedBlobContainerNameFor(tenant, logicalContainerName));
         }
+
+        [When("I get a blob container name for tenantId '([^']*)' with a logical name of '([^']*)' and label the result '([^']*)'")]
+        public void WhenIGetABlobContainerNameForTenantIdWithALogicalNameOfAndLabelTheResult(
+            string tenantId, string logicalContainerName, string resultLabel)
+        {
+            this.tenantedNameBindings.AddTenantedContainerName(
+                resultLabel,
+                AzureStorageBlobTenantedContainerNaming.GetHashedTenantedBlobContainerNameFor(tenantId, logicalContainerName));
+        }
     }
 }

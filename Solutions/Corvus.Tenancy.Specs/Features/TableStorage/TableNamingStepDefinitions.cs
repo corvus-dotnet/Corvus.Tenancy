@@ -29,4 +29,13 @@ public sealed class TableNamingStepDefinitions
             resultLabel,
             AzureTablesTenantedNaming.GetHashedTenantedTableNameFor(tenant, logicalTableName));
     }
+
+    [When("I get an Azure table name for tenantId '([^']*)' with a logical name of '([^']*)' and label the result '([^']*)'")]
+    public void WhenIGetAnAzureTableNameForTenantIdWithALogicalNameOfAndLabelTheResult(
+        string tenantId, string logicalTableName, string resultLabel)
+    {
+        this.tenantedNameBindings.AddTenantedContainerName(
+            resultLabel,
+            AzureTablesTenantedNaming.GetHashedTenantedTableNameFor(tenantId, logicalTableName));
+    }
 }

@@ -19,7 +19,17 @@ public static class CosmosTenantedContainerNaming
     /// <param name="databaseName">The plain text name for the Cosmos database.</param>
     /// <returns>The encoded name.</returns>
     public static string GetTenantSpecificDatabaseNameFor(ITenant tenant, string databaseName)
-        => $"{tenant.Id.ToLowerInvariant()}-{databaseName}";
+        => GetTenantSpecificDatabaseNameFor(tenant.Id, databaseName);
+
+    /// <summary>
+    /// Make a Cosmos database name that is unique for this combination of tenant and logical
+    /// container name.
+    /// </summary>
+    /// <param name="tenantId">The id of the tenant for which to generate a name.</param>
+    /// <param name="databaseName">The plain text name for the Cosmos database.</param>
+    /// <returns>The encoded name.</returns>
+    public static string GetTenantSpecificDatabaseNameFor(string tenantId, string databaseName)
+        => $"{tenantId.ToLowerInvariant()}-{databaseName}";
 
     /// <summary>
     /// Make a container name that is unique for this combination of tenant and logical container
@@ -29,5 +39,15 @@ public static class CosmosTenantedContainerNaming
     /// <param name="containerName">The plain text name for the Cosmos container.</param>
     /// <returns>The encoded name.</returns>
     public static string GetTenantSpecificContainerNameFor(ITenant tenant, string containerName)
-        => $"{tenant.Id.ToLowerInvariant()}-{containerName}";
+        => GetTenantSpecificContainerNameFor(tenant.Id, containerName);
+
+    /// <summary>
+    /// Make a container name that is unique for this combination of tenant and logical container
+    /// name.
+    /// </summary>
+    /// <param name="tenantId">The id of the tenant for which to generate a name.</param>
+    /// <param name="containerName">The plain text name for the Cosmos container.</param>
+    /// <returns>The encoded name.</returns>
+    public static string GetTenantSpecificContainerNameFor(string tenantId, string containerName)
+        => $"{tenantId.ToLowerInvariant()}-{containerName}";
 }

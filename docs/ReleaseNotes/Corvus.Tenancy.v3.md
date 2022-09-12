@@ -1,5 +1,9 @@
 # Release notes for Corvus.Tenancy v3.
 
+## v3.3
+
+Enables tenanted container and table names (logical or, where applicable, hashed) to be obtained for a tenant ID (instead of being required to pass an `ITenant`).
+
 ## v3.2
 
 Adds support for Azure Tables.
