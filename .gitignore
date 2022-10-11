@@ -338,3 +338,8 @@ coverage.cobertura.xml
 
 # SpecFlow generated code
 *.feature.cs
+
+# Scripted build artifacts
+/_codeCoverage
+/_packages
+*.sbom.*
