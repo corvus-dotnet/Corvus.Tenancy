@@ -341,8 +341,8 @@ public class CosmosLegacyMigrationStepDefinitions
         }
     }
 
-    [Then(@"under the db with the name from '([^']*)' a new container with the name from '([^']*)' should have been created")]
-    [Then(@"a new Cosmos database and container with names from '([^']*)' and '([^']*)' should have been created")]
+    [Then("under the db with the name from '([^']*)' a new container with the name from '([^']*)' should have been created")]
+    [Then("a new Cosmos database and container with names from '([^']*)' and '([^']*)' should have been created")]
     public async Task ThenANewCosmosDatabaseAndContainerWithNamesFromVConfigExactAndShouldHaveBeenCreatedAsync(
         ExpectedSources dbNameFrom, ExpectedSources containerNameFrom)
     {
@@ -389,7 +389,7 @@ public class CosmosLegacyMigrationStepDefinitions
         Assert.AreEqual(databaseName, this.cosmosContainer!.Database.Id);
     }
 
-    [Then(@"the Cosmos Container object returned should refer to the container with the name from '([^']*)'")]
+    [Then("the Cosmos Container object returned should refer to the container with the name from '([^']*)'")]
     public void ThenTheCosmosContainerObjectReturnedShouldReferToTheContainerWithTheNameFrom(ExpectedSources containerNameFrom)
     {
         ITenant tenant = this.GetTenant();
