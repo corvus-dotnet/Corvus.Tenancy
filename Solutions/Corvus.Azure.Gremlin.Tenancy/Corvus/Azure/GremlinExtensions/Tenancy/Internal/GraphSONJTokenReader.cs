@@ -56,7 +56,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
                     var obj = (JObject)token;
                     foreach (JProperty prop in obj.Properties())
                     {
-                        obj[prop.Name] = ConvertDateJson(obj[prop.Name]);
+                        obj[prop.Name] = ConvertDateJson(obj[prop.Name]!);
                     }
 
                     return obj;

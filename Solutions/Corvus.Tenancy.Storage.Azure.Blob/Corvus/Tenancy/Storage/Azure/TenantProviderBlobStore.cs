@@ -364,7 +364,7 @@ namespace Corvus.Tenancy
             try
             {
                 string text = await blob.DownloadTextAsync(Encoding.UTF8, string.IsNullOrEmpty(etag) ? null : AccessCondition.GenerateIfNoneMatchCondition(etag), null, null).ConfigureAwait(false);
-                Tenant tenant = JsonConvert.DeserializeObject<Tenant>(text, this.serializerSettings);
+                Tenant tenant = JsonConvert.DeserializeObject<Tenant>(text, this.serializerSettings)!;
                 tenant.ETag = blob.Properties.ETag;
                 return tenant;
             }
