@@ -1,5 +1,22 @@
 # Release notes for Corvus.Tenancy v3.
 
+## v3.6
+
+Dependency updates:
+
+* `Corvus.Storage.Azure.Cosmos` 1.4 -> 1.5
+* `Corvus.Storage.Azure.BlobStorage` 1.4 -> 1.5
+* `Corvus.Storage.Azure.TableStorage` 1.4 -> 1.5
+* `Corvus.Storage.Sql` 1.4 -> 1.5
+
+This has the effect of bringing in the following updates:
+
+* `Corvus.Identity` 1.4 -> 1.5
+* `Azure.Identity` 1.6 -> 1.8
+* `Azure.Security.KeyVault.Secrets` 4.3 -> 4.4
+* `Microsoft.IdentityClient` 4.39 -> 4.46
+* `Microsoft.IdentityClient.Extensions.Msal` 2.19 -> 2.23
+
 ## v3.5
 
 Dependency updates:
