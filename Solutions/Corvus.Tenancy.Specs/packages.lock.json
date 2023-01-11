@@ -172,21 +172,21 @@
       },
       "Corvus.ContentHandling": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "oyzdbPXSYW19MKO+n/qmbKhgm5/JbCQjFURG9PE4iE2q7Gc9Tflb+p8B4kJqKrcOZkgLfK65QesguDqIIytmrg==",
+        "resolved": "3.0.1-PullRequest0265.20",
+        "contentHash": "j/ZV8wfxcGiiTnXrQuUAKpDyiaAQq2sFN0+rzIKHvhugfogbLUQMIbKQt18v06Zgw1RXCh8yfTm/E61WpuIOpQ==",
         "dependencies": {
-          "Microsoft.CodeAnalysis.CSharp": "4.3.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.29",
+          "Microsoft.CodeAnalysis.CSharp": "4.4.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
           "System.Runtime.Loader": "4.3.0"
         }
       },
       "Corvus.ContentHandling.Json": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "gElkJIFPtPomoVI1dOUE+wVF8VKFIiCV6AWLaJXghnb60y8klpLsk1LD+DR1HPHydNfYSqMMOATf2RIix22rNg==",
+        "resolved": "3.0.1-PullRequest0265.20",
+        "contentHash": "7M7DxmXpo9A6KygwsH6iVTjS6rFmGkk4wXi1j4+Y/JOzjERW2tCeKGR3gYKOAmR4sqx3fcT6dZuKxjXHzbYgHA==",
         "dependencies": {
-          "Corvus.ContentHandling": "3.0.0",
-          "Corvus.Extensions.Newtonsoft.Json": "3.0.0"
+          "Corvus.ContentHandling": "3.0.1-PullRequest0265.20",
+          "Corvus.Json.Serialization": "2.0.0-first-working-version.25"
         }
       },
       "Corvus.Extensions": {
@@ -213,12 +213,12 @@
       },
       "Corvus.Extensions.Newtonsoft.Json": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "g2lnhVnIRBLYrClqHYBIxMoiW4Uof5azCtNxvDRIxuS+P0zsvnovim7q7vzhv8LndGFNv9kBtbXsIQwu8e+RNg==",
+        "resolved": "2.0.4",
+        "contentHash": "rf3yQk7tR3hyb91EVUkyCSwM7ArbUYK74yFBeVddS3pPgQ55D73EBPsv0UQqZO7tJybWio87Zq7bf+Q37Gtm+g==",
         "dependencies": {
-          "Corvus.Json.Abstractions": "3.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.29",
-          "Newtonsoft.Json": "13.0.1"
+          "Corvus.Json.Abstractions": "2.0.4",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.16",
+          "Newtonsoft.Json": "11.0.2"
         }
       },
       "Corvus.Identity.Abstractions": {
@@ -242,6 +242,23 @@
         "type": "Transitive",
         "resolved": "3.0.0",
         "contentHash": "JGhhWLFiAMLas2baiXDDSXCstuq5r8Vau+YAc6sdQN28wB3flxnVmJ262o1QG9ILSTjQLSNX39peVHV9fj83NA=="
+      },
+      "Corvus.Json.PropertyBag": {
+        "type": "Transitive",
+        "resolved": "2.0.0-first-working-version.26",
+        "contentHash": "gdhU4DKppwhUlW1T4BXn4V6EFaFEATaLfqecJbtKjQEpuK0Wgv99QTdA3RMcoJghNo1KVZpBqunFr2x7I4ggHQ==",
+        "dependencies": {
+          "Corvus.Json.Abstractions": "3.0.0",
+          "Corvus.Json.Serialization": "2.0.0-first-working-version.26"
+        }
+      },
+      "Corvus.Json.Serialization": {
+        "type": "Transitive",
+        "resolved": "2.0.0-first-working-version.26",
+        "contentHash": "eIJ1imYyNgOXYQCZhrOulu4nCWvOYuS+DraUXjPC5te6scBbRujTaqLFwzuebRYXHX4JY081tkK8X8rTGM/VXQ==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0"
+        }
       },
       "Corvus.Retry": {
         "type": "Transitive",
@@ -474,12 +491,12 @@
       },
       "Microsoft.CodeAnalysis.Common": {
         "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "Hhaw6DKZHiR+vgOdIqvndfUntJhmDR7MjylUJ55EvWtDyJFLDf2eij8r9tcwXP35FLD+bVNNCO0+KIYuvJjNnA==",
+        "resolved": "4.4.0",
+        "contentHash": "JfHupS/B7Jb5MZoYkFFABn3mux0wQgxi2D8F/rJYZeRBK2ZOyk7TjQ2Kq9rh6W/DCh0KNbbSbn5qoFar+ueHqw==",
         "dependencies": {
           "Microsoft.CodeAnalysis.Analyzers": "3.3.3",
           "System.Collections.Immutable": "6.0.0",
-          "System.Memory": "4.5.4",
+          "System.Memory": "4.5.5",
           "System.Reflection.Metadata": "5.0.0",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Text.Encoding.CodePages": "6.0.0",
@@ -488,10 +505,10 @@
       },
       "Microsoft.CodeAnalysis.CSharp": {
         "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
+        "resolved": "4.4.0",
+        "contentHash": "eD2w0xHRoaqK07hjlOKGR9eLNy3nimiGNeCClNax1NDgS/+DBtBqCjXelOa+TNy99kIB3nHhUqDmr46nDXy/RQ==",
         "dependencies": {
-          "Microsoft.CodeAnalysis.Common": "[4.3.0]"
+          "Microsoft.CodeAnalysis.Common": "[4.4.0]"
         }
       },
       "Microsoft.CodeCoverage": {
@@ -1573,8 +1590,8 @@
       },
       "System.Memory": {
         "type": "Transitive",
-        "resolved": "4.5.4",
-        "contentHash": "1MbJTHS1lZ4bS4FmsJjnuGJOu88ZzTT2rLvrhW7Ygic+pC0NWA+3hgAen0HRdsocuQXCkUTdFn9yHJJhsijDXw=="
+        "resolved": "4.5.5",
+        "contentHash": "XIWiDvKPXaTveaB7HVganDlOCRoj03l+jrwNvcge/t8vhGYKvqV+dMv6G4SAX2NoNmN0wZfVPTAlFwZcZvVOUw=="
       },
       "System.Memory.Data": {
         "type": "Transitive",
@@ -2522,8 +2539,10 @@
       "corvus.tenancy.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Corvus.ContentHandling.Json": "[3.0.0, )",
+          "Corvus.ContentHandling": "[3.0.1-PullRequest0265.20, )",
+          "Corvus.ContentHandling.Json": "[3.0.1-PullRequest0265.20, )",
           "Corvus.Extensions": "[1.1.10, )",
+          "Corvus.Json.PropertyBag": "[2.0.0-first-working-version.26, )",
           "Microsoft.Extensions.Primitives": "[6.0.0, )"
         }
       },
