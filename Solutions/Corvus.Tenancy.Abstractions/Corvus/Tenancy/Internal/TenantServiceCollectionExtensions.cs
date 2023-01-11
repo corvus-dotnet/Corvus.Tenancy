@@ -21,7 +21,7 @@ namespace Corvus.Tenancy.Internal
         /// <returns>The configured service collection.</returns>
         public static IServiceCollection AddRequiredTenancyServices(this IServiceCollection services)
         {
-            services.AddJsonNetPropertyBag();
+            services.AddJsonPropertyBagFactory();
             services.AddContentTypeBasedSerializationSupport();
 
             services.AddContent(
