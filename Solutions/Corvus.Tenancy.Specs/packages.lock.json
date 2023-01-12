@@ -2539,7 +2539,6 @@
       "corvus.tenancy.abstractions": {
         "type": "Project",
         "dependencies": {
-          "Corvus.ContentHandling": "[3.0.1-PullRequest0265.20, )",
           "Corvus.ContentHandling.Json": "[3.0.1-PullRequest0265.20, )",
           "Corvus.Extensions": "[1.1.10, )",
           "Corvus.Json.PropertyBag": "[2.0.0-first-working-version.26, )",
