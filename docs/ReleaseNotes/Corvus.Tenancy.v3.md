@@ -1,5 +1,22 @@
 # Release notes for Corvus.Tenancy v3.
 
+## v3.7
+
+Dependency updates:
+
+* `Corvus.Storage.Common` 1.5 -> 1.6
+* `Corvus.Storage.Azure.Cosmos` 1.5 -> 1.6
+* `Corvus.Storage.Azure.BlobStorage` 1.5 -> 1.6
+* `Corvus.Storage.Azure.TableStorage` 1.5 -> 1.6
+* `Corvus.Storage.Sql` 1.5 -> 1.6
+
+This has the effect of bringing in the following updates:
+
+* `Azure.Data.Tables` 12.7 -> 12.8
+* `Azure.Storage.Blobs` 12.14 -> 12.16
+* `Microsoft.Azure.Cosmos` 3.31 -> 3.33
+* `Microsoft.Data.SqlClient` 5.0 -> 5.1
+
 ## v3.6
 
 Dependency updates:
