@@ -191,8 +191,8 @@
       },
       "Corvus.Extensions": {
         "type": "Transitive",
-        "resolved": "1.1.10",
-        "contentHash": "F43KpxsKXQhdxYPV6DRgHy2GfOJiB6/Jlg4gZzE/IQN/G1tasxWaqwUWVj+fk9HKNiDOJkcVRgxactkwD6/E3w==",
+        "resolved": "1.1.11",
+        "contentHash": "HYRd2hg8OkhejLs6ywYaGi/xuP71B3ffBeRQkZ5kywlyhxXxfQzyNuE7mvZqwP0ASFCpNLnkZwa3n3BgC59uQg==",
         "dependencies": {
           "System.Interactive": "3.2.0"
         }
@@ -250,35 +250,35 @@
       },
       "Corvus.Storage.Azure.BlobStorage": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "AzYtcF3nECLG/ARbk2k9V3kjbOvKWsSvirAJqjAGwXSLhjItMWoyUqssEPflQUfbG+nLDVAswVAjG/L22E4WDw==",
+        "resolved": "1.6.1",
+        "contentHash": "NZ60GrKj9XlRDuZRuiIs4WBfC6YJ0yP+8q60gjA5yz9pX09sQELBuJwMW6bepd+i/Haf+JTyMku+Fp2KV25p0Q==",
         "dependencies": {
           "Azure.Storage.Blobs": "12.16.0",
-          "Corvus.Storage.Common": "1.6.0"
+          "Corvus.Storage.Common": "1.6.1"
         }
       },
       "Corvus.Storage.Azure.Cosmos": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "uH9JJ9mUOl1QKOBGKDFngV2EyrzxjwpAKxwsMHkd+O01RQgi/iik3r95fLKJQElLCmUoL7OZUfdu6Ycy3iJQZg==",
+        "resolved": "1.6.1",
+        "contentHash": "B2T8xG8fSKYdXByzL16PRPrym5TShuh5NyTCdkZEYuKo7AiA7Sg5zV4sGo3VM0qxBfKYHiScyvz1zpFxW17Fyw==",
         "dependencies": {
-          "Corvus.Storage.Common": "1.6.0",
+          "Corvus.Storage.Common": "1.6.1",
           "Microsoft.Azure.Cosmos": "3.33.0"
         }
       },
       "Corvus.Storage.Azure.TableStorage": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "PjOoRZEXENl6je7N7U4yuOWTLBkqBju6voRM6vDaWQcAD8zfQbW+6T4qHXs5wmAblRAyFay6r92+w/EWzK2bsQ==",
+        "resolved": "1.6.1",
+        "contentHash": "72kRvnWwJnjCIqdUiANMXZTB1JWVemJPvswGIxHaFSBnSujafPS5qB6E/PqFWf0iBLa0FUTb/htnu/vQGrMQZA==",
         "dependencies": {
           "Azure.Data.Tables": "12.8.0",
-          "Corvus.Storage.Common": "1.6.0"
+          "Corvus.Storage.Common": "1.6.1"
         }
       },
       "Corvus.Storage.Common": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "g9Vv0HIN96V9jJSNBDA4WN06Ul5wNYdDSoTSoiwVmrASB5pFPAaxR7vkf8y4iT/uv07oLupK78HcoeABdE9t7w==",
+        "resolved": "1.6.1",
+        "contentHash": "uzC2sTC+/QaXSd9CWs894UFJ+0JyUYbjj0abOzsCRAQpM0ljHCB4ubAEEieAVWvSZl4felfGdruA/g9Wec6Ipw==",
         "dependencies": {
           "Corvus.Identity.Azure": "3.3.0",
           "Microsoft.Extensions.Configuration.Binder": "3.1.32"
@@ -286,10 +286,10 @@
       },
       "Corvus.Storage.Sql": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "vcZ0xnkaxAffxh8b8cU898tLNJmXoEBQ7IRW0CT3vnNQKtSr+yH1KjW1s1cs6PEbLwHw+i9XJirHIBLagJmiiQ==",
+        "resolved": "1.6.1",
+        "contentHash": "xyh2yaWp9Y71z80I0peUzzlp7zqB88ABcxbn0oQNE3G+zmyQS32aRy7XRS9CyGWWbdFFZSt31MZd0db7YIpLaQ==",
         "dependencies": {
-          "Corvus.Storage.Common": "1.6.0",
+          "Corvus.Storage.Common": "1.6.1",
           "Microsoft.Data.SqlClient": "5.1.1"
         }
       },
@@ -2495,28 +2495,28 @@
       "corvus.storage.azure.blobstorage.tenancy": {
         "type": "Project",
         "dependencies": {
-          "Corvus.Storage.Azure.BlobStorage": "[1.6.0, )",
+          "Corvus.Storage.Azure.BlobStorage": "[1.6.1, )",
           "Corvus.Tenancy.Abstractions": "[1.0.0, )"
         }
       },
       "corvus.storage.azure.cosmos.tenancy": {
         "type": "Project",
         "dependencies": {
-          "Corvus.Storage.Azure.Cosmos": "[1.6.0, )",
+          "Corvus.Storage.Azure.Cosmos": "[1.6.1, )",
           "Corvus.Tenancy.Abstractions": "[1.0.0, )"
         }
       },
       "corvus.storage.azure.tablestorage.tenancy": {
         "type": "Project",
         "dependencies": {
-          "Corvus.Storage.Azure.TableStorage": "[1.6.0, )",
+          "Corvus.Storage.Azure.TableStorage": "[1.6.1, )",
           "Corvus.Tenancy.Abstractions": "[1.0.0, )"
         }
       },
       "corvus.storage.sql.tenancy": {
         "type": "Project",
         "dependencies": {
-          "Corvus.Storage.Sql": "[1.6.0, )",
+          "Corvus.Storage.Sql": "[1.6.1, )",
           "Corvus.Tenancy.Abstractions": "[1.0.0, )"
         }
       },
@@ -2524,7 +2524,7 @@
         "type": "Project",
         "dependencies": {
           "Corvus.ContentHandling.Json": "[3.0.0, )",
-          "Corvus.Extensions": "[1.1.10, )",
+          "Corvus.Extensions": "[1.1.11, )",
           "Microsoft.Extensions.Primitives": "[6.0.0, )"
         }
       },
