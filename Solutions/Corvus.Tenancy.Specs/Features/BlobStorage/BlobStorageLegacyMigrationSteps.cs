@@ -13,7 +13,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Corvus.Json;
     using Corvus.Storage.Azure.BlobStorage;
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using FluentAssertions;
 
@@ -26,8 +26,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
-    using TechTalk.SpecFlow.Assist;
+    using Reqnroll;
 
     [Binding]
     public sealed class BlobStorageLegacyMigrationSteps : IDisposable

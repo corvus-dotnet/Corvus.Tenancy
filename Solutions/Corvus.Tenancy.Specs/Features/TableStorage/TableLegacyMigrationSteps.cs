@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using Corvus.Json;
 using Corvus.Storage.Azure.TableStorage;
 using Corvus.Storage.Azure.TableStorage.Tenancy;
-using Corvus.Testing.SpecFlow;
+using Corvus.Testing.ReqnRoll;
 
 using FluentAssertions;
 
@@ -28,8 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
-using TechTalk.SpecFlow.Assist;
+using Reqnroll;
 
 [Binding]
 public sealed class TableLegacyMigrationSteps : IDisposable

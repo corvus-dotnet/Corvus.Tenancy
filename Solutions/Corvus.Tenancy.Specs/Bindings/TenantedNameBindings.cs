@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public sealed class TenantedNameBindings : IDisposable

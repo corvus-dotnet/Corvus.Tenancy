@@ -7,7 +7,7 @@ namespace Corvus.Tenancy.Specs.Features.Cosmos;
 using Corvus.Storage.Azure.Cosmos.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public class CosmosTenantSpecificNamesStepDefinitions

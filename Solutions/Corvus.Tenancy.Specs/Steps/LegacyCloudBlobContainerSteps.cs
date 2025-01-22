@@ -10,7 +10,7 @@ namespace Corvus.Tenancy.Specs.Steps
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Specs.Bindings;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
@@ -18,7 +18,7 @@ namespace Corvus.Tenancy.Specs.Steps
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class LegacyCloudBlobContainerSteps

@@ -16,7 +16,7 @@ namespace Corvus.Tenancy.Specs.Steps
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class CosmosContainerSteps

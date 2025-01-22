@@ -11,13 +11,13 @@ namespace Corvus.Tenancy.Specs.Bindings
 
     using Corvus.Storage.Azure.Cosmos;
     using Corvus.Storage.Azure.Cosmos.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class TenancyCosmosContainerBindings
@@ -34,10 +34,10 @@ namespace Corvus.Tenancy.Specs.Bindings
             IConfiguration configuration = TenancyContainerScenarioBindings.Configuration;
             this.TestCosmosConfiguration = configuration
                 .GetSection("TestCosmosConfigurationOptions")
-                .Get<CosmosContainerConfiguration>();
+                .Get<CosmosContainerConfiguration>() ?? throw new InvalidOperationException("TestCosmosConfigurationOptions configuration setting required");
             this.TestLegacyCosmosConfiguration = configuration
                 .GetSection("TestLegacyCosmosConfigurationOptions")
-                .Get<LegacyV2CosmosContainerConfiguration>();
+                .Get<LegacyV2CosmosContainerConfiguration>() ?? throw new InvalidOperationException("TestLegacyCosmosConfigurationOptions configuration setting required");
         }
 
         public CosmosContainerConfiguration TestCosmosConfiguration { get; }

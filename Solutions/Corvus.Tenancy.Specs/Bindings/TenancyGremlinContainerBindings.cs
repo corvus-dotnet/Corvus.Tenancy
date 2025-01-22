@@ -9,13 +9,13 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Threading.Tasks;
 
     using Corvus.Azure.GremlinExtensions.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Gremlin.Net.Driver;
 
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
     /// Specflow bindings to support a tenanted cosmos gremlin container.

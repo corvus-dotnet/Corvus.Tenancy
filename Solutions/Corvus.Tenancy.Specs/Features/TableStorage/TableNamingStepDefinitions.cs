@@ -7,7 +7,7 @@ namespace Corvus.Tenancy.Specs.Features.TableStorage;
 using Corvus.Storage.Azure.TableStorage.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public sealed class TableNamingStepDefinitions

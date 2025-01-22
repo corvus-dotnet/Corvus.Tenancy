@@ -12,7 +12,7 @@ using Corvus.Json;
 using Corvus.Storage.Azure.Cosmos;
 using Corvus.Storage.Azure.Cosmos.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
-using Corvus.Testing.SpecFlow;
+using Corvus.Testing.ReqnRoll;
 
 using FluentAssertions;
 
@@ -21,7 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationStepDefinitions;
 

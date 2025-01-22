@@ -10,11 +10,11 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Threading.Tasks;
 
     using Corvus.Azure.Storage.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
     /// Specflow bindings to support a tenanted cloud blob container.
@@ -93,7 +93,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 });
         }
 
-        private static void Init(IServiceCollection serviceCollection, string azureServicesAuthConnectionString)
+        private static void Init(IServiceCollection serviceCollection, string? azureServicesAuthConnectionString)
         {
             var blobOptions = new TenantCloudBlobContainerFactoryOptions
             {

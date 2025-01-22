@@ -7,11 +7,11 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System;
 
     using Corvus.Storage.Sql;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
     /// Specflow bindings to support a tenanted SQL container.

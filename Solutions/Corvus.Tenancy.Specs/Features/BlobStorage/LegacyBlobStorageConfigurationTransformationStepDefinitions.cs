@@ -13,8 +13,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using FluentAssertions;
 
-    using TechTalk.SpecFlow;
-    using TechTalk.SpecFlow.Assist;
+    using Reqnroll;
 
     [Binding]
     public class LegacyBlobStorageConfigurationTransformationStepDefinitions
