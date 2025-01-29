@@ -16,7 +16,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Reqnroll;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted cloud table container.
+    /// Reqnroll bindings to support a tenanted cloud table container.
     /// </summary>
     [Binding]
     public class TenancyCloudTableBindings

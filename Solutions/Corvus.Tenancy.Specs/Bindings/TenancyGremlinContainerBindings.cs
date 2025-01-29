@@ -18,7 +18,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Reqnroll;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted cosmos gremlin container.
+    /// Reqnroll bindings to support a tenanted cosmos gremlin container.
     /// </summary>
     [Binding]
     public class TenancyGremlinContainerBindings

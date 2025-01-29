@@ -14,7 +14,7 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Reqnroll;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted SQL container.
+    /// Reqnroll bindings to support a tenanted SQL container.
     /// </summary>
     [Binding]
     public class TenancySqlBindings
