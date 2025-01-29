@@ -17,8 +17,6 @@ using Corvus.Storage.Azure.TableStorage;
 using Corvus.Storage.Azure.TableStorage.Tenancy;
 using Corvus.Testing.ReqnRoll;
 
-using FluentAssertions;
-
 using global::Azure;
 using global::Azure.Core;
 using global::Azure.Data.Tables;
@@ -279,13 +277,13 @@ public sealed class TableLegacyMigrationSteps : IDisposable
             expectedConfiguration.ConnectionStringPlainText = this.testStorageConnectionString;
         }
 
-        this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
+        Assert.AreEqual(this.v3ConfigFromMigration, expectedConfiguration);
     }
 
     [Then(@"ITableSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned null")]
     public void ThenITableSourceWithTenantLegacyTransition_MigrateToVAsyncShouldHaveReturnedNull()
     {
-        this.v3ConfigFromMigration.Should().BeNull();
+        Assert.IsNull(this.v3ConfigFromMigration);
     }
 
     [Then("no new table should have been created")]

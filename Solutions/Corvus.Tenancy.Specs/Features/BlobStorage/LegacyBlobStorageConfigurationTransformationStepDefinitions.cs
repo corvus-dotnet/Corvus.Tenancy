@@ -10,9 +10,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using Corvus.Storage.Azure.BlobStorage;
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
-
-    using FluentAssertions;
-
+    using NUnit.Framework;
     using Reqnroll;
 
     [Binding]
@@ -61,15 +59,15 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 {
                     // The test expects this to be set, but it's a nested value that's going to
                     // be checked in detail elsewhere.
-                    actualValue.Should().NotBeNull();
+                    Assert.IsNotNull(actualValue);
                 }
                 else if (expectedValue == "<null>")
                 {
-                    actualValue.Should().BeNull();
+                    Assert.IsNull(actualValue);
                 }
                 else
                 {
-                    actualValue.Should().BeEquivalentTo(expectedValue);
+                    Assert.AreEqual(actualValue, expectedValue);
                 }
             }
 
@@ -78,7 +76,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             foreach (PropertyInfo? pi in nullProperties)
             {
                 object? actualValue = pi.GetValue(value);
-                actualValue.Should().BeNull();
+                Assert.IsNull(actualValue);
             }
         }
     }
