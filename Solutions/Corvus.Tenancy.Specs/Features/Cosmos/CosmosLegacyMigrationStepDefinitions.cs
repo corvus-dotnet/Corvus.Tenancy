@@ -12,16 +12,14 @@ using Corvus.Json;
 using Corvus.Storage.Azure.Cosmos;
 using Corvus.Storage.Azure.Cosmos.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
-using Corvus.Testing.SpecFlow;
-
-using FluentAssertions;
+using Corvus.Testing.ReqnRoll;
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationStepDefinitions;
 
@@ -431,7 +429,7 @@ public class CosmosLegacyMigrationStepDefinitions
     [Then(@"ICosmosContainerSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned null")]
     public void ThenICosmosContainerSourceWithTenantLegacyTransition_MigrateToVAsyncShouldHaveReturnedNull()
     {
-        this.configReturnedFromMigration.Should().BeNull();
+        Assert.IsNull(this.configReturnedFromMigration);
     }
 
     private ITenant GetTenant()

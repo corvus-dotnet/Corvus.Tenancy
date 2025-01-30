@@ -4,11 +4,11 @@
 
 namespace Corvus.Tenancy.Specs.Bindings;
 
-using Corvus.Testing.SpecFlow;
+using Corvus.Testing.ReqnRoll;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public class TenancyTableStorageBindings

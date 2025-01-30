@@ -21,7 +21,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public sealed class BlobContainerClientStepDefinitions : IDisposable

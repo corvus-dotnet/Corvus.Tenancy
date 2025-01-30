@@ -15,7 +15,7 @@ using Microsoft.Data.SqlClient;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public class SqlConnectionSteps

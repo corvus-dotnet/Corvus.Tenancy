@@ -9,10 +9,10 @@ namespace Corvus.Tenancy.Specs.Steps
     using System.Linq;
     using System.Threading.Tasks;
     using Corvus.Tenancy.Exceptions;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
     using Microsoft.Extensions.DependencyInjection;
     using NUnit.Framework;
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class TenantStorageSteps
@@ -62,7 +62,7 @@ namespace Corvus.Tenancy.Specs.Steps
         {
             ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
 
-            foreach (TableRow row in table.Rows)
+            foreach (DataTableRow row in table.Rows)
             {
                 row.TryGetValue("Key", out string key);
                 row.TryGetValue("Value", out string value);
@@ -162,7 +162,7 @@ namespace Corvus.Tenancy.Specs.Steps
             ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
 
             var properties = new Dictionary<string, object>();
-            foreach (TableRow row in table.Rows)
+            foreach (DataTableRow row in table.Rows)
             {
                 row.TryGetValue("Key", out string key);
                 row.TryGetValue("Value", out string value);

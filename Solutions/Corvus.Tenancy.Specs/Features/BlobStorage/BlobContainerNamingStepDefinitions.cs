@@ -7,7 +7,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
     using Corvus.Tenancy.Specs.Bindings;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public sealed class BlobContainerNamingStepDefinitions

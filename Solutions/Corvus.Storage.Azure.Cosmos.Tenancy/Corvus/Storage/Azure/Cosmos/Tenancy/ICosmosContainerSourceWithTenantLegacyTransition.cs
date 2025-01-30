@@ -3,6 +3,7 @@
 // </copyright>
 
 namespace Corvus.Storage.Azure.Cosmos.Tenancy;
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -13,9 +13,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Corvus.Json;
     using Corvus.Storage.Azure.BlobStorage;
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
-    using Corvus.Testing.SpecFlow;
-
-    using FluentAssertions;
+    using Corvus.Testing.ReqnRoll;
 
     using global::Azure;
     using global::Azure.Core;
@@ -26,8 +24,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
-    using TechTalk.SpecFlow.Assist;
+    using Reqnroll;
 
     [Binding]
     public sealed class BlobStorageLegacyMigrationSteps : IDisposable
@@ -306,13 +303,13 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 expectedConfiguration.ConnectionStringPlainText = this.testStorageConnectionString;
             }
 
-            this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
+            Assert.AreEqual(this.v3ConfigFromMigration, expectedConfiguration);
         }
 
         [Then("IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null")]
         public void ThenMigrateToVAsyncShouldHaveReturnedNull()
         {
-            this.v3ConfigFromMigration.Should().BeNull();
+            Assert.IsNull(this.v3ConfigFromMigration);
         }
 
         [Then("no new container should have been created")]

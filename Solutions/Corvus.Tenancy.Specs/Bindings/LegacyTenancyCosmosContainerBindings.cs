@@ -9,15 +9,15 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Threading.Tasks;
 
     using Corvus.Azure.Cosmos.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Microsoft.Azure.Cosmos;
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted cloud blob container.
+    /// Reqnroll bindings to support a tenanted cloud blob container.
     /// </summary>
     [Binding]
     public class LegacyTenancyCosmosContainerBindings

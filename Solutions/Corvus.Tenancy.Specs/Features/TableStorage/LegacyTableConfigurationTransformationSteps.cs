@@ -10,11 +10,8 @@ using System.Reflection;
 
 using Corvus.Storage.Azure.TableStorage;
 using Corvus.Storage.Azure.TableStorage.Tenancy;
-
-using FluentAssertions;
-
-using TechTalk.SpecFlow;
-using TechTalk.SpecFlow.Assist;
+using NUnit.Framework;
+using Reqnroll;
 
 [Binding]
 public class LegacyTableConfigurationTransformationSteps
@@ -62,15 +59,15 @@ public class LegacyTableConfigurationTransformationSteps
             {
                 // The test expects this to be set, but it's a nested value that's going to
                 // be checked in detail elsewhere.
-                actualValue.Should().NotBeNull();
+                Assert.IsNotNull(actualValue);
             }
             else if (expectedValue == "<null>")
             {
-                actualValue.Should().BeNull();
+                Assert.IsNull(actualValue);
             }
             else
             {
-                actualValue.Should().BeEquivalentTo(expectedValue);
+                Assert.AreEqual(actualValue, expectedValue);
             }
         }
 
@@ -79,7 +76,7 @@ public class LegacyTableConfigurationTransformationSteps
         foreach (PropertyInfo? pi in nullProperties)
         {
             object? actualValue = pi.GetValue(value);
-            actualValue.Should().BeNull();
+            Assert.IsNull(actualValue);
         }
     }
 }
