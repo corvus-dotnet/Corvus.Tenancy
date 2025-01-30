@@ -6,6 +6,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+		<IsTestProject>true</IsTestProject>
     <RootNamespace>Corvus.Tenancy.Specs</RootNamespace>
     <!-- Disabling SA1204 because it prioritizes static/non-static over public/non-public, which doesn't fit very well
          with bindings in Reqnroll.
