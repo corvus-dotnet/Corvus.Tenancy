@@ -49,6 +49,7 @@ jobs:
           BUILDVAR_NuGetPublishSource: "${{ startsWith(github.ref, 'refs/tags/') && 'https://api.nuget.org/v3/index.json' || format('https://nuget.pkg.github.com/{0}/index.json', github.repository_owner) }}"
         secretsYaml: |
           NUGET_API_KEY: "${{ startsWith(github.ref, 'refs/tags/') && secrets.NUGET_APIKEY || secrets.BUILD_PUBLISHER_PAT }}"
+          TestSettings__AzureStorageConnectionString: "${{ secrets.ENDJIN_AZURESTORAGECONNECTIONSTRING }}"
 
   build:
     needs: prepareConfig
