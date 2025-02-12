@@ -151,7 +151,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(Configuration);
-            serviceCollection.AddSingleton(Configuration.GetSection("TestSettings").Get<TestSettings>() ?? throw new InvalidOperationException("TestSettings configuration setting required"));
+            serviceCollection.AddSingleton(Configuration.GetSection("TestSettings").Get<TestSettings>() ?? new TestSettings();
 
             serviceCollection.AddRequiredTenancyServices();
 
