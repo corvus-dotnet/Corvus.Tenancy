@@ -76,6 +76,6 @@ jobs:
       # packagePhaseAzureCredentials: ${{ secrets.AZURE_PUBLISH_CREDENTIALS }}
       # publishPhaseAzureCredentials: ${{ secrets.AZURE_PUBLISH_CREDENTIALS }}
       # compilePhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
-      # testPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
+      testPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
       # packagePhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
       publishPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
