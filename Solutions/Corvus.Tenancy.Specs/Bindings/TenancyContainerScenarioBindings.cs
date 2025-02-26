@@ -32,7 +32,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             var configData = new Dictionary<string, string?>
             {
                 //// Add configuration value pairs here
-                ////{ "STORAGEACCOUNTCONNECTIONSTRING", "UseDevelopmentStorage=true" },
+                { "TestSettings:AzureStorageConnectionString", "DefaultEndpointsProtocol=https;AccountName=endteststorage;EndpointSuffix=core.windows.net" },
             };
             Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(configData)
