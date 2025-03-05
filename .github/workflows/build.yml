@@ -50,6 +50,7 @@ jobs:
         secretsYaml: |
           NUGET_API_KEY: "${{ startsWith(github.ref, 'refs/tags/') && secrets.NUGET_APIKEY || secrets.BUILD_PUBLISHER_PAT }}"
           TestSettings__AzureStorageConnectionString: "${{ secrets.ENDJIN_AZURESTORAGECONNECTIONSTRING }}"
+        secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
 
   build:
     needs: prepareConfig
@@ -79,3 +80,4 @@ jobs:
       testPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
       # packagePhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
       publishPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
+      secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
