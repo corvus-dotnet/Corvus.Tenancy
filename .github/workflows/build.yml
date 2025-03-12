@@ -51,6 +51,9 @@ jobs:
           TestCosmosConfigurationOptions__AccountUri: "https://endjintestsql.documents.azure.com/"
           TestCosmosConfigurationOptions__AccessKeyInKeyVault__VaultName: "endjintest"
           TestCosmosConfigurationOptions__AccessKeyInKeyVault__SecretName: "endjintestsql"
+          TestLegacyCosmosConfigurationOptions__AccountUri: "https://endjintestsql.documents.azure.com/"
+          TestLegacyCosmosConfigurationOptions__AccountKeySecretName: "endjintest"
+          TestLegacyCosmosConfigurationOptions__KeyVaultName: "endjintestsql"
           ACTIONS_RUNNER_DEBUG: "true"
         secretsYaml: |
           NUGET_API_KEY: "${{ startsWith(github.ref, 'refs/tags/') && secrets.NUGET_APIKEY || secrets.BUILD_PUBLISHER_PAT }}"
