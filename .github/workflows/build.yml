@@ -75,7 +75,6 @@ jobs:
       testPhaseEnv: ${{ needs.prepareConfig.outputs.RESOLVED_ENV_VARS }}
       packagePhaseEnv: ${{ needs.prepareConfig.outputs.RESOLVED_ENV_VARS }}
       publishPhaseEnv: ${{ needs.prepareConfig.outputs.RESOLVED_ENV_VARS }}
-      secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
     secrets:
       compilePhaseAzureCredentials: ${{ secrets.AZURE_READER_CREDENTIALS }}
       # testPhaseAzureCredentials: ${{ secrets.TESTS_KV_READER_CREDENTIALS }}
@@ -85,3 +84,4 @@ jobs:
       testPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
       # packagePhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
       publishPhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
+      secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
