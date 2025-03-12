@@ -47,8 +47,12 @@ jobs:
       with:
         environmentVariablesYaml: |
           BUILDVAR_NuGetPublishSource: "${{ startsWith(github.ref, 'refs/tags/') && 'https://api.nuget.org/v3/index.json' || format('https://nuget.pkg.github.com/{0}/index.json', github.repository_owner) }}"
+          TestCosmosConfigurationOptions__AccountUri: "https://endjintestsql.documents.azure.com/"
+          TestCosmosConfigurationOptions__AccessKeyInKeyVault__VaultName: "endjintest"
+          TestCosmosConfigurationOptions__AccessKeyInKeyVault__SecretName: "endjintestsql"
         secretsYaml: |
           NUGET_API_KEY: "${{ startsWith(github.ref, 'refs/tags/') && secrets.NUGET_APIKEY || secrets.BUILD_PUBLISHER_PAT }}"
+          AzureServicesAuthConnectionString: "TBD"
           TestSettings__AzureStorageConnectionString: "${{ secrets.ENDJIN_AZURESTORAGECONNECTIONSTRING }}"
         secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
 
