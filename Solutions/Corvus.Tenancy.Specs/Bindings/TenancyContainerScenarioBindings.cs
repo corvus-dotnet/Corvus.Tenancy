@@ -179,7 +179,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 serviceCollection.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<FakeTenantProvider>());
             }
 
-            ////serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(Configuration["AzureServicesAuthConnectionString"] ?? throw new InvalidOperationException("AzureServicesAuthConnectionString configuration setting required"));
+            serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(Configuration["AzureServicesAuthConnectionString"] ?? throw new InvalidOperationException("AzureServicesAuthConnectionString configuration setting required"));
         }
     }
 }
