@@ -55,6 +55,8 @@ jobs:
           TestLegacyCosmosConfigurationOptions__KeyVaultName: "endjintest"
           TestLegacyCosmosConfigurationOptions__AccountKeySecretName: "endjintestsql"
           ACTIONS_RUNNER_DEBUG: "true"
+        # TestSettings__AzureStorageConnectionString required because we need to verify that legacy config using
+        # old-style connection strings is still working
         secretsYaml: |
           NUGET_API_KEY: "${{ startsWith(github.ref, 'refs/tags/') && secrets.NUGET_APIKEY || secrets.BUILD_PUBLISHER_PAT }}"
           AzureServicesAuthConnectionString: "RunAs=Developer;DeveloperTool=AzureCli"
