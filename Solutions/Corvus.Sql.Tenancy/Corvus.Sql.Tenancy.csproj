@@ -43,7 +43,7 @@
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[8.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[8.0.*,)" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
   </ItemGroup>
 
   <ItemGroup>

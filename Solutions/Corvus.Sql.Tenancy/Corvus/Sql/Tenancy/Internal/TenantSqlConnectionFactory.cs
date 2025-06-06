@@ -7,13 +7,15 @@ namespace Corvus.Sql.Tenancy.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Data.Common;
-    using System.Data.SqlClient;
     using System.Text;
     using System.Threading.Tasks;
+
     using Corvus.Tenancy;
+
     using Microsoft.Azure.KeyVault;
     using Microsoft.Azure.KeyVault.Models;
     using Microsoft.Azure.Services.AppAuthentication;
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
