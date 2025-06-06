@@ -211,7 +211,7 @@ namespace Corvus.Tenancy.Specs.Steps
             ITenant tenant = this.scenarioContext.Get<ITenant>(tenantName);
             ITenant updatedTenant = await this.store.UpdateTenantAsync(
                 tenant.Id,
-                propertiesToRemove: new[] { propertyName })
+                propertiesToRemove: [propertyName])
                 .ConfigureAwait(false);
             this.scenarioContext.Set(updatedTenant, returnedTenantName);
         }

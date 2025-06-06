@@ -19,7 +19,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.Root = new RootTenant(propertyBagFactory);
         }
 
-        public List<Update> TenantUpdates { get; } = new();
+        public List<Update> TenantUpdates { get; } = [];
 
         public RootTenant Root { get; }
 

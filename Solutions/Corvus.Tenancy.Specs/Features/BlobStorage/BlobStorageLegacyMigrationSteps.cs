@@ -39,7 +39,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         private readonly IPropertyBagFactory pbf;
         private readonly MonitoringPolicy blobClientMonitor = new();
         private readonly BlobClientOptions blobClientOptions;
-        private readonly List<string> containersCreatedByTest = new();
+        private readonly List<string> containersCreatedByTest = [];
         private IPropertyBag tenantProperties;
         private ITenant? tenant;
         private BlobServiceClient? blobServiceClient;
@@ -227,7 +227,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 tenant,
                 v2ConfigurationKey,
                 v3ConfigurationKey,
-                new[] { this.logicalContainerName },
+                [this.logicalContainerName],
                 this.blobClientOptions)
                 .ConfigureAwait(false);
         }
@@ -358,9 +358,9 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
         private class MonitoringPolicy : global::Azure.Core.Pipeline.HttpPipelineSynchronousPolicy
         {
-            public List<string> ContainerCreateIfExistsCalls { get; } = new List<string>();
+            public List<string> ContainerCreateIfExistsCalls { get; } = [];
 
-            public List<string> ContainersCreated { get; } = new List<string>();
+            public List<string> ContainersCreated { get; } = [];
 
             public override void OnReceivedResponse(HttpMessage message)
             {

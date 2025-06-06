@@ -19,8 +19,8 @@ using Reqnroll;
 [Binding]
 public sealed class TenantedNameBindings : IDisposable
 {
-    private readonly Dictionary<string, ITenant> tenants = new();
-    private readonly Dictionary<string, string> physicalContainerNames = new();
+    private readonly Dictionary<string, ITenant> tenants = [];
+    private readonly Dictionary<string, string> physicalContainerNames = [];
     private readonly ServiceProvider serviceProvider;
     private readonly IPropertyBagFactory propertyBagFactory;
 

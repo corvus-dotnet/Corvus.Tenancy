@@ -1,4 +1,4 @@
-// <copyright file="BlobContainerClientStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="BlobContainerClientSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -24,19 +24,19 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Reqnroll;
 
     [Binding]
-    public sealed class BlobContainerClientStepDefinitions : IDisposable
+    public sealed class BlobContainerClientSteps : IDisposable
     {
         private const string TenantStoragePropertyKey = "MyStorageSettings";
         private const string StorageAccountName = "myaccount";
-        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsRequested = new();
-        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsReplaced = new();
+        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsRequested = [];
+        private readonly List<(BlobContainerConfiguration Configuration, BlobClientOptions? ConnectionOptions)> contextsReplaced = [];
         private readonly ServiceProvider serviceProvider;
         private readonly RootTenant tenant;
         private readonly IBlobContainerSourceFromDynamicConfiguration containerSource;
 
         private BlobContainerConfiguration? configuration;
 
-        public BlobContainerClientStepDefinitions()
+        public BlobContainerClientSteps()
         {
             this.containerSource = new FakeBlobContainerSourceFromDynamicConfiguration(
                 this.contextsRequested,
@@ -122,7 +122,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         public void WhenIRemoveTheBlobStorageConfigurationFromTheTenant()
         {
             this.tenant.UpdateProperties(
-                propertiesToRemove: new[] { TenantStoragePropertyKey });
+                propertiesToRemove: [TenantStoragePropertyKey]);
         }
 
         [Then("the BlobContainerClient source should have been given a configuration identical to the original one")]

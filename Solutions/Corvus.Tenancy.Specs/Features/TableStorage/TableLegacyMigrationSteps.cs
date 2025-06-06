@@ -34,7 +34,7 @@ public sealed class TableLegacyMigrationSteps : IDisposable
     private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
     private readonly string logicalTableName = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
     private readonly MonitoringPolicy tableClientMonitor = new();
-    private readonly List<string> tablesCreatedByTest = new();
+    private readonly List<string> tablesCreatedByTest = [];
     private readonly Azure.Storage.Tenancy.TableStorageConfiguration legacyConfigurationInTenant = new();
     private readonly TableConfiguration v3ConfigurationInTenant = new();
     private readonly TestSettings testStorageOptions;
@@ -223,7 +223,7 @@ public sealed class TableLegacyMigrationSteps : IDisposable
             tenant,
             v2ConfigurationKey,
             v3ConfigurationKey,
-            new[] { this.logicalTableName },
+            [this.logicalTableName],
             this.tableClientOptions)
             .ConfigureAwait(false);
     }
@@ -348,9 +348,9 @@ public sealed class TableLegacyMigrationSteps : IDisposable
 
     private class MonitoringPolicy : global::Azure.Core.Pipeline.HttpPipelineSynchronousPolicy
     {
-        public List<string> ContainerCreateIfExistsCalls { get; } = new List<string>();
+        public List<string> ContainerCreateIfExistsCalls { get; } = [];
 
-        public List<string> TablesCreated { get; } = new List<string>();
+        public List<string> TablesCreated { get; } = [];
 
         public override void OnReceivedResponse(HttpMessage message)
         {

@@ -60,7 +60,7 @@ namespace Corvus.Tenancy.Specs.Steps
         public void WhenIRemoveTheCosmosConfigurationToATenant()
         {
             this.tenancyBindings.RootTenant.UpdateProperties(
-                propertiesToRemove: new[] { ConfigurationKey });
+                propertiesToRemove: [ConfigurationKey]);
         }
 
         [Then("I should be able to get the tenanted cosmos container")]

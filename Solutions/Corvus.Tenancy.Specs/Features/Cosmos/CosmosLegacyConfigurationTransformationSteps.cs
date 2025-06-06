@@ -48,7 +48,7 @@ public class CosmosLegacyConfigurationTransformationSteps
         IEnumerable<(string, string)> expectedProperties = table.CreateSet(
             row => (row["PropertyName"], row["Value"]));
 
-        HashSet<string> propertiesNotExpectedToBeNull = new();
+        HashSet<string> propertiesNotExpectedToBeNull = [];
         foreach ((string name, string expectedValue) in expectedProperties)
         {
             propertiesNotExpectedToBeNull.Add(name);

@@ -1,4 +1,4 @@
-// <copyright file="LegacyBlobStorageConfigurationTransformationStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="LegacyConfigurationTransformationSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -14,7 +14,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Reqnroll;
 
     [Binding]
-    public class LegacyBlobStorageConfigurationTransformationStepDefinitions
+    public class LegacyConfigurationTransformationSteps
     {
         private LegacyV2BlobStorageConfiguration legacyConfiguration = new();
         private BlobContainerConfiguration? resultingConfiguration;
@@ -48,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             IEnumerable<(string, string)> expectedProperties = table.CreateSet(
                 row => (row["PropertyName"], row["Value"]));
 
-            HashSet<string> propertiesNotExpectedToBeNull = new();
+            HashSet<string> propertiesNotExpectedToBeNull = [];
             foreach ((string name, string expectedValue) in expectedProperties)
             {
                 propertiesNotExpectedToBeNull.Add(name);

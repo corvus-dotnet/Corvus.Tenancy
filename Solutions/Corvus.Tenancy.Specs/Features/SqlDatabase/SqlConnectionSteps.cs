@@ -65,7 +65,7 @@ public class SqlConnectionSteps
     public void WhenIRemoveTheSqlConfigurationFromTheTenant(string configurationKey)
     {
         this.tenancyBindings.RootTenant.UpdateProperties(
-            propertiesToRemove: new[] { configurationKey });
+            propertiesToRemove: [configurationKey]);
     }
 
     [Then("attempting to get the Sql configuration '([^']*)' from the tenant throws an InvalidOperationException")]

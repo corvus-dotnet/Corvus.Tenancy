@@ -1,4 +1,4 @@
-// <copyright file="CosmosLegacyMigrationStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="CosmosLegacyMigrationSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -21,10 +21,10 @@ using NUnit.Framework;
 
 using Reqnroll;
 
-using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationStepDefinitions;
+using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationSteps;
 
 [Binding]
-public class CosmosLegacyMigrationStepDefinitions
+public class CosmosLegacyMigrationSteps
 {
     private const string PartitionKeyPath = "/foo/bar";
     private readonly TenancyCosmosContainerBindings cosmosBindings;
@@ -62,7 +62,7 @@ public class CosmosLegacyMigrationStepDefinitions
     private Container? cosmosContainer;
     private CosmosContainerConfiguration? configToUseForTest;
 
-    public CosmosLegacyMigrationStepDefinitions(
+    public CosmosLegacyMigrationSteps(
         ScenarioContext scenarioContext,
         TenancyCosmosContainerBindings cosmosBindings)
     {
