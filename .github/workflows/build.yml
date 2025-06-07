@@ -15,6 +15,11 @@ on:
         required: false
         default: false
         type: boolean
+      forcePublicNugetDestination:
+        description: When true the NuGet Publish destination will always be set to nuget.org. (Normally, force publishing publishes to the private feed on GitHub.)
+        required: false
+        default: false
+        type: boolean
       skipCleanup:
         description: When true the pipeline clean-up stage will not be run. For example, the cache used between pipeline stages will be retained.
         required: false
@@ -40,34 +45,29 @@ jobs:
     outputs:
       RESOLVED_ENV_VARS: ${{ steps.prepareEnvVarsAndSecrets.outputs.environmentVariablesYamlBase64 }}
       RESOLVED_SECRETS: ${{ steps.prepareEnvVarsAndSecrets.outputs.secretsYamlBase64 }}
-
     steps:
     # Declare any environment variables and/or secrets that need to be available inside the build process
     - uses: endjin/Endjin.RecommendedPractices.GitHubActions/actions/prepare-env-vars-and-secrets@main
       id: prepareEnvVarsAndSecrets
       with:
         environmentVariablesYaml: |
-          BUILDVAR_NuGetPublishSource: "${{ startsWith(github.ref, 'refs/tags/') && 'https://api.nuget.org/v3/index.json' || format('https://nuget.pkg.github.com/{0}/index.json', github.repository_owner) }}"
-          TestCosmosConfigurationOptions__AccountUri: "https://endjintestsql.documents.azure.com/"
-          TestCosmosConfigurationOptions__AccessKeyInKeyVault__VaultName: "endjintest"
-          TestCosmosConfigurationOptions__AccessKeyInKeyVault__SecretName: "endjintestsql"
-          TestLegacyCosmosConfigurationOptions__AccountUri: "https://endjintestsql.documents.azure.com/"
-          TestLegacyCosmosConfigurationOptions__KeyVaultName: "endjintest"
-          TestLegacyCosmosConfigurationOptions__AccountKeySecretName: "endjintestsql"
-          ACTIONS_RUNNER_DEBUG: "true"
-        # TestSettings__AzureStorageConnectionString required because we need to verify that legacy config using
-        # old-style connection strings is still working
+          ZF_NUGET_PUBLISH_SOURCE: ${{ (startsWith(github.ref, 'refs/tags/') || github.event.inputs.forcePublicNugetDestination == 'true') && 'https://api.nuget.org/v3/index.json' || format('https://nuget.pkg.github.com/{0}/index.json', github.repository_owner) }}
         secretsYaml: |
           NUGET_API_KEY: "${{ startsWith(github.ref, 'refs/tags/') && secrets.NUGET_APIKEY || secrets.BUILD_PUBLISHER_PAT }}"
-          AzureServicesAuthConnectionString: "RunAs=Developer;DeveloperTool=AzureCli"
-          TestSettings__AzureStorageConnectionString: "${{ secrets.ENDJIN_AZURESTORAGECONNECTIONSTRING }}"
+          TestCosmosConfigurationOptions__AccountUri: ${{ vars.TESTS_COSMOSDBACCOUNTURI }}
+          TestCosmosConfigurationOptions__AccessKeyInKeyVault__VaultName: ${{ vars.TESTS_KEYVAULTNAME }}
+          TestCosmosConfigurationOptions__AccessKeyInKeyVault__SecretName: ${{ vars.TESTS_COSMOSDBKEYSECRETNAME }}
+          TestLegacyCosmosConfigurationOptions__AccountUri: ${{ vars.TESTS_COSMOSDBACCOUNTURI }}
+          TestLegacyCosmosConfigurationOptions__KeyVaultName: ${{ vars.TESTS_KEYVAULTNAME }}
+          TestLegacyCosmosConfigurationOptions__AccountKeySecretName: ${{ vars.TESTS_COSMOSDBKEYSECRETNAME }}
         secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
 
   build:
     needs: prepareConfig
     uses: endjin/Endjin.RecommendedPractices.GitHubActions/.github/workflows/scripted-build-matrix-pipeline.yml@main
     with:
-      netSdkVersion: '8.0.x'
+      netSdkVersion: '8.x'
+      # additionalNetSdkVersion: '9.x'
       # workflow_dispatch inputs are always strings, the type property is just for the UI
       forcePublish: ${{ github.event.inputs.forcePublish == 'true' }}
       skipCleanup: ${{ github.event.inputs.skipCleanup == 'true' }}
@@ -84,7 +84,7 @@ jobs:
       publishPhaseEnv: ${{ needs.prepareConfig.outputs.RESOLVED_ENV_VARS }}
     secrets:
       compilePhaseAzureCredentials: ${{ secrets.AZURE_READER_CREDENTIALS }}
-      testPhaseAzureCredentials: ${{ secrets.AZURE_READER_CREDENTIALS }}
+      testPhaseAzureCredentials: ${{ secrets.TESTS_KV_READER_CREDENTIALS }}
       # packagePhaseAzureCredentials: ${{ secrets.AZURE_PUBLISH_CREDENTIALS }}
       # publishPhaseAzureCredentials: ${{ secrets.AZURE_PUBLISH_CREDENTIALS }}
       # compilePhaseSecrets: ${{ needs.prepareConfig.outputs.RESOLVED_SECRETS }}
