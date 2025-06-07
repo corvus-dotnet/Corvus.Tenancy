@@ -26,8 +26,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         private readonly List<Container> containersToRemoveAtTeardown = [];
         private ITenantCosmosContainerFactory? tenantCosmosContainerFactory;
 
-        public LegacyTenancyCosmosContainerBindings(
-            ScenarioContext scenarioContext)
+        public LegacyTenancyCosmosContainerBindings(ScenarioContext scenarioContext)
         {
             this.scenarioContext = scenarioContext;
         }
@@ -55,6 +54,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                        };
 
                        serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
+                       serviceCollection.AddCosmosClientBuilderWithNewtonsoftJsonIntegration();
                    });
         }
 
