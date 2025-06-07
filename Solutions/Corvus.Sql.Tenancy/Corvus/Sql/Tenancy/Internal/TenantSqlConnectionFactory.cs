@@ -7,14 +7,15 @@ namespace Corvus.Sql.Tenancy.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Data.Common;
+    using System.Security.Principal;
     using System.Text;
     using System.Threading.Tasks;
 
+    using Azure.Identity;
+    using Azure.Security.KeyVault.Secrets;
+
     using Corvus.Tenancy;
 
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -202,10 +203,14 @@ namespace Corvus.Sql.Tenancy.Internal
 
             if (string.IsNullOrEmpty(storageConfiguration.ConnectionString))
             {
-                var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-                using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
-                SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.ConnectionStringSecretName}").ConfigureAwait(false);
-                return accountKey.Value;
+                var keyVaultCredentials = Identity.ClientAuthentication.Azure.LegacyAzureServiceTokenProviderConnectionString.ToTokenCredential(this.options?.AzureServicesAuthConnectionString!);
+
+                var keyVaultUri = new Uri($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/");
+                var keyVaultClient = new SecretClient(keyVaultUri, keyVaultCredentials);
+
+                global::Azure.Response<KeyVaultSecret>? accountKeyResponse = await keyVaultClient.GetSecretAsync(storageConfiguration.ConnectionStringSecretName).ConfigureAwait(false);
+
+                return accountKeyResponse.Value.Value;
             }
 
             if (!string.IsNullOrEmpty(storageConfiguration.KeyVaultName) || !string.IsNullOrEmpty(storageConfiguration.ConnectionStringSecretName))

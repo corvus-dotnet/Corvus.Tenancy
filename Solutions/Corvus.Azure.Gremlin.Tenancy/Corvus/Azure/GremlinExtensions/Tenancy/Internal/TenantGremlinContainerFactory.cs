@@ -7,11 +7,13 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+
     using Corvus.Tenancy;
+
+    using global::Azure.Security.KeyVault.Secrets;
+
     using Gremlin.Net.Driver;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.Azure.Services.AppAuthentication;
+
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -252,11 +254,14 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy.Internal
 
         private async Task<string> GetAuthKey(GremlinConfiguration storageConfiguration)
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            var keyVaultCredentials = Identity.ClientAuthentication.Azure.LegacyAzureServiceTokenProviderConnectionString.ToTokenCredential(this.options?.AzureServicesAuthConnectionString!);
 
-            SecretBundle authKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AuthKeySecretName}").ConfigureAwait(false);
-            return authKey.Value;
+            var keyVaultUri = new Uri($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/");
+            var keyVaultClient = new SecretClient(keyVaultUri, keyVaultCredentials);
+
+            global::Azure.Response<KeyVaultSecret>? accountKeyResponse = await keyVaultClient.GetSecretAsync(storageConfiguration.AuthKeySecretName).ConfigureAwait(false);
+
+            return accountKeyResponse.Value.Value;
         }
 
         private async Task<GremlinClient> CreateTenantGremlinClient(ITenant tenant, GremlinContainerDefinition repositoryDefinition, GremlinContainerDefinition tenantedBlobStorageContainerDefinition)

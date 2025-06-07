@@ -4,7 +4,6 @@
 
 namespace Corvus.Tenancy.Internal
 {
-    using System;
     using Corvus.ContentHandling;
     using Corvus.Tenancy;
     using Microsoft.Extensions.DependencyInjection;
@@ -24,10 +23,10 @@ namespace Corvus.Tenancy.Internal
             services.AddJsonNetPropertyBag();
             services.AddContentTypeBasedSerializationSupport();
 
-            services.AddContent(
+            _ = services.AddContent(
                 contentFactory =>
                 {
-                    if (!contentFactory.TryGetContentType(Tenant.RegisteredContentType, out Type _))
+                    if (!contentFactory.TryGetContentType(Tenant.RegisteredContentType, out _))
                     {
                         contentFactory.RegisterContent<Tenant>();
                     }

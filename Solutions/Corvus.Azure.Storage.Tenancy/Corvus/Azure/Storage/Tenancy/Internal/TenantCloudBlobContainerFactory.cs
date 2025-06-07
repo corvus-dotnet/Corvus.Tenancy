@@ -7,10 +7,12 @@ namespace Corvus.Azure.Storage.Tenancy
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.Services.AppAuthentication;
+
+    using global::Azure.Security.KeyVault.Secrets;
+
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Auth;
     using Microsoft.Azure.Storage.Blob;
@@ -280,11 +282,14 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(storageConfiguration));
             }
 
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            var keyVaultCredentials = Identity.ClientAuthentication.Azure.LegacyAzureServiceTokenProviderConnectionString.ToTokenCredential(this.options?.AzureServicesAuthConnectionString!);
 
-            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
-            return accountKey.Value;
+            var keyVaultUri = new Uri($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/");
+            var keyVaultClient = new SecretClient(keyVaultUri, keyVaultCredentials);
+
+            global::Azure.Response<KeyVaultSecret>? accountKeyResponse = await keyVaultClient.GetSecretAsync(storageConfiguration.AccountKeySecretName).ConfigureAwait(false);
+
+            return accountKeyResponse.Value.Value;
         }
 
         private async Task<CloudBlobContainer> CreateTenantCloudBlobContainer(ITenant tenant, BlobStorageContainerDefinition containerDefinition, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition)
