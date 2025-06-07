@@ -53,6 +53,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                            AzureServicesAuthConnectionString = TenancyContainerScenarioBindings.Configuration["AzureServicesAuthConnectionString"],
                        };
 
+                       serviceCollection.AddJsonNetSerializerSettingsProvider();
                        serviceCollection.AddTenantCosmosContainerFactory(cosmosOptions);
                        serviceCollection.AddCosmosClientBuilderWithNewtonsoftJsonIntegration();
                    });
