@@ -26,17 +26,13 @@ namespace Corvus.Tenancy.Specs.Steps
         private readonly TenancyGremlinContainerBindings gremlinBindings;
         private readonly GremlinContainerDefinition containerDefinition;
 
-        public GremlinContainerSteps(
-            TenancyContainerScenarioBindings tenancyBindings,
-            TenancyGremlinContainerBindings gremlinBindings)
+        public GremlinContainerSteps(TenancyContainerScenarioBindings tenancyBindings, TenancyGremlinContainerBindings gremlinBindings)
         {
             this.tenancyBindings = tenancyBindings;
             this.gremlinBindings = gremlinBindings;
 
             string containerBase = Guid.NewGuid().ToString();
-            this.containerDefinition = new GremlinContainerDefinition(
-                "endjinspecssharedthroughput",
-                $"{containerBase}tenancyspecs");
+            this.containerDefinition = new GremlinContainerDefinition("endjinspecssharedthroughput", $"{containerBase}tenancyspecs");
         }
 
         [Given("I have added Gremlin configuration to a tenant")]
@@ -46,8 +42,7 @@ namespace Corvus.Tenancy.Specs.Steps
             TenancyContainerScenarioBindings.Configuration.Bind("TESTGREMLINCONFIGURATIONOPTIONS", gremlinConfiguration);
             gremlinConfiguration.DatabaseName = "endjinspecssharedthroughput";
             gremlinConfiguration.DisableTenantIdPrefix = true;
-            this.tenancyBindings.RootTenant.UpdateProperties(values =>
-                values.AddGremlinConfiguration(this.containerDefinition, gremlinConfiguration));
+            this.tenancyBindings.RootTenant.UpdateProperties(values => values.AddGremlinConfiguration(this.containerDefinition, gremlinConfiguration));
         }
 
         [Given("I have not added Gremlin configuration to a tenant")]
@@ -63,15 +58,16 @@ namespace Corvus.Tenancy.Specs.Steps
             GremlinClient gremlinClient = await this.gremlinBindings.ContainerFactory.GetClientForTenantAsync(
                 this.tenancyBindings.RootTenant,
                 this.containerDefinition).ConfigureAwait(false);
+
             Assert.IsNotNull(gremlinClient);
+
             this.gremlinBindings.DisposeThisClientOnTestTeardown(gremlinClient);
         }
 
         [When("I remove the Gremlin configuration from the tenant")]
         public void WhenIRemoveTheGremlinConfigurationFromTheTenant()
         {
-            this.tenancyBindings.RootTenant.UpdateProperties(
-                propertiesToRemove: this.containerDefinition.RemoveGremlinConfiguration());
+            this.tenancyBindings.RootTenant.UpdateProperties(propertiesToRemove: this.containerDefinition.RemoveGremlinConfiguration());
         }
 
         [Then("attempting to get the Gremlin configuration from the tenant should throw an ArgumentException")]

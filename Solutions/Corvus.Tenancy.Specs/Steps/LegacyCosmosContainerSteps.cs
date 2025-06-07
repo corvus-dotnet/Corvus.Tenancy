@@ -8,7 +8,6 @@ namespace Corvus.Tenancy.Specs.Steps
     using System.Threading.Tasks;
 
     using Corvus.Azure.Cosmos.Tenancy;
-    using Corvus.Storage.Azure.Cosmos.Tenancy;
     using Corvus.Tenancy.Specs.Bindings;
     using Corvus.Testing.ReqnRoll;
 
@@ -28,10 +27,7 @@ namespace Corvus.Tenancy.Specs.Steps
         private readonly LegacyTenancyCosmosContainerBindings cosmosBindings;
         private readonly CosmosContainerDefinition containerDefinition;
 
-        public LegacyCosmosContainerSteps(
-            ScenarioContext featureContext,
-            TenancyContainerScenarioBindings tenancyBindings,
-            LegacyTenancyCosmosContainerBindings cosmosBindings)
+        public LegacyCosmosContainerSteps(ScenarioContext featureContext, TenancyContainerScenarioBindings tenancyBindings, LegacyTenancyCosmosContainerBindings cosmosBindings)
         {
             this.scenarioContext = featureContext;
             this.tenancyBindings = tenancyBindings;
@@ -39,11 +35,7 @@ namespace Corvus.Tenancy.Specs.Steps
 
             string containerBase = Guid.NewGuid().ToString();
 
-            this.containerDefinition = new CosmosContainerDefinition(
-                "endjinspecssharedthroughput",
-                $"{containerBase}tenancyspecs",
-                "/partitionKey",
-                databaseThroughput: 400);
+            this.containerDefinition = new CosmosContainerDefinition(databaseName: "endjinspecssharedthroughput", containerName: $"{containerBase}tenancyspecs", partitionKeyPath: "/partitionKey", databaseThroughput: 400);
         }
 
         [Given("I have added legacy Cosmos configuration to a tenant")]
@@ -75,8 +67,7 @@ namespace Corvus.Tenancy.Specs.Steps
             IServiceProvider serviceProvider = ContainerBindings.GetServiceProvider(this.scenarioContext);
             ITenantProvider tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
             CosmosContainerDefinition definition = this.containerDefinition;
-            tenantProvider.Root.UpdateProperties(
-                propertiesToRemove: definition.RemoveCosmosConfiguration());
+            tenantProvider.Root.UpdateProperties(propertiesToRemove: definition.RemoveCosmosConfiguration());
         }
 
         [Then("attempting to get the legacy Cosmos configuration from the tenant throws an ArgumentException")]

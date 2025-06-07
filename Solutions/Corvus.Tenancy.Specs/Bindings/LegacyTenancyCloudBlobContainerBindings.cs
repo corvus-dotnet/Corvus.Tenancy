@@ -27,9 +27,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = [];
         private ITenantCloudBlobContainerFactory? containerFactory;
 
-        public LegacyTenancyCloudBlobContainerBindings(
-            FeatureContext featureContext,
-            ScenarioContext scenarioContext)
+        public LegacyTenancyCloudBlobContainerBindings(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
@@ -48,7 +46,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         [BeforeScenario("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
         public void InitializeContainer()
         {
-            if (!this.featureContext.FeatureInfo.Tags.Any(t => t == "perFeatureContainer"))
+            if (this.featureContext.FeatureInfo.Tags.All(t => t != "perFeatureContainer"))
             {
                 ContainerBindings.ConfigureServices(
                     this.scenarioContext,

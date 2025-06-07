@@ -67,6 +67,7 @@ namespace Corvus.Tenancy.Specs.Steps
                 row.TryGetValue("Key", out string key);
                 row.TryGetValue("Value", out string value);
                 row.TryGetValue("Type", out string type);
+
                 switch (type)
                 {
                     case "string":
@@ -167,6 +168,7 @@ namespace Corvus.Tenancy.Specs.Steps
                 row.TryGetValue("Key", out string key);
                 row.TryGetValue("Value", out string value);
                 row.TryGetValue("Type", out string type);
+
                 switch (type)
                 {
                     case "string":

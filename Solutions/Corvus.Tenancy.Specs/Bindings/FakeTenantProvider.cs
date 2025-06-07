@@ -28,10 +28,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             throw new NotImplementedException();
         }
 
-        public Task<ITenant> CreateWellKnownChildTenantAsync(
-            string parentTenantId,
-            Guid wellKnownChildTenantGuid,
-            string name)
+        public Task<ITenant> CreateWellKnownChildTenantAsync(string parentTenantId, Guid wellKnownChildTenantGuid, string name)
         {
             throw new NotImplementedException();
         }

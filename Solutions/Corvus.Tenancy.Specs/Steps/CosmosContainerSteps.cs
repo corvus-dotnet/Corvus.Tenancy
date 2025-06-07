@@ -28,9 +28,7 @@ namespace Corvus.Tenancy.Specs.Steps
         private CosmosContainerConfiguration? cosmosConfiguration;
         private Container? cosmosContainer;
 
-        public CosmosContainerSteps(
-            TenancyContainerScenarioBindings tenancyBindings,
-            TenancyCosmosContainerBindings cosmosBindings)
+        public CosmosContainerSteps(TenancyContainerScenarioBindings tenancyBindings, TenancyCosmosContainerBindings cosmosBindings)
         {
             this.tenancyBindings = tenancyBindings;
             this.cosmosBindings = cosmosBindings;
@@ -44,8 +42,7 @@ namespace Corvus.Tenancy.Specs.Steps
             this.cosmosConfiguration = new();
             TenancyContainerScenarioBindings.Configuration.Bind("TESTCOSMOSCONFIGURATIONOPTIONS", this.cosmosConfiguration);
             this.cosmosConfiguration.Database = "endjinspecssharedthroughput";
-            this.tenancyBindings.RootTenant.UpdateProperties(values =>
-                values.AddCosmosConfiguration(ConfigurationKey, this.cosmosConfiguration));
+            this.tenancyBindings.RootTenant.UpdateProperties(values => values.AddCosmosConfiguration(ConfigurationKey, this.cosmosConfiguration));
         }
 
         [Given("I have not added cosmos configuration to a tenant")]
