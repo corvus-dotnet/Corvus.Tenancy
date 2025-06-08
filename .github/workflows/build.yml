@@ -61,6 +61,7 @@ jobs:
           TestLegacyCosmosConfigurationOptions__KeyVaultName: ${{ vars.TESTS_KEYVAULTNAME }}
           TestLegacyCosmosConfigurationOptions__AccountKeySecretName: ${{ vars.TESTS_COSMOSDBKEYSECRETNAME }}
           AzureServicesAuthConnectionString: "RunAs=Developer;DeveloperTool=AzureCli"
+          TestSettings__AzureStorageConnectionString: "${{ secrets.TESTS_AZURESTORAGECONNECTIONSTRING }}"
         secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
 
   build:
