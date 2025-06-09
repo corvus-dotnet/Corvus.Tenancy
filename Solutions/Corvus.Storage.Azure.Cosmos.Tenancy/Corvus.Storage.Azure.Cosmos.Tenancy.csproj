@@ -3,7 +3,7 @@
   <Import Project="$(EndjinProjectPropsPath)" Condition="$(EndjinProjectPropsPath) != ''" />
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Corvus.Storage.Azure.Cosmos" Version="1.6.0" />
-    <PackageReference Include="Endjin.RecommendedPractices.GitHub" Version="2.1.5">
+    <PackageReference Include="Corvus.Storage.Azure.Cosmos" Version="2.0.3" />
+    <PackageReference Include="Endjin.RecommendedPractices.GitHub" Version="2.1.18">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -28,3 +28,4 @@
   </ItemGroup>
 
 </Project>
+

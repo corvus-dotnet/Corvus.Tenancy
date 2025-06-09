@@ -1,4 +1,4 @@
-// <copyright file="CosmosLegacyMigrationStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="CosmosLegacyMigrationSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -12,21 +12,19 @@ using Corvus.Json;
 using Corvus.Storage.Azure.Cosmos;
 using Corvus.Storage.Azure.Cosmos.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
-using Corvus.Testing.SpecFlow;
-
-using FluentAssertions;
+using Corvus.Testing.ReqnRoll;
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
-using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationStepDefinitions;
+using static Corvus.Tenancy.Specs.Features.Cosmos.CosmosLegacyMigrationSteps;
 
 [Binding]
-public class CosmosLegacyMigrationStepDefinitions
+public class CosmosLegacyMigrationSteps
 {
     private const string PartitionKeyPath = "/foo/bar";
     private readonly TenancyCosmosContainerBindings cosmosBindings;
@@ -64,7 +62,7 @@ public class CosmosLegacyMigrationStepDefinitions
     private Container? cosmosContainer;
     private CosmosContainerConfiguration? configToUseForTest;
 
-    public CosmosLegacyMigrationStepDefinitions(
+    public CosmosLegacyMigrationSteps(
         ScenarioContext scenarioContext,
         TenancyCosmosContainerBindings cosmosBindings)
     {
@@ -431,7 +429,7 @@ public class CosmosLegacyMigrationStepDefinitions
     [Then(@"ICosmosContainerSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned null")]
     public void ThenICosmosContainerSourceWithTenantLegacyTransition_MigrateToVAsyncShouldHaveReturnedNull()
     {
-        this.configReturnedFromMigration.Should().BeNull();
+        Assert.IsNull(this.configReturnedFromMigration);
     }
 
     private ITenant GetTenant()

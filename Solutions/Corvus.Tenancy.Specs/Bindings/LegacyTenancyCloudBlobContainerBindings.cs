@@ -10,26 +10,24 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Threading.Tasks;
 
     using Corvus.Azure.Storage.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted cloud blob container.
+    /// Reqnroll bindings to support a tenanted cloud blob container.
     /// </summary>
     [Binding]
     public class LegacyTenancyCloudBlobContainerBindings
     {
         private readonly FeatureContext featureContext;
         private readonly ScenarioContext scenarioContext;
-        private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = new();
+        private readonly List<CloudBlobContainer> containersToRemoveAtTeardown = [];
         private ITenantCloudBlobContainerFactory? containerFactory;
 
-        public LegacyTenancyCloudBlobContainerBindings(
-            FeatureContext featureContext,
-            ScenarioContext scenarioContext)
+        public LegacyTenancyCloudBlobContainerBindings(FeatureContext featureContext, ScenarioContext scenarioContext)
         {
             this.featureContext = featureContext;
             this.scenarioContext = scenarioContext;
@@ -48,7 +46,7 @@ namespace Corvus.Tenancy.Specs.Bindings
         [BeforeScenario("@setupTenantedCloudBlobContainer", Order = ContainerBeforeScenarioOrder.PopulateServiceCollection + 1)]
         public void InitializeContainer()
         {
-            if (!this.featureContext.FeatureInfo.Tags.Any(t => t == "perFeatureContainer"))
+            if (this.featureContext.FeatureInfo.Tags.All(t => t != "perFeatureContainer"))
             {
                 ContainerBindings.ConfigureServices(
                     this.scenarioContext,
@@ -93,7 +91,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 });
         }
 
-        private static void Init(IServiceCollection serviceCollection, string azureServicesAuthConnectionString)
+        private static void Init(IServiceCollection serviceCollection, string? azureServicesAuthConnectionString)
         {
             var blobOptions = new TenantCloudBlobContainerFactoryOptions
             {

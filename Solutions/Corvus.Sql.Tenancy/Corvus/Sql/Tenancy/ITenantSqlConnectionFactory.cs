@@ -4,9 +4,11 @@
 
 namespace Corvus.Sql.Tenancy
 {
-    using System.Data.SqlClient;
     using System.Threading.Tasks;
+
     using Corvus.Tenancy;
+
+    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>

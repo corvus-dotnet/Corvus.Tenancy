@@ -1,4 +1,4 @@
-// <copyright file="LegacyBlobStorageConfigurationTransformationStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="LegacyConfigurationTransformationSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -10,14 +10,11 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using Corvus.Storage.Azure.BlobStorage;
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
-
-    using FluentAssertions;
-
-    using TechTalk.SpecFlow;
-    using TechTalk.SpecFlow.Assist;
+    using NUnit.Framework;
+    using Reqnroll;
 
     [Binding]
-    public class LegacyBlobStorageConfigurationTransformationStepDefinitions
+    public class LegacyConfigurationTransformationSteps
     {
         private LegacyV2BlobStorageConfiguration legacyConfiguration = new();
         private BlobContainerConfiguration? resultingConfiguration;
@@ -51,7 +48,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             IEnumerable<(string, string)> expectedProperties = table.CreateSet(
                 row => (row["PropertyName"], row["Value"]));
 
-            HashSet<string> propertiesNotExpectedToBeNull = new();
+            HashSet<string> propertiesNotExpectedToBeNull = [];
             foreach ((string name, string expectedValue) in expectedProperties)
             {
                 propertiesNotExpectedToBeNull.Add(name);
@@ -62,15 +59,15 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 {
                     // The test expects this to be set, but it's a nested value that's going to
                     // be checked in detail elsewhere.
-                    actualValue.Should().NotBeNull();
+                    Assert.IsNotNull(actualValue);
                 }
                 else if (expectedValue == "<null>")
                 {
-                    actualValue.Should().BeNull();
+                    Assert.IsNull(actualValue);
                 }
                 else
                 {
-                    actualValue.Should().BeEquivalentTo(expectedValue);
+                    Assert.AreEqual(actualValue, expectedValue);
                 }
             }
 
@@ -79,7 +76,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
             foreach (PropertyInfo? pi in nullProperties)
             {
                 object? actualValue = pi.GetValue(value);
-                actualValue.Should().BeNull();
+                Assert.IsNull(actualValue);
             }
         }
     }

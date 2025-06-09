@@ -1,4 +1,4 @@
-// <copyright file="CosmosTenantSpecificNamesStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="CosmosTenantSpecificNamesSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -7,14 +7,14 @@ namespace Corvus.Tenancy.Specs.Features.Cosmos;
 using Corvus.Storage.Azure.Cosmos.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
-public class CosmosTenantSpecificNamesStepDefinitions
+public class CosmosTenantSpecificNamesSteps
 {
     private readonly TenantedNameBindings tenantedNameBindings;
 
-    public CosmosTenantSpecificNamesStepDefinitions(
+    public CosmosTenantSpecificNamesSteps(
         TenantedNameBindings tenantedNameBindings)
     {
         this.tenantedNameBindings = tenantedNameBindings;

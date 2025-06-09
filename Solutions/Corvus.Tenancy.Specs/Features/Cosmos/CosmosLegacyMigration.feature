@@ -6,7 +6,6 @@ Feature: CosmosLegacyMigration
     As a developer using Corvus.Storage.Azure.Cosmos.Tenancy
     I need to be able to work with storage accounts and tenant configurations created through the v2 libraries when using the v3 libraries
 
-
 # --- V2 config only ---
 
 # Neither Database nor Container exist yet

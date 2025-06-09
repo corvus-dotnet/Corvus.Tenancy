@@ -6,7 +6,6 @@ Feature: CosmosContainer
     As a developer
     I want to be able to manage the container
 
-
 Scenario: Get a cosmos container
     Given I have added Cosmos configuration to a tenant
     Then I should be able to get the tenanted cosmos container

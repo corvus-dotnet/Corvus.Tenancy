@@ -12,13 +12,13 @@ namespace Corvus.Tenancy.Specs.Bindings
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Internal;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class TenancyContainerScenarioBindings
@@ -29,10 +29,10 @@ namespace Corvus.Tenancy.Specs.Bindings
 
         static TenancyContainerScenarioBindings()
         {
-            var configData = new Dictionary<string, string>
+            var configData = new Dictionary<string, string?>
             {
                 //// Add configuration value pairs here
-                ////{ "STORAGEACCOUNTCONNECTIONSTRING", "UseDevelopmentStorage=true" },
+                { "TestSettings:AzureStorageConnectionString", "DefaultEndpointsProtocol=https;AccountName=endteststorage;EndpointSuffix=core.windows.net" },
             };
             Configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(configData)
@@ -151,7 +151,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton(Configuration);
-            serviceCollection.AddSingleton(Configuration.GetSection("TestSettings").Get<TestSettings>());
+            serviceCollection.AddSingleton(Configuration.GetSection("TestSettings").Get<TestSettings>() ?? new TestSettings());
 
             serviceCollection.AddRequiredTenancyServices();
 
@@ -179,7 +179,7 @@ namespace Corvus.Tenancy.Specs.Bindings
                 serviceCollection.AddSingleton<ITenantProvider>(sp => sp.GetRequiredService<FakeTenantProvider>());
             }
 
-            serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(Configuration["AzureServicesAuthConnectionString"]);
+            serviceCollection.AddServiceIdentityAzureTokenCredentialSourceFromLegacyConnectionString(Configuration["AzureServicesAuthConnectionString"] ?? throw new InvalidOperationException("AzureServicesAuthConnectionString configuration setting required"));
         }
     }
 }
