@@ -62,6 +62,13 @@ jobs:
           TestLegacyCosmosConfigurationOptions__AccountKeySecretName: ${{ vars.TESTS_COSMOSDBKEYSECRETNAME }}
           AzureServicesAuthConnectionString: "RunAs=Developer;DeveloperTool=AzureCli"
           TestSettings__AzureStorageConnectionString: "${{ secrets.TESTS_AZURESTORAGECONNECTIONSTRING }}"
+          TenancyBlobStorageConfigurationOptions__AccountName: ${{ secrets.TESTS_AZURESTORAGECONNECTIONSTRING }}
+          TestBlobStorageConfigurationOptions__AccountName: ${{ secrets.TESTS_AZURESTORAGECONNECTIONSTRING }}
+          TestTableStorageConfigurationOptions__AccountName: ${{ secrets.TESTS_AZURESTORAGECONNECTIONSTRING }}
+          TestGremlinConfigurationOptions__HostName: ${{ vars.TESTS_COSMOSDBGREMLINHOSTNAME }}
+          TestGremlinConfigurationOptions__Port: ${{ vars.TESTS_GREMLINCONFIGURATIONPORT }}
+          TestGremlinConfigurationOptions__AuthKeySecretName: ${{ vars.TESTS_COSMOSDBGREMLINACCOUNTKEYSECRETNAME }}
+          TestGremlinConfigurationOptions__KeyVaultName: ${{ vars.TESTS_KEYVAULTNAME }}
         secretsEncryptionKey: ${{ secrets.SHARED_WORKFLOW_KEY }}
 
   build:
