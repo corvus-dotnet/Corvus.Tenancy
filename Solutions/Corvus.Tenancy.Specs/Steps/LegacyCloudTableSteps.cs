@@ -13,11 +13,10 @@ namespace Corvus.Tenancy.Specs.Steps
 
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class LegacyCloudTableSteps
@@ -27,9 +26,7 @@ namespace Corvus.Tenancy.Specs.Steps
         private CloudTable? cloudTable;
         private TableStorageTableDefinition? tableStorageTableDefinition;
 
-        public LegacyCloudTableSteps(
-            TenancyContainerScenarioBindings tenancyBindings,
-            TenancyCloudTableBindings tableBindings)
+        public LegacyCloudTableSteps(TenancyContainerScenarioBindings tenancyBindings, TenancyCloudTableBindings tableBindings)
         {
             this.tenancyBindings = tenancyBindings;
             this.tableBindings = tableBindings;
@@ -107,8 +104,7 @@ namespace Corvus.Tenancy.Specs.Steps
         [When("I remove the legacy table storage configuration from the tenant")]
         public void WhenIRemoveTheTableStorageConfigurationFromTheTenant()
         {
-            this.tenancyBindings.RootTenant.UpdateProperties(
-                propertiesToRemove: this.TableStorageTableDefinition.RemoveTableStorageConfiguration());
+            this.tenancyBindings.RootTenant.UpdateProperties(propertiesToRemove: this.TableStorageTableDefinition.RemoveTableStorageConfiguration());
         }
 
         [Then("attempting to get the table storage configuration from the tenant throws an ArgumentException")]

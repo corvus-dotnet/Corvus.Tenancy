@@ -13,9 +13,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Corvus.Json;
     using Corvus.Storage.Azure.BlobStorage;
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
-    using Corvus.Testing.SpecFlow;
-
-    using FluentAssertions;
+    using Corvus.Testing.ReqnRoll;
 
     using global::Azure;
     using global::Azure.Core;
@@ -26,8 +24,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
-    using TechTalk.SpecFlow.Assist;
+    using Reqnroll;
 
     [Binding]
     public sealed class BlobStorageLegacyMigrationSteps : IDisposable
@@ -42,7 +39,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
         private readonly IPropertyBagFactory pbf;
         private readonly MonitoringPolicy blobClientMonitor = new();
         private readonly BlobClientOptions blobClientOptions;
-        private readonly List<string> containersCreatedByTest = new();
+        private readonly List<string> containersCreatedByTest = [];
         private IPropertyBag tenantProperties;
         private ITenant? tenant;
         private BlobServiceClient? blobServiceClient;
@@ -230,7 +227,7 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 tenant,
                 v2ConfigurationKey,
                 v3ConfigurationKey,
-                new[] { this.logicalContainerName },
+                [this.logicalContainerName],
                 this.blobClientOptions)
                 .ConfigureAwait(false);
         }
@@ -306,13 +303,13 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
                 expectedConfiguration.ConnectionStringPlainText = this.testStorageConnectionString;
             }
 
-            this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
+            Assert.AreEqual(this.v3ConfigFromMigration, expectedConfiguration);
         }
 
         [Then("IBlobContainerSourceWithTenantLegacyTransition.MigrateToV3Async should have returned null")]
         public void ThenMigrateToVAsyncShouldHaveReturnedNull()
         {
-            this.v3ConfigFromMigration.Should().BeNull();
+            Assert.IsNull(this.v3ConfigFromMigration);
         }
 
         [Then("no new container should have been created")]
@@ -361,9 +358,9 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
 
         private class MonitoringPolicy : global::Azure.Core.Pipeline.HttpPipelineSynchronousPolicy
         {
-            public List<string> ContainerCreateIfExistsCalls { get; } = new List<string>();
+            public List<string> ContainerCreateIfExistsCalls { get; } = [];
 
-            public List<string> ContainersCreated { get; } = new List<string>();
+            public List<string> ContainersCreated { get; } = [];
 
             public override void OnReceivedResponse(HttpMessage message)
             {

@@ -21,7 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public sealed class TableClientSteps : IDisposable
@@ -29,8 +29,8 @@ public sealed class TableClientSteps : IDisposable
     private const string TenantStoragePropertyKey = "MyStorageSettings";
     private const string StorageAccountName = "myaccount";
 
-    private readonly List<(TableConfiguration Configuration, TableClientOptions? ConnectionOptions)> contextsRequested = new();
-    private readonly List<(TableConfiguration Configuration, TableClientOptions? ConnectionOptions)> contextsReplaced = new();
+    private readonly List<(TableConfiguration Configuration, TableClientOptions? ConnectionOptions)> contextsRequested = [];
+    private readonly List<(TableConfiguration Configuration, TableClientOptions? ConnectionOptions)> contextsReplaced = [];
     private readonly ServiceProvider serviceProvider;
     private readonly RootTenant tenant;
     private readonly ITableSourceFromDynamicConfiguration tableSource;
@@ -124,7 +124,7 @@ public sealed class TableClientSteps : IDisposable
     public void WhenIRemoveTheTableStorageConfigurationFromTheTenant()
     {
         this.tenant.UpdateProperties(
-            propertiesToRemove: new[] { TenantStoragePropertyKey });
+            propertiesToRemove: [TenantStoragePropertyKey]);
     }
 
     [Then("the TableClient source should have been given a configuration identical to the original one")]

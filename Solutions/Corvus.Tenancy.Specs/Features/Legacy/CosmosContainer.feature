@@ -6,7 +6,6 @@ Feature: Legacy CosmosContainer
 	As a developer
 	I want to be able to manage the container
 
-
 Scenario: Create a cosmos container
     Given I have added legacy Cosmos configuration to a tenant
 	Then I should be able to get the tenanted cosmos container from the legacy API

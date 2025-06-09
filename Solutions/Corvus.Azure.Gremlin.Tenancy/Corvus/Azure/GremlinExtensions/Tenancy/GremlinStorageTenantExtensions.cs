@@ -72,7 +72,7 @@ namespace Corvus.Azure.GremlinExtensions.Tenancy
         {
             ArgumentNullException.ThrowIfNull(definition);
 
-            return new string[] { GetConfigurationKey(definition) };
+            return [GetConfigurationKey(definition)];
         }
 
         private static string GetConfigurationKey(GremlinContainerDefinition definition)

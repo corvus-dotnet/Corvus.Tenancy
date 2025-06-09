@@ -11,7 +11,7 @@ using Corvus.Storage.Sql.Tenancy;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
 public class TenantPropertyStorageConfigKeyNamingSteps
