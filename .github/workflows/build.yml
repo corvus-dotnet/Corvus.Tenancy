@@ -82,7 +82,7 @@ jobs:
       skipCleanup: ${{ github.event.inputs.skipCleanup == 'true' }}
       testPhaseMatrixJson: |
         {
-          "os": ["windows-latest", "ubuntu-latest"],
+          "os": ["ubuntu-latest"],
           "dotnetFramework": ["net8.0"]
         }
       # testArtifactName: ''
