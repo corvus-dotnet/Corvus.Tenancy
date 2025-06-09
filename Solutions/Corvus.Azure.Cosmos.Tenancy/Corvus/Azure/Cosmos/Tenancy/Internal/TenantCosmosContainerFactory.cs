@@ -7,13 +7,12 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
-    using Corvus.Extensions.Cosmos;
+    using Corvus.CosmosClient;
     using Corvus.Tenancy;
+    using global::Azure.Security.KeyVault.Secrets;
     using Microsoft.Azure.Cosmos;
     using Microsoft.Azure.Cosmos.Fluent;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.KeyVault.Models;
-    using Microsoft.Azure.Services.AppAuthentication;
+
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -47,11 +46,11 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
     /// <code>
     /// TenantCosmosContainerFactory factory;
     ///
-    /// var repository = await factory.GetComosContainerForTenantAsync(tenantProvider.Root, new CosmosContainerDefinition("somecontainer"));
+    /// var repository = await factory.GetCosmosContainerForTenantAsync(tenantProvider.Root, new CosmosContainerDefinition("somecontainer"));
     /// </code>
     /// </para>
     /// <para>
-    /// If you create containers in this way (rather than just newing them up) then your application can easily be multitented
+    /// If you create containers in this way (rather than just newing them up) then your application can easily be multi-tented
     /// by ensuring that you always pass the Tenant through your stack, and just default to tenantProvider.Root at the top level.
     /// </para>
     /// <para>
@@ -162,15 +161,15 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 
             if (result.IsFaulted)
             {
-                // If a task has been created in the previous statement, it won't have completed yet. Therefore if it's
+                // If a task has been created in the previous statement, it won't have completed yet. Therefore, if it's
                 // faulted, that means it was added as part of a previous request to this method, and subsequently
                 // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
                 // return. If removing the value fails, that's likely because it's been removed by a different thread,
                 // so we will ignore that and just attempt to create and return a new value anyway.
-                this.containers.TryRemove(key, out Task<Container> _);
+                this.containers.TryRemove(key, out Task<Container>? _);
 
                 // Wait for a short and random time, to reduce the potential for large numbers of spurious container
-                // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
+                // recreation that could happen if multiple threads are trying to rectify the failure simultaneously.
                 await Task.Delay(this.random.Next(150, 250)).ConfigureAwait(false);
 
                 result = this.containers.GetOrAdd(
@@ -274,11 +273,14 @@ namespace Corvus.Azure.Cosmos.Tenancy.Internal
 
         private async Task<string> GetAccountKeyAsync(CosmosConfiguration storageConfiguration)
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            var keyVaultCredentials = Identity.ClientAuthentication.Azure.LegacyAzureServiceTokenProviderConnectionString.ToTokenCredential(this.options?.AzureServicesAuthConnectionString!);
 
-            SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
-            return accountKey.Value;
+            var keyVaultUri = new Uri($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/");
+            var keyVaultClient = new SecretClient(keyVaultUri, keyVaultCredentials);
+
+            global::Azure.Response<KeyVaultSecret>? accountKeyResponse = await keyVaultClient.GetSecretAsync(storageConfiguration.AccountKeySecretName).ConfigureAwait(false);
+
+            return accountKeyResponse.Value.Value;
         }
 
         private async Task<Container> CreateTenantCosmosContainer(ITenant tenant, CosmosContainerDefinition repositoryDefinition, CosmosContainerDefinition tenantedCosmosContainerDefinition)

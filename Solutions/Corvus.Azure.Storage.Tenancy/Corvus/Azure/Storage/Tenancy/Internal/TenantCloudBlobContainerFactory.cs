@@ -7,10 +7,12 @@ namespace Corvus.Azure.Storage.Tenancy
     using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
+
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.Services.AppAuthentication;
+
+    using global::Azure.Security.KeyVault.Secrets;
+
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Auth;
     using Microsoft.Azure.Storage.Blob;
@@ -168,7 +170,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
                 // return. If removing the value fails, that's likely because it's been removed by a different thread,
                 // so we will ignore that and just attempt to create and return a new value anyway.
-                this.containers.TryRemove(key, out Task<CloudBlobContainer> _);
+                this.containers.TryRemove(key, out Task<CloudBlobContainer>? _);
 
                 // Wait for a short and random time, to reduce the potential for large numbers of spurious container
                 // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
@@ -280,11 +282,14 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(storageConfiguration));
             }
 
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            var keyVaultCredentials = Identity.ClientAuthentication.Azure.LegacyAzureServiceTokenProviderConnectionString.ToTokenCredential(this.options?.AzureServicesAuthConnectionString!);
 
-            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
-            return accountKey.Value;
+            var keyVaultUri = new Uri($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/");
+            var keyVaultClient = new SecretClient(keyVaultUri, keyVaultCredentials);
+
+            global::Azure.Response<KeyVaultSecret>? accountKeyResponse = await keyVaultClient.GetSecretAsync(storageConfiguration.AccountKeySecretName).ConfigureAwait(false);
+
+            return accountKeyResponse.Value.Value;
         }
 
         private async Task<CloudBlobContainer> CreateTenantCloudBlobContainer(ITenant tenant, BlobStorageContainerDefinition containerDefinition, BlobStorageContainerDefinition tenantedBlobStorageContainerDefinition)

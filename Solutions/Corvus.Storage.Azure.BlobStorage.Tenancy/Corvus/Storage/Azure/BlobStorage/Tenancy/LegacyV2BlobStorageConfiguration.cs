@@ -62,7 +62,7 @@ namespace Corvus.Storage.Azure.BlobStorage.Tenancy
         public string? KeyVaultName { get; set; }
 
         /// <summary>
-        /// Gets or sets the account key secret mame.
+        /// Gets or sets the account key secret name.
         /// </summary>
         public string? AccountKeySecretName { get; set; }
 

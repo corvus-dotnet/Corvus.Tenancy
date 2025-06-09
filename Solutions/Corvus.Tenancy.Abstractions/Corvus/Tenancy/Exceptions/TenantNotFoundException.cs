@@ -5,7 +5,6 @@
 namespace Corvus.Tenancy.Exceptions
 {
     using System;
-    using System.Runtime.Serialization;
 
     /// <summary>
     /// The tenant has not been modified.
@@ -36,16 +35,6 @@ namespace Corvus.Tenancy.Exceptions
         /// <param name="innerException">The inner exception.</param>
         public TenantNotFoundException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TenantNotFoundException"/> class.
-        /// </summary>
-        /// <param name="info">The serialization information.</param>
-        /// <param name="context">The serlialization context.</param>
-        protected TenantNotFoundException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

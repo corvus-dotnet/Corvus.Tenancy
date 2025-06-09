@@ -10,11 +10,8 @@ using System.Reflection;
 
 using Corvus.Storage.Azure.Cosmos;
 using Corvus.Storage.Azure.Cosmos.Tenancy;
-
-using FluentAssertions;
-
-using TechTalk.SpecFlow;
-using TechTalk.SpecFlow.Assist;
+using NUnit.Framework;
+using Reqnroll;
 
 [Binding]
 public class CosmosLegacyConfigurationTransformationSteps
@@ -51,7 +48,7 @@ public class CosmosLegacyConfigurationTransformationSteps
         IEnumerable<(string, string)> expectedProperties = table.CreateSet(
             row => (row["PropertyName"], row["Value"]));
 
-        HashSet<string> propertiesNotExpectedToBeNull = new();
+        HashSet<string> propertiesNotExpectedToBeNull = [];
         foreach ((string name, string expectedValue) in expectedProperties)
         {
             propertiesNotExpectedToBeNull.Add(name);
@@ -66,11 +63,11 @@ public class CosmosLegacyConfigurationTransformationSteps
             {
                 // The test expects this to be set, but it's a nested value that's going to
                 // be checked in detail elsewhere.
-                actualValue.Should().NotBeNull();
+                Assert.IsNotNull(actualValue);
             }
             else
             {
-                actualValue.Should().BeEquivalentTo(effectiveExpectedValue);
+                Assert.AreEqual(actualValue, effectiveExpectedValue);
             }
         }
 
@@ -79,7 +76,7 @@ public class CosmosLegacyConfigurationTransformationSteps
         foreach (PropertyInfo? pi in nullProperties)
         {
             object? actualValue = pi.GetValue(value);
-            actualValue.Should().BeNull();
+            Assert.IsNull(actualValue);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="TableNamingStepDefinitions.cs" company="Endjin Limited">
+﻿// <copyright file="TableNamingSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -7,14 +7,14 @@ namespace Corvus.Tenancy.Specs.Features.TableStorage;
 using Corvus.Storage.Azure.TableStorage.Tenancy;
 using Corvus.Tenancy.Specs.Bindings;
 
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 [Binding]
-public sealed class TableNamingStepDefinitions
+public sealed class TableNamingSteps
 {
     private readonly TenantedNameBindings tenantedNameBindings;
 
-    public TableNamingStepDefinitions(
+    public TableNamingSteps(
         TenantedNameBindings tenantedNameBindings)
     {
         this.tenantedNameBindings = tenantedNameBindings;

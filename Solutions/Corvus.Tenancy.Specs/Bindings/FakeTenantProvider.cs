@@ -19,7 +19,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.Root = new RootTenant(propertyBagFactory);
         }
 
-        public List<Update> TenantUpdates { get; } = new();
+        public List<Update> TenantUpdates { get; } = [];
 
         public RootTenant Root { get; }
 
@@ -28,10 +28,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             throw new NotImplementedException();
         }
 
-        public Task<ITenant> CreateWellKnownChildTenantAsync(
-            string parentTenantId,
-            Guid wellKnownChildTenantGuid,
-            string name)
+        public Task<ITenant> CreateWellKnownChildTenantAsync(string parentTenantId, Guid wellKnownChildTenantGuid, string name)
         {
             throw new NotImplementedException();
         }

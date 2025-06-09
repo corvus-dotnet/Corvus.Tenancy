@@ -9,7 +9,7 @@ namespace Corvus.Tenancy
     using Corvus.Json;
 
     /// <summary>
-    /// Describes a root tenant in a multitenanted system.
+    /// Describes a root tenant in a multi-tenanted system.
     /// </summary>
     public class RootTenant : Tenant
     {

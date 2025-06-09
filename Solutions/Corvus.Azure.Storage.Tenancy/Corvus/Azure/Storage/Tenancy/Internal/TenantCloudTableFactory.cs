@@ -9,9 +9,9 @@ namespace Corvus.Azure.Storage.Tenancy
     using System.Threading.Tasks;
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy;
+    using global::Azure.Identity;
+    using global::Azure.Security.KeyVault.Secrets;
     using Microsoft.Azure.Cosmos.Table;
-    using Microsoft.Azure.KeyVault;
-    using Microsoft.Azure.Services.AppAuthentication;
     using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
@@ -166,7 +166,7 @@ namespace Corvus.Azure.Storage.Tenancy
                 // failed. As such, we will remove the item from the dictionary, and attempt to create a new one to
                 // return. If removing the value fails, that's likely because it's been removed by a different thread,
                 // so we will ignore that and just attempt to create and return a new value anyway.
-                this.containers.TryRemove(key, out Task<CloudTable> _);
+                this.containers.TryRemove(key, out Task<CloudTable>? _);
 
                 // Wait for a short and random time, to reduce the potential for large numbers of spurious container
                 // recreation that could happen if multiple threads are trying to rectify the failure simultanously.
@@ -279,11 +279,24 @@ namespace Corvus.Azure.Storage.Tenancy
                 throw new System.ArgumentNullException(nameof(storageConfiguration));
             }
 
-            var azureServiceTokenProvider = new AzureServiceTokenProvider(this.options?.AzureServicesAuthConnectionString);
-            using var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            // Create credentials for authenticating with Azure Key Vault
+            var credential = string.IsNullOrEmpty(this.options?.AzureServicesAuthConnectionString)
+                ? new DefaultAzureCredential()
+                : new DefaultAzureCredential(new DefaultAzureCredentialOptions
+                {
+                    ManagedIdentityClientId = this.options.AzureServicesAuthConnectionString,
+                });
 
-            Microsoft.Azure.KeyVault.Models.SecretBundle accountKey = await keyVaultClient.GetSecretAsync($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/secrets/{storageConfiguration.AccountKeySecretName}").ConfigureAwait(false);
-            return accountKey.Value;
+            // Create the SecretClient with the Key Vault URI
+            var secretClient = new SecretClient(
+                new Uri($"https://{storageConfiguration.KeyVaultName}.vault.azure.net/"),
+                credential);
+
+            // Get the secret containing the storage account key
+            KeyVaultSecret secret = await secretClient.GetSecretAsync(
+                storageConfiguration.AccountKeySecretName).ConfigureAwait(false);
+
+            return secret.Value;
         }
 
         private async Task<CloudTable> CreateTenantCloudTable(ITenant tenant, TableStorageTableDefinition containerDefinition, TableStorageTableDefinition tenantedTableStorageTableDefinition)

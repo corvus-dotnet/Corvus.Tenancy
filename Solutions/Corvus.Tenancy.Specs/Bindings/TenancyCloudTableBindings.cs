@@ -9,20 +9,20 @@ namespace Corvus.Tenancy.Specs.Bindings
     using System.Threading.Tasks;
 
     using Corvus.Azure.Storage.Tenancy;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
     using Microsoft.Azure.Cosmos.Table;
     using Microsoft.Extensions.DependencyInjection;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
-    /// Specflow bindings to support a tenanted cloud table container.
+    /// Reqnroll bindings to support a tenanted cloud table container.
     /// </summary>
     [Binding]
     public class TenancyCloudTableBindings
     {
         private readonly ScenarioContext scenarioContext;
-        private readonly List<CloudTable> tablesToRemoveAtTeardown = new();
+        private readonly List<CloudTable> tablesToRemoveAtTeardown = [];
         private ITenantCloudTableFactory? connectionFactory;
 
         public TenancyCloudTableBindings(

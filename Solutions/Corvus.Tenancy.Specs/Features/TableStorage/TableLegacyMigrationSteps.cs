@@ -15,9 +15,7 @@ using System.Threading.Tasks;
 using Corvus.Json;
 using Corvus.Storage.Azure.TableStorage;
 using Corvus.Storage.Azure.TableStorage.Tenancy;
-using Corvus.Testing.SpecFlow;
-
-using FluentAssertions;
+using Corvus.Testing.ReqnRoll;
 
 using global::Azure;
 using global::Azure.Core;
@@ -28,8 +26,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NUnit.Framework;
 
-using TechTalk.SpecFlow;
-using TechTalk.SpecFlow.Assist;
+using Reqnroll;
 
 [Binding]
 public sealed class TableLegacyMigrationSteps : IDisposable
@@ -37,7 +34,7 @@ public sealed class TableLegacyMigrationSteps : IDisposable
     private readonly string tenantId = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
     private readonly string logicalTableName = RootTenant.RootTenantId.CreateChildId(Guid.NewGuid());
     private readonly MonitoringPolicy tableClientMonitor = new();
-    private readonly List<string> tablesCreatedByTest = new();
+    private readonly List<string> tablesCreatedByTest = [];
     private readonly Azure.Storage.Tenancy.TableStorageConfiguration legacyConfigurationInTenant = new();
     private readonly TableConfiguration v3ConfigurationInTenant = new();
     private readonly TestSettings testStorageOptions;
@@ -226,7 +223,7 @@ public sealed class TableLegacyMigrationSteps : IDisposable
             tenant,
             v2ConfigurationKey,
             v3ConfigurationKey,
-            new[] { this.logicalTableName },
+            [this.logicalTableName],
             this.tableClientOptions)
             .ConfigureAwait(false);
     }
@@ -280,13 +277,13 @@ public sealed class TableLegacyMigrationSteps : IDisposable
             expectedConfiguration.ConnectionStringPlainText = this.testStorageConnectionString;
         }
 
-        this.v3ConfigFromMigration.Should().BeEquivalentTo(expectedConfiguration);
+        Assert.AreEqual(this.v3ConfigFromMigration, expectedConfiguration);
     }
 
     [Then(@"ITableSourceWithTenantLegacyTransition\.MigrateToV3Async should have returned null")]
     public void ThenITableSourceWithTenantLegacyTransition_MigrateToVAsyncShouldHaveReturnedNull()
     {
-        this.v3ConfigFromMigration.Should().BeNull();
+        Assert.IsNull(this.v3ConfigFromMigration);
     }
 
     [Then("no new table should have been created")]
@@ -351,9 +348,9 @@ public sealed class TableLegacyMigrationSteps : IDisposable
 
     private class MonitoringPolicy : global::Azure.Core.Pipeline.HttpPipelineSynchronousPolicy
     {
-        public List<string> ContainerCreateIfExistsCalls { get; } = new List<string>();
+        public List<string> ContainerCreateIfExistsCalls { get; } = [];
 
-        public List<string> TablesCreated { get; } = new List<string>();
+        public List<string> TablesCreated { get; } = [];
 
         public override void OnReceivedResponse(HttpMessage message)
         {

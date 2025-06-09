@@ -6,7 +6,6 @@ Feature: GremlinContainer
 	As a developer
 	I want to be able to manage the container
 
-
 Scenario: Create a gremlin client
     Given I have added Gremlin configuration to a tenant
 	Then I should be able to get the tenanted gremlin client

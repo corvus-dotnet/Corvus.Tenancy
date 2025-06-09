@@ -10,7 +10,7 @@ namespace Corvus.Tenancy.Specs.Steps
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Azure.Storage.Tenancy.Internal;
     using Corvus.Tenancy.Specs.Bindings;
-    using Corvus.Testing.SpecFlow;
+    using Corvus.Testing.ReqnRoll;
 
     using Microsoft.Azure.Storage.Blob;
     using Microsoft.Extensions.Configuration;
@@ -18,7 +18,7 @@ namespace Corvus.Tenancy.Specs.Steps
 
     using NUnit.Framework;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
     public class LegacyCloudBlobContainerSteps
@@ -29,10 +29,7 @@ namespace Corvus.Tenancy.Specs.Steps
         private readonly BlobStorageContainerDefinition blobStorageContainerDefinition;
         private CloudBlobContainer? container;
 
-        public LegacyCloudBlobContainerSteps(
-            ScenarioContext scenarioContext,
-            TenancyContainerScenarioBindings tenancyBindings,
-            LegacyTenancyCloudBlobContainerBindings cloudBlobContainerBindings)
+        public LegacyCloudBlobContainerSteps(ScenarioContext scenarioContext, TenancyContainerScenarioBindings tenancyBindings, LegacyTenancyCloudBlobContainerBindings cloudBlobContainerBindings)
         {
             this.tenancyBindings = tenancyBindings;
             this.cloudBlobContainerBindings = cloudBlobContainerBindings;
@@ -67,16 +64,13 @@ namespace Corvus.Tenancy.Specs.Steps
                 blobStorageConfiguration.Container = overriddenContainerName;
             }
 
-            tenantProvider.Root.UpdateProperties(values =>
-                values.AddBlobStorageConfiguration(this.blobStorageContainerDefinition, blobStorageConfiguration));
+            tenantProvider.Root.UpdateProperties(values => values.AddBlobStorageConfiguration(this.blobStorageContainerDefinition, blobStorageConfiguration));
         }
 
         [Then("I should be able to get the tenanted cloud blob container")]
         public async Task ThenIShouldBeAbleToGetTheTenantedContainer()
         {
-            this.container = await this.cloudBlobContainerBindings.ContainerFactory.GetBlobContainerForTenantAsync(
-                this.tenancyBindings.RootTenant,
-                this.blobStorageContainerDefinition).ConfigureAwait(false);
+            this.container = await this.cloudBlobContainerBindings.ContainerFactory.GetBlobContainerForTenantAsync(this.tenancyBindings.RootTenant, this.blobStorageContainerDefinition).ConfigureAwait(false);
 
             Assert.IsNotNull(this.container);
 

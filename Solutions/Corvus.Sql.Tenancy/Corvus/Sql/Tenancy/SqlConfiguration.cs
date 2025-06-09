@@ -4,12 +4,14 @@
 
 namespace Corvus.Sql.Tenancy
 {
+    using Microsoft.Data.SqlClient;
+
     /// <summary>
     /// Encapsulates the configuration for a connection to a specific SQL Server instance.
     /// </summary>
     /// <remarks>
     /// <para>This provides the information required to obtain a connection string for use by a <see cref="SqlConnectionDefinition"/> to obtain a connection for a specific database.</para>
-    /// <para>Typically, this is used by a <see cref="ITenantSqlConnectionFactory"/> to create a <see cref="System.Data.SqlClient.SqlConnection"/> for the <see cref="SqlConnectionDefinition"/>.</para>
+    /// <para>Typically, this is used by a <see cref="ITenantSqlConnectionFactory"/> to create a <see cref="SqlConnection"/> for the <see cref="SqlConnectionDefinition"/>.</para>
     /// <para>Note that if you specify a <see cref="Database"/> in the configuration, it will override the database in the connection definition, forcing all connections to be to the same database for that configuration.</para>
     /// </remarks>
     public class SqlConfiguration

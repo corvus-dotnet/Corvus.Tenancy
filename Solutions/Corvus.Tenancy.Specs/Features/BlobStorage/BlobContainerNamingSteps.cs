@@ -1,4 +1,4 @@
-// <copyright file="BlobContainerNamingStepDefinitions.cs" company="Endjin Limited">
+// <copyright file="BlobContainerNamingSteps.cs" company="Endjin Limited">
 // Copyright (c) Endjin Limited. All rights reserved.
 // </copyright>
 
@@ -7,14 +7,14 @@ namespace Corvus.Tenancy.Specs.Features.BlobStorage
     using Corvus.Storage.Azure.BlobStorage.Tenancy;
     using Corvus.Tenancy.Specs.Bindings;
 
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     [Binding]
-    public sealed class BlobContainerNamingStepDefinitions
+    public sealed class BlobContainerNamingSteps
     {
         private readonly TenantedNameBindings tenantedNameBindings;
 
-        public BlobContainerNamingStepDefinitions(
+        public BlobContainerNamingSteps(
             TenantedNameBindings tenantedNameBindings)
         {
             this.tenantedNameBindings = tenantedNameBindings;

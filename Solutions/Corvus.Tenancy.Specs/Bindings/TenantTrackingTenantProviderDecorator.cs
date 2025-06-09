@@ -18,7 +18,7 @@ namespace Corvus.Tenancy.Specs.Bindings
             this.decoratedProvider = decoratedProvider ?? throw new ArgumentNullException(nameof(decoratedProvider));
         }
 
-        public List<ITenant> CreatedTenants { get; } = new List<ITenant>();
+        public List<ITenant> CreatedTenants { get; } = [];
 
         public RootTenant Root => this.decoratedProvider.Root;
 
