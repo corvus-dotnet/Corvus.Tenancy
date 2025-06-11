@@ -6,9 +6,10 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
     using System.Linq;
+
     using Corvus.Azure.Storage.Tenancy;
-    using Corvus.Extensions.Json;
     using Corvus.Json;
+    using Corvus.Json.Serialization;
     using Corvus.Tenancy;
     using Corvus.Tenancy.Internal;
 
@@ -50,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         TenantProviderBlobStore.ContainerDefinition, rootTenantStorageConfig));
 
                 ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory = sp.GetRequiredService<ITenantCloudBlobContainerFactory>();
-                IJsonSerializerSettingsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerSettingsProvider>();
+                IJsonSerializerOptionsProvider serializerSettingsProvider = sp.GetRequiredService<IJsonSerializerOptionsProvider>();
 
                 return new TenantProviderBlobStore(rootTenant, propertyBagFactory, tenantCloudBlobContainerFactory, serializerSettingsProvider);
             });

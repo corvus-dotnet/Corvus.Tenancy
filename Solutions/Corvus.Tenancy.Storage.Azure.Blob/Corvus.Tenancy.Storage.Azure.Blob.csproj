@@ -25,6 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    
     <PackageReference Include="Corvus.Json.Abstractions" Version="3.0.2" />
     <PackageReference Include="Endjin.RecommendedPractices.GitHub" Version="2.1.18">
       <PrivateAssets>all</PrivateAssets>

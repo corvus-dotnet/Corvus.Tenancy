@@ -186,6 +186,16 @@
         "resolved": "3.0.2",
         "contentHash": "i3HErZbnQsYwUgS9sA+sQYpVX0r5ETmBSApy13wC5hVqEvI/YVXBztoLMmkEOaJEo1c16H8JT2s+j/hDGqSz6g=="
       },
+      "Corvus.Json.PropertyBag": {
+        "type": "Transitive",
+        "resolved": "2.0.0",
+        "contentHash": "BOqpruU6YOktu8YURl5sPJz1sF9LL8s12k9pPWQubHd1Ie+Rq8S4uiBYVpAh2gJPBVgeJviMGx60EaMQ3ybgcg==",
+        "dependencies": {
+          "Corvus.Json.Abstractions": "3.0.0",
+          "Corvus.Json.Serialization": "2.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2"
+        }
+      },
       "Corvus.Json.Serialization": {
         "type": "Transitive",
         "resolved": "2.0.0",
@@ -1941,8 +1951,8 @@
           "Corvus.ContentHandling": "[4.0.0, )",
           "Corvus.ContentHandling.Json": "[4.0.0, )",
           "Corvus.Extensions": "[1.1.13, )",
-          "Corvus.Extensions.Newtonsoft.Json": "[3.0.2, )",
           "Corvus.Json.Abstractions": "[3.0.2, )",
+          "Corvus.Json.PropertyBag": "[2.0.0, )",
           "Microsoft.Extensions.Primitives": "[8.0.*, )"
         }
       },
