@@ -9,16 +9,18 @@ namespace Corvus.Tenancy
     using System.Linq;
     using System.Net;
     using System.Text;
+    using System.Text.Json;
     using System.Threading.Tasks;
     using System.Xml;
+
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Extensions;
-    using Corvus.Extensions.Json;
     using Corvus.Json;
+    using Corvus.Json.Serialization;
     using Corvus.Tenancy.Exceptions;
+
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
-    using Newtonsoft.Json;
 
     /// <summary>
     /// A store for tenant data.
@@ -29,7 +31,7 @@ namespace Corvus.Tenancy
         private const string LiveTenantsPrefix = "live/";
         private const string DeletedTenantsPrefix = "deleted/";
         private readonly ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory;
-        private readonly JsonSerializerSettings serializerSettings;
+        private readonly JsonSerializerOptions serializerOptions;
         private readonly IPropertyBagFactory propertyBagFactory;
 
         /// <summary>
@@ -42,21 +44,21 @@ namespace Corvus.Tenancy
         /// bags.
         /// </param>
         /// <param name="tenantCloudBlobContainerFactory">The tenanted cloud blob container factory.</param>
-        /// <param name="serializerSettingsProvider">The serializer settings provider for tenant serialization.</param>
+        /// <param name="jsonSerializerOptionsProvider">The serializer settings provider for tenant serialization.</param>
         public TenantProviderBlobStore(
             RootTenant tenant,
             IPropertyBagFactory propertyBagFactory,
             ITenantCloudBlobContainerFactory tenantCloudBlobContainerFactory,
-            IJsonSerializerSettingsProvider serializerSettingsProvider)
+            IJsonSerializerOptionsProvider jsonSerializerOptionsProvider)
         {
             ArgumentNullException.ThrowIfNull(tenant);
             ArgumentNullException.ThrowIfNull(propertyBagFactory);
             ArgumentNullException.ThrowIfNull(tenantCloudBlobContainerFactory);
-            ArgumentNullException.ThrowIfNull(serializerSettingsProvider);
+            ArgumentNullException.ThrowIfNull(jsonSerializerOptionsProvider);
 
             this.Root = tenant;
             this.tenantCloudBlobContainerFactory = tenantCloudBlobContainerFactory;
-            this.serializerSettings = serializerSettingsProvider.Instance;
+            this.serializerOptions = jsonSerializerOptionsProvider.Instance;
             this.propertyBagFactory = propertyBagFactory;
         }
 
@@ -152,7 +154,7 @@ namespace Corvus.Tenancy
                     tenant.Id,
                     name ?? tenant.Name,
                     updatedProperties);
-                string text = JsonConvert.SerializeObject(updatedTenant, this.serializerSettings);
+                string text = JsonSerializer.Serialize(updatedTenant, this.serializerOptions);
                 await blob.UploadTextAsync(text).ConfigureAwait(false);
                 tenant.ETag = blob.Properties.ETag;
                 return updatedTenant;
@@ -202,7 +204,7 @@ namespace Corvus.Tenancy
                 // providing an If-None-Match header passing a "*", which will cause a storage exception with a 409 status
                 // code if a blob with the same Id already exists.
                 CloudBlockBlob blob = GetLiveTenantBlockBlobReference(child.Id, cloudBlobContainer);
-                string text = JsonConvert.SerializeObject(child, this.serializerSettings);
+                string text = JsonSerializer.Serialize(child, this.serializerOptions);
                 await blob.UploadTextAsync(
                     text,
                     null,
@@ -364,7 +366,7 @@ namespace Corvus.Tenancy
             try
             {
                 string text = await blob.DownloadTextAsync(Encoding.UTF8, string.IsNullOrEmpty(etag) ? null : AccessCondition.GenerateIfNoneMatchCondition(etag), null, null).ConfigureAwait(false);
-                Tenant tenant = JsonConvert.DeserializeObject<Tenant>(text, this.serializerSettings)!;
+                Tenant tenant = JsonSerializer.Deserialize<Tenant>(text, this.serializerOptions)!;
                 tenant.ETag = blob.Properties.ETag;
                 return tenant;
             }

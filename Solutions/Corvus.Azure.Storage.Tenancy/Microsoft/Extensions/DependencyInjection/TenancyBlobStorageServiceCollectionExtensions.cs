@@ -8,8 +8,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
     using Corvus.Azure.Storage.Tenancy;
     using Corvus.Tenancy.Internal;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
 
     /// <summary>
     /// Common configuration code for services with stores implemented on top of tenanted
@@ -44,10 +42,10 @@ namespace Microsoft.Extensions.DependencyInjection
             ArgumentNullException.ThrowIfNull(getOptions);
 
             services.AddRequiredTenancyServices();
-            services.AddJsonNetSerializerSettingsProvider();
-            services.AddJsonNetPropertyBag();
-            services.AddJsonNetCultureInfoConverter();
-            services.AddJsonNetDateTimeOffsetToIso8601AndUnixTimeConverter();
+            services.AddJsonSerializerOptionsProvider();
+            services.AddJsonPropertyBagFactory();
+            services.AddJsonCultureInfoConverter();
+            services.AddJsonDateTimeOffsetToIso8601AndUnixTimeConverter();
 
             services.AddSingleton<ITenantCloudBlobContainerFactory>(s =>
             {
