@@ -80,9 +80,12 @@ jobs:
       # workflow_dispatch inputs are always strings, the type property is just for the UI
       forcePublish: ${{ github.event.inputs.forcePublish == 'true' }}
       skipCleanup: ${{ github.event.inputs.skipCleanup == 'true' }}
+      enableCrossOsCaching: true
+      compilePhaseRunnerOs: ubuntu-latest
+      packagePhaseRunnerOs: ubuntu-latest
       testPhaseMatrixJson: |
         {
-          "os": ["ubuntu-latest"],
+          "os": ["windows-latest", "ubuntu-latest"],
           "dotnetFramework": ["net8.0"]
         }
       # testArtifactName: ''
