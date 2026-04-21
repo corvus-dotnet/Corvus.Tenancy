@@ -30,7 +30,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Gremlin.Net" Version="3.4.13" />
+    <PackageReference Include="Gremlin.Net" Version="3.8.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[8.0.*,)" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[8.0.*,)" />
   </ItemGroup>
